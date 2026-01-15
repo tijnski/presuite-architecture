@@ -44,7 +44,7 @@ This document tracks all pending features, improvements, and technical debt acro
 |------|-------------|--------|
 | Settings Panel | Implement Settings functionality (theme preferences, notifications, account, privacy) | Pending |
 | Notifications System | Add real-time notifications with preferences and bell icon badge | Pending |
-| PreGPT Chat History | Persist chat history across sessions (localStorage or backend) | Pending |
+| PreGPT Chat History | Persist chat history across sessions (localStorage or backend) | ✅ Done |
 
 ### PreMail (premail.site)
 
