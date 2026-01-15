@@ -12,8 +12,8 @@ This document tracks all pending features, improvements, and technical debt acro
 
 | Item | Description | Status |
 |------|-------------|--------|
-| Real Recent Files | Replace hardcoded Recent files with actual data from PreDrive/PreMail | Pending |
-| Real Storage Tracking | Currently shows mock "4.2 GB / 30 GB" - connect to actual storage calculation | Pending |
+| Real Recent Files | Replace hardcoded Recent files with actual data from PreDrive/PreMail | ✅ Done |
+| Real Storage Tracking | Currently shows mock "4.2 GB / 30 GB" - connect to actual storage calculation | ✅ Done |
 | PRE Balance Integration | Connect PRE Balance widget to real Presearch wallet/blockchain data | Pending |
 | Move Venice API Key | Venice AI key is hardcoded in server.js - move to environment variables | ✅ Done |
 
@@ -23,7 +23,7 @@ This document tracks all pending features, improvements, and technical debt acro
 |------|-------------|--------|
 | Attachment Handling | Add attachment upload/download support in email UI | Pending |
 | Email Threading | Implement threaded conversation view (like Gmail) | Pending |
-| Real-time Badge Counts | Show actual unread counts instead of hardcoded/removed badges | Pending |
+| Real-time Badge Counts | Show actual unread counts instead of hardcoded/removed badges | ✅ Done |
 
 ### Security & Infrastructure
 
@@ -43,7 +43,7 @@ This document tracks all pending features, improvements, and technical debt acro
 | Item | Description | Status |
 |------|-------------|--------|
 | Settings Panel | Implement Settings functionality (theme preferences, notifications, account, privacy) | ✅ Done |
-| Notifications System | Add real-time notifications with preferences and bell icon badge | Pending |
+| Notifications System | Add real-time notifications with preferences and bell icon badge | ✅ Done |
 | PreGPT Chat History | Persist chat history across sessions (localStorage or backend) | ✅ Done |
 
 ### PreMail (premail.site)
@@ -65,7 +65,7 @@ This document tracks all pending features, improvements, and technical debt acro
 | Item | Description | Status |
 |------|-------------|--------|
 | OAuth-Style SSO | Implement optional OAuth redirect flow for more traditional SSO experience | Pending |
-| Unified User Profile | Single profile page accessible from all services to update name/settings | Pending |
+| Unified User Profile | Single profile page accessible from all services to update name/settings | ✅ Done |
 
 ---
 
@@ -77,8 +77,8 @@ Currently, all app modals in PreSuite Hub are UI placeholders with demo data. Th
 
 | Modal | Required Integration |
 |-------|---------------------|
-| PreMail | Connect to PreMail API for real inbox data |
-| PreDrive | Connect to PreDrive API for real file browser |
+| PreMail | Connect to PreMail API for real inbox data ✅ |
+| PreDrive | Connect to PreDrive API for real file browser ✅ |
 | PreDocs | Connect to PreOffice for real document list |
 | PreSheets | Connect to PreOffice for spreadsheet functionality |
 | PreSlides | Connect to PreOffice for presentations |
