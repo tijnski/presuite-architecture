@@ -2,6 +2,10 @@
 
 Central architecture documentation and integration specifications for the PreSuite ecosystem.
 
+> **AI Agents:** Start with [`CLAUDE.md`](CLAUDE.md) for quick reference, SSH commands, and common tasks.
+
+---
+
 ## Overview
 
 PreSuite is a privacy-focused productivity suite built on the Presearch ecosystem. It provides a unified set of applications for email, cloud storage, document editing, and AI-assisted search.

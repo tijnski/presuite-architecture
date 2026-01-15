@@ -1,178 +1,262 @@
-# PreSuite - To Implement / Improvements List
+# PreSuite - Implementation Tracker
 
-This document tracks all pending features, improvements, and technical debt across the PreSuite ecosystem.
-
-*Generated from: presuite.md, Premail.md, PREDRIVE.md, PREOFFICE.md, VERSION.md, AUTH-API.md, INTEGRATION.md, README.md*
+> **Format:** Machine-readable task tracking for AI agents
+> **Legend:** `[ ]` = Pending, `[x]` = Done, `[~]` = In Progress
 
 ---
 
-## High Priority
+## HIGH PRIORITY
 
-### PreSuite Hub (presuite.eu)
+### PreSuite Hub (presuite.eu) — Server: 76.13.2.221
 
-| Item | Description | Status |
-|------|-------------|--------|
-| Real Recent Files | Replace hardcoded Recent files with actual data from PreDrive/PreMail | ✅ Done |
-| Real Storage Tracking | Currently shows mock "4.2 GB / 30 GB" - connect to actual storage calculation | ✅ Done |
-| PRE Balance Integration | Connect PRE Balance widget to real Presearch wallet/blockchain data | Pending |
-| Move Venice API Key | Venice AI key is hardcoded in server.js - move to environment variables | ✅ Done |
+```yaml
+tasks:
+  - id: PSH-001
+    title: PRE Balance Integration
+    description: Connect PRE Balance widget to real Presearch wallet/blockchain data
+    status: pending
+    files: [src/components/PreSuiteLaunchpad.jsx]
 
-### PreMail (premail.site)
+  - id: PSH-002
+    title: Real Recent Files
+    description: Replace hardcoded Recent files with actual data from PreDrive/PreMail
+    status: done
 
-| Item | Description | Status |
-|------|-------------|--------|
-| Attachment Handling | Add attachment upload/download support in email UI | Pending |
-| Email Threading | Implement threaded conversation view (like Gmail) | Pending |
-| Real-time Badge Counts | Show actual unread counts instead of hardcoded/removed badges | ✅ Done |
+  - id: PSH-003
+    title: Real Storage Tracking
+    description: Connect to actual storage calculation from PreDrive API
+    status: done
+
+  - id: PSH-004
+    title: Move Venice API Key
+    description: Venice AI key hardcoded in server.js - move to environment variables
+    status: done
+```
+
+### PreMail (premail.site) — Server: 76.13.1.117
+
+```yaml
+tasks:
+  - id: PM-001
+    title: Attachment Handling
+    description: Add attachment upload/download support in email UI
+    status: pending
+    files: [apps/web/src/pages/InboxPage.tsx, apps/api/src/routes/mail.ts]
+
+  - id: PM-002
+    title: Email Threading
+    description: Implement threaded conversation view (like Gmail)
+    status: pending
+    files: [apps/web/src/pages/InboxPage.tsx]
+
+  - id: PM-003
+    title: Real-time Badge Counts
+    description: Show actual unread counts instead of hardcoded badges
+    status: done
+```
 
 ### Security & Infrastructure
 
-| Item | Description | Status |
-|------|-------------|--------|
-| Rate Limiting Verification | Verify rate limiting is actually implemented per AUTH-API.md spec | ✅ Done |
-| Health Check Scripts | Create/verify `scripts/health-check.sh` mentioned in README | ✅ Done |
-| Secrets Sync Script | Create/verify `scripts/sync-secrets.sh` mentioned in README | ✅ Done |
-| Deploy All Script | Create/verify `scripts/deploy-all.sh` mentioned in README | ✅ Done |
+```yaml
+tasks:
+  - id: SEC-001
+    title: Rate Limiting Verification
+    description: Verify rate limiting is implemented per AUTH-API.md spec
+    status: done
+
+  - id: SEC-002
+    title: Health Check Scripts
+    description: Create/verify scripts/health-check.sh
+    status: done
+
+  - id: SEC-003
+    title: Secrets Sync Script
+    description: Create/verify scripts/sync-secrets.sh
+    status: done
+
+  - id: SEC-004
+    title: Deploy All Script
+    description: Create/verify scripts/deploy-all.sh
+    status: done
+```
 
 ---
 
-## Medium Priority
+## MEDIUM PRIORITY
 
 ### PreSuite Hub (presuite.eu)
 
-| Item | Description | Status |
-|------|-------------|--------|
-| Settings Panel | Implement Settings functionality (theme preferences, notifications, account, privacy) | ✅ Done |
-| Notifications System | Add real-time notifications with preferences and bell icon badge | ✅ Done |
-| PreGPT Chat History | Persist chat history across sessions (localStorage or backend) | ✅ Done |
+```yaml
+tasks:
+  - id: PSH-010
+    title: Settings Panel
+    description: Implement Settings functionality (theme, notifications, account, privacy)
+    status: done
+
+  - id: PSH-011
+    title: Notifications System
+    description: Add real-time notifications with preferences and bell icon badge
+    status: done
+
+  - id: PSH-012
+    title: PreGPT Chat History
+    description: Persist chat history across sessions (localStorage or backend)
+    status: done
+```
 
 ### PreMail (premail.site)
 
-| Item | Description | Status |
-|------|-------------|--------|
-| Push Notifications | Implement push notifications for new emails | Pending |
-| External IMAP Accounts | Allow users to add external email accounts (not just @premail.site) | Pending |
+```yaml
+tasks:
+  - id: PM-010
+    title: Push Notifications
+    description: Implement push notifications for new emails
+    status: pending
 
-### PreOffice (preoffice.site)
+  - id: PM-011
+    title: External IMAP Accounts
+    description: Allow users to add external email accounts (not just @premail.site)
+    status: pending
+```
 
-| Item | Description | Status |
-|------|-------------|--------|
-| Persistent Demo Storage | Demo mode stores files in memory - add persistent storage option | Pending |
-| Full PreDrive Integration | Complete WOPI integration with PreDrive for real file editing | Pending |
+### PreOffice (preoffice.site) — Server: 76.13.2.220
+
+```yaml
+tasks:
+  - id: PO-001
+    title: Persistent Demo Storage
+    description: Demo mode stores files in memory - add persistent storage option
+    status: pending
+    files: [presearch/online/wopi-server/src/index.js]
+
+  - id: PO-002
+    title: Full PreDrive Integration
+    description: Complete WOPI integration with PreDrive for real file editing
+    status: pending
+```
 
 ### Cross-Service
 
-| Item | Description | Status |
-|------|-------------|--------|
-| OAuth-Style SSO | Implement optional OAuth redirect flow for more traditional SSO experience | Pending |
-| Unified User Profile | Single profile page accessible from all services to update name/settings | ✅ Done |
+```yaml
+tasks:
+  - id: XS-001
+    title: OAuth-Style SSO
+    description: Implement optional OAuth redirect flow for traditional SSO experience
+    status: pending
+
+  - id: XS-002
+    title: Unified User Profile
+    description: Single profile page accessible from all services
+    status: done
+```
 
 ---
 
-## Future Enhancements
+## FUTURE ENHANCEMENTS
 
-### PreSuite Hub App Modals
+### App Modal Integrations (PreSuite Hub)
 
-Currently, all app modals in PreSuite Hub are UI placeholders with demo data. These need to be connected to real backends:
+| Modal | Status | Description |
+|-------|--------|-------------|
+| PreMail | `done` | Connected to PreMail API |
+| PreDrive | `done` | Connected to PreDrive API |
+| PreDocs | `pending` | Connect to PreOffice documents |
+| PreSheets | `pending` | Connect to PreOffice spreadsheets |
+| PreSlides | `pending` | Connect to PreOffice presentations |
+| PreCalendar | `pending` | Implement calendar backend |
+| PreWallet | `pending` | Integrate Presearch blockchain |
 
-| Modal | Required Integration |
-|-------|---------------------|
-| PreMail | Connect to PreMail API for real inbox data ✅ |
-| PreDrive | Connect to PreDrive API for real file browser ✅ |
-| PreDocs | Connect to PreOffice for real document list |
-| PreSheets | Connect to PreOffice for spreadsheet functionality |
-| PreSlides | Connect to PreOffice for presentations |
-| PreCalendar | Implement calendar backend and sync |
-| PreWallet | Integrate with Presearch blockchain for real transactions |
+### PreMail Features
 
-### PreMail Enhancements
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Search | `pending` | Full-text email search |
+| Labels/Tags | `pending` | Custom labels for organization |
+| Filters & Rules | `pending` | Automatic email filtering |
+| Rich Text Compose | `pending` | WYSIWYG email composer |
+| Contact Management | `pending` | Address book with sync |
+| Calendar Integration | `pending` | Email-calendar integration |
 
-| Feature | Description |
-|---------|-------------|
-| Search Functionality | Full-text email search across all folders |
-| Labels/Tags | Custom labels for email organization |
-| Filters & Rules | Automatic email filtering and sorting |
-| Rich Text Compose | Full WYSIWYG email composer |
-| Contact Management | Address book with contact sync |
-| Calendar Integration | Email-calendar integration for events |
+### PreDrive Features
 
-### PreDrive Enhancements
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Real-time Collaboration | `pending` | Multiple users editing |
+| Comments | `pending` | File commenting system |
+| Activity Feed | `pending` | Recent activity on shared files |
+| Advanced Sharing | `pending` | Granular permissions |
+| Offline Mode | `pending` | Download for offline access |
+| Mobile App | `pending` | Native mobile applications |
 
-| Feature | Description |
-|---------|-------------|
-| Real-time Collaboration | Multiple users editing same document |
-| Comments & Annotations | File commenting system |
-| Activity Feed | Show recent activity on shared files |
-| Advanced Sharing | More granular permission controls |
-| Offline Mode | Download files for offline access |
-| Mobile App | Native mobile applications |
+### PreOffice Features
 
-### PreOffice Enhancements
-
-| Feature | Description |
-|---------|-------------|
-| PrePanda AI | Complete AI assistant sidebar integration |
-| Template Gallery | Pre-made document templates |
-| Real-time Co-editing | Multiple users editing same document live |
-| Export Formats | Export to PDF, DOCX, ODT, etc. |
-| Print Preview | Enhanced print preview functionality |
+| Feature | Status | Description |
+|---------|--------|-------------|
+| PrePanda AI | `pending` | AI assistant sidebar |
+| Template Gallery | `pending` | Pre-made templates |
+| Real-time Co-editing | `pending` | Live collaboration |
+| Export Formats | `pending` | PDF, DOCX, ODT export |
+| Print Preview | `pending` | Enhanced print preview |
 
 ---
 
-## Technical Debt
+## TECHNICAL DEBT
 
-| Item | Location | Description |
-|------|----------|-------------|
-| ~~Hardcoded Credentials~~ | ~~server.js (PreSuite)~~ | ~~Venice API key should be in .env~~ ✅ Fixed |
-| Folder Name Mapping | PreMail API | Frontend/Stalwart folder name mismatch (sent vs "Sent Items") |
-| localStorage Persistence | PreMail | Selected account ID persists even after DB reset |
-| Demo Mode Files | PreOffice WOPI | In-memory storage not persistent |
-| Password Storage | PreMail | `mail_password` stored in plain text for IMAP access |
-
----
-
-## Documentation Improvements
-
-| Item | Description |
-|------|-------------|
-| API Documentation | Add OpenAPI/Swagger specs for all services |
-| User Guide | Create end-user documentation for all services |
-| Deployment Guide | Consolidate deployment instructions |
-| Troubleshooting Guide | Expand troubleshooting sections |
-| Architecture Diagrams | Add more visual diagrams for data flows |
+| ID | Location | Issue | Status |
+|----|----------|-------|--------|
+| TD-001 | PreMail API | Folder name mismatch (sent vs "Sent Items") | `pending` |
+| TD-002 | PreMail Web | localStorage persists account ID after DB reset | `pending` |
+| TD-003 | PreOffice WOPI | Demo mode files in memory (not persistent) | `pending` |
+| TD-004 | PreMail | `mail_password` stored in plain text for IMAP | `pending` |
+| TD-005 | PreSuite | Venice API key hardcoded | `done` |
 
 ---
 
-## Testing & Quality
+## DOCUMENTATION
 
-| Item | Description |
-|------|-------------|
-| Unit Tests | Add comprehensive unit tests for all services |
-| Integration Tests | Test cross-service functionality |
-| E2E Tests | End-to-end user flow testing |
-| Load Testing | Performance testing under load |
-| Security Audit | Third-party security review |
-
----
-
-## Monitoring & Operations
-
-| Item | Description |
-|------|-------------|
-| Centralized Logging | Aggregate logs from all services |
-| Metrics Dashboard | Grafana/similar for service metrics |
-| Alerting | Set up alerts for service failures |
-| Backup Strategy | Automated backups for all databases |
-| Disaster Recovery | Document DR procedures |
+| Item | Status | Description |
+|------|--------|-------------|
+| API Documentation | `pending` | OpenAPI/Swagger specs |
+| User Guide | `pending` | End-user documentation |
+| Deployment Guide | `pending` | Consolidated deployment docs |
+| Troubleshooting | `pending` | Expanded troubleshooting |
+| Architecture Diagrams | `pending` | Visual data flow diagrams |
 
 ---
 
-## Priority Legend
+## TESTING & QUALITY
 
-- **High Priority**: Core functionality gaps, security issues, or blocking user experience
-- **Medium Priority**: Important features for better UX but not blocking
-- **Future**: Nice-to-have features for complete product vision
-- **Technical Debt**: Code quality improvements and maintenance items
+| Item | Status | Description |
+|------|--------|-------------|
+| Unit Tests | `pending` | Comprehensive unit tests |
+| Integration Tests | `pending` | Cross-service tests |
+| E2E Tests | `pending` | End-to-end user flows |
+| Load Testing | `pending` | Performance under load |
+| Security Audit | `pending` | Third-party review |
+
+---
+
+## MONITORING & OPERATIONS
+
+| Item | Status | Description |
+|------|--------|-------------|
+| Centralized Logging | `pending` | Aggregate logs |
+| Metrics Dashboard | `pending` | Grafana/similar |
+| Alerting | `pending` | Service failure alerts |
+| Backup Strategy | `pending` | Automated DB backups |
+| Disaster Recovery | `pending` | DR procedures |
+
+---
+
+## SUMMARY
+
+```
+Total Tasks: 45
+Completed: 18
+In Progress: 0
+Pending: 27
+Completion: 40%
+```
 
 ---
 
