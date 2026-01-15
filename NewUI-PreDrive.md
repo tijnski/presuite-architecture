@@ -416,4 +416,221 @@ ssh root@76.13.1.110 "cd /opt/predrive && grep -r '3591FC' apps/web/src/"
 
 ---
 
+## presearch-web Patterns to Adopt
+
+> Reference: `UIPatterns-PresearchWeb.md` for complete documentation
+
+### Custom Scrollbar
+
+Add presearch-web scrollbar styling to file lists:
+
+```css
+/* Add to index.css */
+
+/* File list scrollbar */
+.custom-scrollbar {
+  scrollbar-color: rgb(var(--color-brand-500)) transparent;
+  scrollbar-width: thin;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: rgb(var(--color-brand-500));
+}
+
+/* File preview panel scrollbar */
+.preview-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.preview-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.preview-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.preview-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+```
+
+### File Card Hover Effects
+
+Update FileCard.tsx with presearch-web hover pattern:
+
+```tsx
+// FileCard with presearch-web hover
+<div
+  className={clsx(
+    'relative p-4 rounded-lg border cursor-pointer',
+    'bg-surface-primary dark:bg-[#323232]',
+    'border-[#BFBFBF] dark:border-[rgba(255,255,255,0.12)]',
+    'transition-all duration-150',
+    'hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.25)]',
+    isSelected && 'ring-2 ring-brand-500 border-brand-500'
+  )}
+>
+```
+
+### Context Menu (Dark Glass Style)
+
+Update ContextMenu.tsx with glassmorphism:
+
+```tsx
+// Context menu with Dark Glass styling
+<div
+  className="
+    min-w-[200px] py-2 rounded-xl
+    bg-[rgba(26,26,26,0.92)] dark:bg-[rgba(26,26,26,0.92)]
+    border border-[rgba(255,255,255,0.12)]
+    backdrop-blur-[16px]
+    shadow-[0_0_12px_rgba(0,0,0,0.6)]
+  "
+>
+  {items.map((item) => (
+    <button
+      className="
+        w-full px-4 py-2 text-left text-sm
+        text-[#e9e9e9] hover:bg-[rgba(255,255,255,0.08)]
+        transition-colors duration-150
+      "
+    >
+      {item.label}
+    </button>
+  ))}
+</div>
+```
+
+### Slide Animations
+
+Add panel slide animations:
+
+```css
+/* Add to index.css */
+
+/* File details panel slide-in */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.details-panel {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Upload modal slide-down */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.upload-modal {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Dropdown menu animation */
+.dropdown-menu {
+  transform: scale(0.96);
+  opacity: 0;
+  transition: transform 160ms ease-out, opacity 160ms ease-out;
+}
+
+.dropdown-menu.open {
+  transform: scale(1);
+  opacity: 1;
+}
+```
+
+### Loading States
+
+Add presearch-web loading animations:
+
+```tsx
+// Loading dots component
+const LoadingDots = () => (
+  <div className="flex gap-1">
+    {[0, 1, 2].map((i) => (
+      <div
+        key={i}
+        className="w-2 h-2 rounded-full bg-brand-500"
+        style={{
+          animation: 'bounce 1.4s infinite ease-in-out both',
+          animationDelay: `${-0.32 + i * 0.16}s`
+        }}
+      />
+    ))}
+  </div>
+);
+
+// Skeleton with pulse (already exists - verify animation)
+```
+
+```css
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+```
+
+### Upload Button (presearch-web style)
+
+Update UploadButton with brand shadow:
+
+```tsx
+<button
+  className="
+    flex items-center gap-2
+    px-4 py-3 rounded-xl
+    bg-brand-500 text-white font-semibold
+    shadow-[0_4px_14px_rgba(1,144,255,0.39)]
+    hover:bg-brand-600
+    hover:shadow-[0_6px_20px_rgba(1,144,255,0.45)]
+    hover:-translate-y-0.5
+    transition-all duration-200
+    active:translate-y-0
+  "
+>
+  <Plus className="w-5 h-5" />
+  Upload
+</button>
+```
+
+### Dark Mode Modal Overlay
+
+Update modal overlays to match presearch-web:
+
+```tsx
+// Modal backdrop
+<div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50">
+  {/* Modal content */}
+  <div
+    className="
+      bg-surface-primary dark:bg-[#323232]
+      rounded-xl shadow-[0_25px_50px_rgba(0,0,0,0.25)]
+      border border-transparent dark:border-[rgba(255,255,255,0.1)]
+    "
+  >
+```
+
+### Additional Implementation Checklist
+
+- [ ] Add custom scrollbar to FileList and Sidebar
+- [ ] Update FileCard hover with translateY effect
+- [ ] Implement Dark Glass context menu
+- [ ] Add slide animations to panels
+- [ ] Add loading dots animation
+- [ ] Update upload button styling
+- [ ] Update modal overlays with backdrop-blur
+
+---
+
 *Last Updated: January 15, 2026*

@@ -556,4 +556,306 @@ ssh root@76.13.2.220 "cat /opt/preoffice/presearch/brand/tokens.json | grep -A5 
 
 ---
 
+## presearch-web Patterns to Adopt
+
+> Reference: `UIPatterns-PresearchWeb.md` for complete documentation
+
+### Dark Glass Theme for Modals
+
+Add Dark Glass styling to modals and dropdowns:
+
+```css
+/* Add to index.html <style> section */
+
+/* Dark Glass modal overlay */
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+/* Dark Glass modal content (dark mode) */
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    background: rgba(26, 26, 26, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Dark Glass dropdown */
+.dropdown-menu {
+  background: rgba(26, 26, 26, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+  transform: scale(0.96);
+  opacity: 0;
+  transition: transform 160ms ease-out, opacity 160ms ease-out;
+}
+
+.dropdown-menu.open {
+  transform: scale(1);
+  opacity: 1;
+}
+```
+
+### App Card Hover Effects
+
+Update app cards with presearch-web hover pattern:
+
+```css
+/* Updated app-card hover */
+.app-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #BFBFBF;
+  transition: all 0.15s ease-out;
+  cursor: pointer;
+}
+
+.app-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  border-color: var(--presearch-blue-light);
+  background: #FAFAFA;
+}
+
+/* Dark mode app card */
+@media (prefers-color-scheme: dark) {
+  .app-card {
+    background: #323232;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .app-card:hover {
+    background: #3A3A3A;
+  }
+}
+```
+
+### Custom Scrollbar
+
+Add presearch-web scrollbar:
+
+```css
+/* Custom scrollbar for document list */
+.custom-scrollbar {
+  scrollbar-color: var(--presearch-blue) transparent;
+  scrollbar-width: thin;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: var(--presearch-blue);
+}
+```
+
+### Animations
+
+Add presearch-web animations:
+
+```css
+/* Slide animations */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Modal animation */
+.modal-content {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Dropdown animation */
+.dropdown-content {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Page load animation */
+.app-grid {
+  animation: fadeIn 0.4s ease-out;
+}
+```
+
+### Loading States
+
+Add loading animations:
+
+```css
+/* Loading dots */
+.loading-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--presearch-blue);
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dot:nth-child(1) { animation-delay: -0.32s; }
+.loading-dot:nth-child(2) { animation-delay: -0.16s; }
+.loading-dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+```
+
+### Button Enhancements
+
+Update buttons with presearch-web shadow and hover:
+
+```css
+/* Primary button - enhanced */
+.btn-primary {
+  background: var(--presearch-blue);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(1, 144, 255, 0.39);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--presearch-blue-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(1, 144, 255, 0.45);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary button */
+.btn-secondary {
+  background: white;
+  color: var(--presearch-blue);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 2px solid var(--presearch-blue);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--presearch-blue-light);
+  border-color: var(--presearch-blue-hover);
+  transform: translateY(-1px);
+}
+```
+
+### Font Stack
+
+Add presearch-web font stack:
+
+```css
+/* Font stack - use ProximaNova if available */
+@font-face {
+  font-family: 'ProximaNova';
+  src: url('/assets/ProximaNova-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: 'ProximaNova', Inter, system-ui, -apple-system,
+               'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+```
+
+### Navigation Link Hover
+
+Update nav links with animated underline:
+
+```css
+/* Nav link with animated underline */
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--presearch-blue);
+  transition: width 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: var(--presearch-blue);
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+```
+
+### Additional Implementation Checklist
+
+- [ ] Add Dark Glass modal styling
+- [ ] Update app card hover effects
+- [ ] Add custom scrollbar
+- [ ] Implement slide animations
+- [ ] Add loading states (dots, skeleton)
+- [ ] Update button shadows and hover
+- [ ] Add font stack with ProximaNova
+- [ ] Add animated nav link underline
+
+---
+
 *Last Updated: January 15, 2026*

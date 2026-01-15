@@ -455,4 +455,275 @@ ssh root@76.13.1.117 "cd /opt/premail && grep -rn '3591FC' apps/web/src/"
 
 ---
 
+## presearch-web Patterns to Adopt
+
+> Reference: `UIPatterns-PresearchWeb.md` for complete documentation
+
+### iOS-Style Toggle Switch
+
+Update settings toggles with presearch-web pattern:
+
+```tsx
+// Toggle component for settings
+const Toggle = ({ checked, onChange, disabled }) => (
+  <button
+    role="switch"
+    aria-checked={checked}
+    onClick={onChange}
+    disabled={disabled}
+    className={`
+      relative w-10 h-5 rounded-full transition-colors duration-150
+      ${checked ? 'bg-[#2266ff]' : 'bg-[#454545]'}
+      ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+      shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]
+      focus:outline-none focus:ring-2 focus:ring-[#3478f6]/40
+    `}
+  >
+    <span
+      className={`
+        absolute top-0.5 w-4 h-4 rounded-full bg-white
+        transition-all duration-150 shadow-md
+        ${checked ? 'left-[22px]' : 'left-0.5'}
+      `}
+    />
+  </button>
+);
+```
+
+### Custom Scrollbar (Email List)
+
+Add presearch-web scrollbar to email lists:
+
+```css
+/* Add to index.css */
+
+/* Email list scrollbar */
+.email-list-scrollbar {
+  scrollbar-color: #0190FF transparent;
+  scrollbar-width: thin;
+}
+
+.email-list-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  background: transparent;
+}
+
+.email-list-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: #0190FF;
+}
+
+/* Email content scrollbar */
+.email-content-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.email-content-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.email-content-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.email-content-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+```
+
+### Email Row Hover Effects
+
+Update email row with presearch-web hover:
+
+```tsx
+// Email row with hover lift
+<div
+  className={`
+    flex items-center gap-4 px-4 py-3 cursor-pointer
+    border-b border-gray-100 dark:border-[#323232]
+    transition-all duration-150
+    hover:bg-[#E6F4FF] dark:hover:bg-[#323232]
+    hover:-translate-y-px hover:shadow-sm
+    ${isSelected && 'bg-[#E6F4FF] dark:bg-[#0190FF]/15'}
+  `}
+>
+```
+
+### Compose Modal (Dark Glass Style)
+
+Update compose modal with glassmorphism in dark mode:
+
+```tsx
+// Compose modal overlay
+<div className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50">
+  <div
+    className="
+      w-full max-w-2xl mx-auto mt-20
+      bg-white dark:bg-[rgba(26,26,26,0.92)]
+      rounded-xl
+      border border-gray-200 dark:border-[rgba(255,255,255,0.12)]
+      shadow-[0_25px_50px_rgba(0,0,0,0.25)]
+      dark:backdrop-blur-[16px]
+    "
+  >
+    {/* Compose form */}
+  </div>
+</div>
+```
+
+### Sidebar Navigation (presearch-web style)
+
+Update sidebar items with hover effects:
+
+```tsx
+// Sidebar item with presearch-web styling
+<button
+  className={`
+    w-full flex items-center gap-3 px-3 py-2 rounded-lg
+    text-left text-sm font-medium
+    transition-all duration-150
+    ${active
+      ? 'bg-[#E6F4FF] dark:bg-[#0190FF]/15 text-[#0190FF]'
+      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#323232]'
+    }
+    hover:-translate-y-px
+  `}
+>
+  <Icon className={active ? 'text-[#0190FF]' : 'text-gray-400'} />
+  <span>{label}</span>
+  {count > 0 && (
+    <span
+      className={`
+        ml-auto px-2 py-0.5 text-xs rounded-full
+        ${active
+          ? 'bg-[#0190FF] text-white shadow-sm'
+          : 'bg-gray-100 dark:bg-[#323232] text-gray-500 dark:text-gray-400'
+        }
+      `}
+    >
+      {count}
+    </span>
+  )}
+</button>
+```
+
+### Animations
+
+Add presearch-web animations:
+
+```css
+/* Add to index.css */
+
+/* Email compose slide-up */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.compose-modal {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Sidebar panel slide-in */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.sidebar-mobile {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+/* Email preview slide-in */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.email-preview-panel {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Dropdown animation */
+.dropdown {
+  transform: scale(0.96);
+  opacity: 0;
+  transition: transform 160ms ease-out, opacity 160ms ease-out;
+}
+
+.dropdown.open {
+  transform: scale(1);
+  opacity: 1;
+}
+```
+
+### Loading States
+
+Add loading animations:
+
+```tsx
+// Loading dots for sending email
+const SendingIndicator = () => (
+  <div className="flex items-center gap-2">
+    <span className="text-sm text-gray-500">Sending</span>
+    <div className="flex gap-1">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="w-1.5 h-1.5 rounded-full bg-[#0190FF]"
+          style={{
+            animation: 'bounce 1.4s infinite ease-in-out both',
+            animationDelay: `${-0.32 + i * 0.16}s`
+          }}
+        />
+      ))}
+    </div>
+  </div>
+);
+```
+
+```css
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+```
+
+### Compose Button (presearch-web prominent style)
+
+Update compose button:
+
+```tsx
+<button
+  className="
+    flex items-center gap-2
+    w-full px-4 py-3 rounded-xl
+    bg-[#0190FF] text-white font-semibold
+    shadow-[0_4px_14px_rgba(1,144,255,0.39)]
+    hover:bg-[#0177D6]
+    hover:shadow-[0_6px_20px_rgba(1,144,255,0.45)]
+    hover:-translate-y-0.5
+    transition-all duration-200
+    active:translate-y-0
+  "
+>
+  <PencilIcon className="w-5 h-5" />
+  Compose
+</button>
+```
+
+### Additional Implementation Checklist
+
+- [ ] Add iOS-style toggle switches
+- [ ] Add custom scrollbar to email lists
+- [ ] Update email row hover effects
+- [ ] Implement Dark Glass compose modal
+- [ ] Update sidebar navigation styling
+- [ ] Add slide animations
+- [ ] Add loading indicators
+- [ ] Update compose button styling
+
+---
+
 *Last Updated: January 15, 2026*

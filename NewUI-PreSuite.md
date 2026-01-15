@@ -310,4 +310,240 @@ scp -r dist/* root@76.13.2.221:/var/www/presuite/
 
 ---
 
+## presearch-web Patterns to Adopt
+
+> Reference: `UIPatterns-PresearchWeb.md` for complete documentation
+
+### Dark Glass Theme
+
+Add Dark Glass CSS variables for glassmorphism effects:
+
+```css
+/* Add to index.css */
+[data-theme='dark-glass'] {
+  --dg-border: rgba(255, 255, 255, 0.12);
+  --dg-bg: rgba(13, 15, 18, 0.55);
+  --dg-text: #e9e9e9;
+  --dg-placeholder: #838383;
+}
+
+/* Glass panel (for search, modals, dropdowns) */
+.dg-panel {
+  background: var(--dg-bg);
+  border: 1px solid var(--dg-border);
+  border-radius: 10px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* Glass popover with caret */
+.dg-popover {
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+  background: rgba(26, 26, 26, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  transform: scale(0.96);
+  opacity: 0;
+  transition: transform 160ms ease-out, opacity 160ms ease-out;
+}
+
+.dg-popover.open {
+  transform: scale(1);
+  opacity: 1;
+}
+```
+
+### iOS-Style Toggle Switch
+
+Replace current toggles in Settings.jsx with presearch-web style:
+
+```jsx
+// Settings toggle component
+const Toggle = ({ checked, onChange }) => (
+  <button
+    role="switch"
+    aria-checked={checked}
+    onClick={onChange}
+    className={`
+      relative w-10 h-5 rounded-full transition-colors duration-150
+      ${checked ? 'bg-[#2266ff]' : 'bg-[#454545]'}
+      shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]
+      focus:outline-none focus:ring-2 focus:ring-[#3478f6]/40
+    `}
+  >
+    <span
+      className={`
+        absolute top-0.5 w-4 h-4 rounded-full bg-white
+        transition-all duration-150 shadow-md
+        ${checked ? 'left-[22px]' : 'left-0.5'}
+      `}
+    />
+  </button>
+);
+```
+
+### Custom Scrollbar
+
+Add presearch-web scrollbar styling:
+
+```css
+/* Custom scrollbar - brand colored */
+.custom-scrollbar {
+  scrollbar-color: #0190FF transparent;
+  scrollbar-width: thin;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: #0190FF;
+}
+
+/* PreGPT chat scrollbar */
+.pregpt-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pregpt-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pregpt-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.pregpt-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+```
+
+### Animations
+
+Add presearch-web animations:
+
+```css
+/* Slide animations */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInTop {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Loading dots animation */
+.loading-dot {
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dot:nth-child(1) { animation-delay: -0.32s; }
+.loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Panel animations */
+.pregpt-sidebar {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.settings-panel {
+  animation: slideDown 0.2s ease-out;
+}
+```
+
+### Card Hover Effects
+
+Update GlassCard and AppCard with presearch-web hover:
+
+```jsx
+// Card with presearch-web hover effect
+const Card = ({ children, className }) => (
+  <div
+    className={`
+      bg-white dark:bg-[#323232]
+      rounded-lg border border-[#BFBFBF] dark:border-[rgba(255,255,255,0.12)]
+      transition-all duration-150
+      hover:bg-[#2A2A2A] hover:transform hover:-translate-y-0.5
+      hover:shadow-[0_4px_12px_rgba(0,0,0,0.25)]
+      ${className}
+    `}
+  >
+    {children}
+  </div>
+);
+```
+
+### PreGPT Chat Sizing
+
+Match presearch-web PreGPT dimensions:
+
+```css
+.pregpt-chat-component {
+  width: min(600px, 90vw);
+  max-width: min(600px, 90vw);
+  height: min(600px, 85vh);
+  max-height: min(600px, 85vh);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .pregpt-chat-component {
+    width: min(95vw, 600px);
+    max-width: min(95vw, 600px);
+    height: min(80vh, 600px);
+    max-height: min(80vh, 600px);
+  }
+}
+```
+
+### Font Stack
+
+Consider adding ProximaNova or use the fallback:
+
+```css
+/* ProximaNova (if available) */
+@font-face {
+  font-family: 'ProximaNova';
+  src: url('/assets/ProximaNova-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+/* Fallback stack (Inter-based) */
+body {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+```
+
+### Additional Implementation Checklist
+
+- [ ] Add Dark Glass CSS variables
+- [ ] Replace toggles with iOS-style switches
+- [ ] Add custom scrollbar styling
+- [ ] Implement slide animations for panels
+- [ ] Add loading dot animations
+- [ ] Update card hover effects
+- [ ] Match PreGPT chat dimensions
+
+---
+
 *Last Updated: January 15, 2026*
