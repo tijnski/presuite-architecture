@@ -48,7 +48,7 @@ Or use the deploy script:
 ssh root@76.13.2.221 "/var/www/presuite/deploy.sh"
 ```
 
-### PreDrive (predrive.site)
+### PreDrive (predrive.eu)
 
 ```bash
 # Local: Push changes
@@ -202,7 +202,7 @@ Each server has an SSH key configured for GitHub push/pull:
 ```
 ~/Documents/Documents-MacBook/presearch/
 ├── presuite/       # Main hub (presuite.eu)
-├── predrive/       # File storage (predrive.site)
+├── predrive/       # File storage (predrive.eu)
 ├── premail/        # Email client (premail.site)
 ├── preoffice/      # Document editing (preoffice.site)
 └── ARC/            # Architecture docs & configs
