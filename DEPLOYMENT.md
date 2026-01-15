@@ -4,6 +4,26 @@ This document contains the master instructions for developing and deploying all 
 
 ---
 
+## AI Agent Instructions (Claude Code)
+
+**CRITICAL: Always follow this workflow:**
+
+1. **ALWAYS work locally first** - Edit files in the local repo (`~/Documents/Documents-MacBook/presearch/`)
+2. **Push to GitHub** - Commit and push changes to the remote repository
+3. **Pull on production** - SSH to server and run `git pull` to deploy
+
+**NEVER:**
+- Edit code directly on production servers via SSH
+- Create files directly on servers
+- Modify production configs without going through Git
+
+**The correct flow is:**
+```
+Local Mac → git push → GitHub → ssh + git pull → Production Server
+```
+
+---
+
 ## Development Workflow
 
 ```
