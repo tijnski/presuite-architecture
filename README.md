@@ -10,7 +10,7 @@ PreSuite is a privacy-focused productivity suite built on the Presearch ecosyste
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **PreSuite** | https://presuite.eu | Main landing page and hub |
+| **PreSuite Hub** | https://presuite.eu | Central hub, identity provider, AI search |
 | **PreDrive** | https://predrive.eu | Cloud storage (Google Drive alternative) |
 | **PreMail** | https://premail.site | Privacy-focused email (@premail.site) |
 | **PreOffice** | https://preoffice.site | Document editing (LibreOffice/Collabora) |
@@ -18,50 +18,99 @@ PreSuite is a privacy-focused productivity suite built on the Presearch ecosyste
 ## Architecture
 
 ```
-                    ┌─────────────────────────────────────────┐
-                    │              PreSuite Hub               │
-                    │           (presuite.eu)                 │
-                    │                                         │
-                    │  ┌─────────┐ ┌─────────┐ ┌─────────┐   │
-                    │  │ PreGPT  │ │ Search  │ │ Widgets │   │
-                    │  └─────────┘ └─────────┘ └─────────┘   │
-                    └─────────────────────────────────────────┘
-                                       │
-                    ┌──────────────────┼──────────────────┐
-                    │                  │                  │
-              ┌─────▼─────┐     ┌──────▼──────┐    ┌──────▼──────┐
-              │  PreMail  │────▶│  PreDrive   │◀───│ PreOffice   │
-              │           │ SSO │             │WOPI│             │
-              └───────────┘     └─────────────┘    └─────────────┘
-                    │                  │                  │
-                    ▼                  ▼                  ▼
-              ┌───────────┐     ┌─────────────┐    ┌─────────────┐
-              │ Stalwart  │     │    Storj    │    │  Collabora  │
-              │   IMAP    │     │  S3 Storage │    │   Online    │
-              └───────────┘     └─────────────┘    └─────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    PreSuite Hub (Identity Provider)                      │
+│                           presuite.eu                                    │
+│                                                                          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │
+│  │  Auth API    │  │   PreGPT     │  │   Search     │  │   Widgets    │ │
+│  │              │  │   (Venice)   │  │  (Presearch) │  │   Dashboard  │ │
+│  │ • Register   │  │              │  │              │  │              │ │
+│  │ • Login      │  │              │  │              │  │              │ │
+│  │ • JWT Issue  │  │              │  │              │  │              │ │
+│  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘ │
+└─────────────────────────────────────────────────────────────────────────┘
+         │                    │                    │
+         │              JWT Tokens                 │
+         │                    │                    │
+         ▼                    ▼                    ▼
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│    PreMail      │  │    PreDrive     │  │   PreOffice     │
+│                 │  │                 │  │                 │
+│  📧 Email       │  │  📁 Storage     │  │  📄 Documents   │
+│  @premail.site  │  │  Files/Folders  │  │  Spreadsheets   │
+│                 │  │                 │  │  Presentations  │
+│  ┌───────────┐  │  │  ┌───────────┐  │  │  ┌───────────┐  │
+│  │ Register  │──┼──┼─▶│ Register  │──┼──┼─▶│ Register  │  │
+│  │ Login     │  │  │  │ Login     │  │  │  │ Login     │  │
+│  └───────────┘  │  │  └───────────┘  │  │  └───────────┘  │
+│        │        │  │        │        │  │        │        │
+│        ▼        │  │        ▼        │  │        ▼        │
+│   ┌─────────┐   │  │   ┌─────────┐   │  │   ┌─────────┐   │
+│   │Stalwart │   │  │   │  Storj  │   │  │   │Collabora│   │
+│   │  IMAP   │   │  │   │   S3    │   │  │   │ Online  │   │
+│   └─────────┘   │  │   └─────────┘   │  │   └─────────┘   │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+         │                    │                    │
+         └────────────────────┴────────────────────┘
+                              │
+                    All auth requests go to
+                      PreSuite Hub API
 ```
 
-## Shared Configuration
+## Authentication
 
-### SSO (Single Sign-On)
+### Centralized Identity Provider
 
-All services share a common JWT configuration:
+**PreSuite Hub** is the central identity provider. Users can register and login from **any service** (PreSuite, PreMail, PreDrive, or PreOffice), but all authentication is handled by PreSuite Hub.
 
-```bash
-JWT_SECRET=<shared-secret>  # Must match across all services
-JWT_ISSUER=presuite         # Common issuer
+### Registration (From Any Service)
+
+```
+User on PreDrive → clicks "Sign Up"
+                          ↓
+              POST to presuite.eu/api/auth/register
+                          ↓
+              PreSuite Hub creates:
+                • User account
+                • @premail.site mailbox
+                • PreDrive storage
+                          ↓
+              Returns JWT token
+                          ↓
+              User logged in on PreDrive
 ```
 
-### User Flow
+### Auth API Endpoints
 
-1. User registers on PreMail → creates @premail.site account
-2. JWT token issued with user/org claims
-3. SSO links pass token to PreDrive/PreOffice
-4. Services auto-provision users from JWT claims
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/register` | POST | Create new account |
+| `/api/auth/login` | POST | Authenticate user |
+| `/api/auth/logout` | POST | End session |
+| `/api/auth/verify` | GET | Validate token |
+| `/api/auth/reset-password` | POST | Password reset |
+
+### JWT Token
+
+All services share the same JWT format:
+
+```javascript
+{
+  sub: "user-uuid",           // User ID
+  org_id: "org-uuid",         // Organization ID
+  email: "user@premail.site", // Email address
+  name: "Display Name",       // User name
+  iss: "presuite",            // Issuer (always "presuite")
+  iat: 1234567890,            // Issued at
+  exp: 1234567890             // Expiration
+}
+```
 
 ## Documentation
 
-- [PreSuite Hub](presuite.md) - Landing page and widget system
+- [Integration Guide](INTEGRATION.md) - Service-to-service integration
+- [PreSuite Hub](presuite.md) - Landing page, auth, and widgets
 - [PreDrive](PREDRIVE.md) - Cloud storage architecture
 - [PreMail](Premail.md) - Email service architecture
 - [PreOffice](PREOFFICE.md) - Document editing system
@@ -80,7 +129,7 @@ JWT_ISSUER=presuite         # Common issuer
 
 | Service | Backend | Database | Infrastructure |
 |---------|---------|----------|----------------|
-| PreSuite | Express | - | PM2, Nginx |
+| PreSuite Hub | Express | PostgreSQL | PM2, Nginx |
 | PreDrive | Hono | PostgreSQL | Docker, Caddy |
 | PreMail | Hono | PostgreSQL | PM2, Nginx, Stalwart |
 | PreOffice | Express (WOPI) | - | Docker, Nginx, Collabora |
@@ -89,17 +138,18 @@ JWT_ISSUER=presuite         # Common issuer
 
 | IP | Domain | Services |
 |----|--------|----------|
-| 76.13.2.221 | presuite.eu | PreSuite Hub |
+| 76.13.2.221 | presuite.eu | PreSuite Hub (Identity Provider) |
 | 76.13.1.110 | predrive.eu | PreDrive |
-| 76.13.1.117 | premail.site | PreMail + Stalwart |
+| 76.13.1.117 | premail.site | PreMail + Stalwart Mail Server |
 | 76.13.2.220 | preoffice.site | PreOffice Online |
 
 ## GitHub Repositories
 
-- [presuite](https://github.com/tijnski/presuite) - Main hub
+- [presuite](https://github.com/tijnski/presuite) - Main hub & identity provider
 - [predrive](https://github.com/tijnski/predrive) - Cloud storage
 - [premail](https://github.com/tijnski/premail) - Email service
 - [preoffice](https://github.com/tijnski/preoffice) - Document editing
+- [presuite-architecture](https://github.com/tijnski/presuite-architecture) - This repository
 
 ## Quick Start
 
@@ -112,15 +162,22 @@ git clone https://github.com/tijnski/predrive
 git clone https://github.com/tijnski/premail
 git clone https://github.com/tijnski/preoffice
 
+# Start local infrastructure
+cd presuite-architecture
+docker compose -f docker-compose.dev.yml up -d
+
 # Each service has its own setup - see individual docs
 ```
 
-### Environment Variables (Common)
+### Environment Variables
 
 ```bash
-# Auth (MUST BE IDENTICAL ACROSS SERVICES)
+# Auth (MUST BE IDENTICAL ACROSS ALL SERVICES)
 JWT_SECRET=<your-secret-here>
 JWT_ISSUER=presuite
+
+# Auth API (for PreMail, PreDrive, PreOffice)
+AUTH_API_URL=https://presuite.eu/api/auth
 
 # Service URLs
 PRESUITE_URL=https://presuite.eu
@@ -128,6 +185,14 @@ PREDRIVE_URL=https://predrive.eu
 PREMAIL_URL=https://premail.site
 PREOFFICE_URL=https://preoffice.site
 ```
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `scripts/health-check.sh` | Check all services health |
+| `scripts/sync-secrets.sh` | Verify JWT secrets match |
+| `scripts/deploy-all.sh` | Deploy services to production |
 
 ## License
 

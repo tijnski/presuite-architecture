@@ -2,9 +2,202 @@
 
 This document describes how all PreSuite services integrate and communicate with each other.
 
-## Authentication Flow
+## Authentication Architecture
 
-### JWT Token Structure
+### Overview
+
+**PreSuite Hub** (`presuite.eu`) is the central identity provider for the entire ecosystem. Users can register and login from any service, but all authentication requests are processed by PreSuite Hub.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     PreSuite Hub (Identity Provider)             │
+│                         presuite.eu                              │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                    Auth Service                           │   │
+│  │  • User Registration    • JWT Token Issuance             │   │
+│  │  • Login/Logout         • Password Reset                 │   │
+│  │  • Session Management   • Account Verification           │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+   ┌─────────┐          ┌─────────┐          ┌─────────┐
+   │ PreMail │          │PreDrive │          │PreOffice│
+   │         │          │         │          │         │
+   │Register │          │Register │          │Register │
+   │ Login   │          │ Login   │          │ Login   │
+   └─────────┘          └─────────┘          └─────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │  Shared Users   │
+                    │   & Sessions    │
+                    └─────────────────┘
+```
+
+### Registration Flow (From Any Service)
+
+Users can create an account from PreSuite Hub, PreMail, PreDrive, or PreOffice. All registration requests are forwarded to PreSuite Hub's Auth API.
+
+```
+User clicks "Sign Up" on any service
+            │
+            ▼
+┌─────────────────────────────┐
+│   Service Registration UI   │
+│  (PreMail/PreDrive/etc.)    │
+└─────────────────────────────┘
+            │
+            │ POST /api/auth/register
+            │ { email, password, name, source: "premail" }
+            ▼
+┌─────────────────────────────┐
+│   PreSuite Hub Auth API     │
+│   auth.presuite.eu          │
+└─────────────────────────────┘
+            │
+            ├── Create user in central DB
+            ├── Create @premail.site mailbox (Stalwart)
+            ├── Initialize PreDrive storage
+            └── Issue JWT token
+            │
+            ▼
+┌─────────────────────────────┐
+│   Return JWT + Redirect     │
+│   to originating service    │
+└─────────────────────────────┘
+```
+
+### Login Flow (From Any Service)
+
+```
+User clicks "Login" on any service
+            │
+            ▼
+┌─────────────────────────────┐
+│     Service Login UI        │
+└─────────────────────────────┘
+            │
+            │ POST /api/auth/login
+            │ { email, password }
+            ▼
+┌─────────────────────────────┐
+│   PreSuite Hub Auth API     │
+└─────────────────────────────┘
+            │
+            ├── Verify credentials
+            ├── Generate JWT token
+            └── Return token + user info
+            │
+            ▼
+┌─────────────────────────────┐
+│   Service stores token      │
+│   User is logged in         │
+└─────────────────────────────┘
+```
+
+---
+
+## PreSuite Auth API
+
+**Base URL:** `https://presuite.eu/api/auth` (or `https://auth.presuite.eu`)
+
+### Endpoints
+
+#### Registration
+```http
+POST /api/auth/register
+
+Request:
+{
+  "email": "user@example.com",      // Or just "username" for @premail.site
+  "password": "securepassword",
+  "name": "Display Name",
+  "source": "presuite"              // Which service initiated: presuite|premail|predrive|preoffice
+}
+
+Response:
+{
+  "success": true,
+  "user": {
+    "id": "uuid",
+    "email": "user@premail.site",
+    "name": "Display Name",
+    "org_id": "uuid"
+  },
+  "token": "jwt-token",
+  "redirect": "https://presuite.eu"  // Or back to source service
+}
+```
+
+#### Login
+```http
+POST /api/auth/login
+
+Request:
+{
+  "email": "user@premail.site",
+  "password": "password"
+}
+
+Response:
+{
+  "success": true,
+  "user": { ... },
+  "token": "jwt-token"
+}
+```
+
+#### Token Verification
+```http
+GET /api/auth/verify
+
+Headers:
+  Authorization: Bearer <token>
+
+Response:
+{
+  "valid": true,
+  "user": { ... }
+}
+```
+
+#### Password Reset
+```http
+POST /api/auth/reset-password
+
+Request:
+{
+  "email": "user@premail.site"
+}
+
+Response:
+{
+  "success": true,
+  "message": "Reset link sent to email"
+}
+```
+
+#### Logout
+```http
+POST /api/auth/logout
+
+Headers:
+  Authorization: Bearer <token>
+
+Response:
+{
+  "success": true
+}
+```
+
+---
+
+## JWT Token Structure
 
 All services use the same JWT payload format:
 
@@ -20,10 +213,10 @@ interface PreSuiteJWT {
 }
 ```
 
-### Token Creation (PreMail)
+### Token Creation (PreSuite Hub Only)
 
 ```javascript
-// In PreMail auth.ts
+// In PreSuite Hub auth service
 import jwt from 'jsonwebtoken';
 
 const token = jwt.sign(
@@ -33,7 +226,7 @@ const token = jwt.sign(
     email: user.email,
     name: user.name
   },
-  process.env.JWT_SECRET,  // Shared secret
+  process.env.JWT_SECRET,
   {
     issuer: 'presuite',
     expiresIn: '7d'
@@ -55,58 +248,74 @@ const verifyToken = (token: string) => {
 
 ---
 
-## Service-to-Service Integration
+## Service Integration Patterns
 
-### 1. PreMail → PreDrive (SSO)
+### 1. Embedded Auth Forms
 
-**Flow:**
-1. User logs into PreMail
-2. User clicks "PreDrive" in sidebar
-3. PreMail redirects to `https://predrive.eu?token=<JWT>`
-4. PreDrive validates token and auto-provisions user
+Each service can embed registration/login forms that POST to PreSuite Hub:
 
-**PreMail Sidebar Implementation:**
 ```tsx
-// apps/web/src/layouts/AppLayout.tsx
+// PreMail Registration Page
+const RegisterPage = () => {
+  const handleSubmit = async (data) => {
+    const response = await fetch('https://presuite.eu/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...data,
+        source: 'premail'  // Track registration source
+      })
+    });
+
+    const { token, user } = await response.json();
+
+    // Store token locally
+    localStorage.setItem('token', token);
+
+    // User is now logged in to PreMail
+    navigate('/inbox');
+  };
+
+  return <RegistrationForm onSubmit={handleSubmit} />;
+};
+```
+
+### 2. OAuth-Style Redirect (Optional)
+
+For a more traditional SSO experience:
+
+```
+1. User clicks "Login" on PreDrive
+2. Redirect to: https://presuite.eu/login?redirect=https://predrive.eu/callback
+3. User logs in on PreSuite Hub
+4. Redirect back: https://predrive.eu/callback?token=<JWT>
+5. PreDrive stores token and logs user in
+```
+
+### 3. Cross-Service Navigation
+
+Once logged in, users can navigate between services with their token:
+
+```tsx
+// PreMail Sidebar
 <a href={`https://predrive.eu?token=${auth.token}`}>
   <HardDrive /> PreDrive
 </a>
+
+<a href={`https://preoffice.site?token=${auth.token}`}>
+  <FileText /> PreOffice
+</a>
 ```
 
-**PreDrive Token Handler:**
+---
+
+## Service-to-Service Integration
+
+### PreDrive → PreOffice (WOPI)
+
+When editing documents, PreDrive passes the user's token to PreOffice:
+
 ```typescript
-// apps/web/src/hooks/useAuth.ts
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
-
-  if (token) {
-    // Validate token
-    fetch('/api/me', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(res => res.json())
-    .then(user => {
-      localStorage.setItem('token', token);
-      // Clean URL
-      window.history.replaceState({}, '', '/');
-    });
-  }
-}, []);
-```
-
-### 2. PreDrive → PreOffice (WOPI)
-
-**Flow:**
-1. User clicks "Open in PreOffice" on a document in PreDrive
-2. PreDrive calls PreOffice API with file info
-3. PreOffice generates editor URL with access token
-4. User is redirected to Collabora editor
-5. Collabora uses WOPI to fetch/save via PreDrive API
-
-**PreDrive Edit Button:**
-```typescript
-// apps/web/src/components/FileActions.tsx
 const openInPreOffice = async (file: Node) => {
   const response = await fetch('https://preoffice.site/api/edit', {
     method: 'POST',
@@ -116,8 +325,7 @@ const openInPreOffice = async (file: Node) => {
     },
     body: JSON.stringify({
       fileId: file.id,
-      fileName: file.name,
-      userToken: token
+      fileName: file.name
     })
   });
 
@@ -126,75 +334,67 @@ const openInPreOffice = async (file: Node) => {
 };
 ```
 
-**PreOffice WOPI Edit Endpoint:**
+### PreSuite Hub → PreMail (Mailbox Provisioning)
+
+When a user registers, PreSuite Hub creates their email account:
+
 ```javascript
-// wopi-server/src/index.js
-app.post('/api/edit', async (req, res) => {
-  const { fileId, fileName, userToken } = req.body;
-
-  // Generate WOPI access token
-  const accessToken = jwt.sign(
-    {
-      userId: decoded.sub,
-      fileId: fileId,
-      userToken: userToken  // Pass through for PreDrive API calls
+// In PreSuite Hub registration handler
+async function createMailbox(user) {
+  // Create Stalwart mailbox via API
+  await fetch(`${STALWART_API_URL}/api/principal`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${Buffer.from(`admin:${STALWART_ADMIN_PASS}`).toString('base64')}`,
+      'Content-Type': 'application/json'
     },
-    process.env.JWT_SECRET,
-    { expiresIn: '24h' }
-  );
-
-  // Build editor URL
-  const wopiSrc = encodeURIComponent(
-    `${WOPI_BASE_URL}/files/${fileId}`
-  );
-  const editorUrl =
-    `${COLLABORA_PUBLIC_URL}/browser/dist/cool.html` +
-    `?WOPISrc=${wopiSrc}&access_token=${accessToken}`;
-
-  res.json({ editorUrl });
-});
+    body: JSON.stringify({
+      type: 'individual',
+      name: user.email.split('@')[0],
+      secrets: [hashedPassword],
+      emails: [user.email],
+      quota: 1073741824,  // 1GB
+      enabledPermissions: [
+        'authenticate', 'email-send', 'email-receive',
+        'imap-authenticate', 'imap-list', 'imap-fetch', // ... etc
+      ]
+    })
+  });
+}
 ```
 
-### 3. PreSuite Hub → All Services
+### PreSuite Hub → PreDrive (Storage Provisioning)
 
-**Integration Points:**
-- PreGPT AI via Venice AI API
-- Quick links to all services
-- Storage/balance widgets (currently mock data)
+On registration, PreSuite Hub initializes the user's drive:
 
-**Future Integration:**
-```typescript
-// Unified dashboard API
-interface PreSuiteDashboard {
-  // From PreDrive
-  storage: {
-    used: number;
-    total: number;
-    recentFiles: File[];
-  };
-
-  // From PreMail
-  email: {
-    unreadCount: number;
-    recentEmails: Email[];
-  };
-
-  // From PreWallet (future)
-  wallet: {
-    balance: number;
-    recentTransactions: Transaction[];
-  };
+```javascript
+async function initializeDrive(user) {
+  // PreDrive auto-provisions from JWT on first access
+  // But we can also explicitly create via API
+  await fetch('https://predrive.eu/api/provision', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${internalServiceToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      userId: user.id,
+      orgId: user.org_id,
+      email: user.email,
+      quota: 5 * 1024 * 1024 * 1024  // 5GB
+    })
+  });
 }
 ```
 
 ---
 
-## Auto-Provisioning
+## Auto-Provisioning (Fallback)
 
-When a user from PreMail accesses PreDrive for the first time:
+If a user somehow accesses a service without being provisioned, services should auto-provision from JWT claims:
 
 ```typescript
-// apps/api/src/middleware/auth.ts (PreDrive)
+// apps/api/src/middleware/auth.ts (PreDrive/PreMail)
 async function autoProvision(payload: PreSuiteJWT) {
   // Check if org exists
   let org = await db.query.orgs.findFirst({
@@ -202,19 +402,10 @@ async function autoProvision(payload: PreSuiteJWT) {
   });
 
   if (!org) {
-    // Create org
     [org] = await db.insert(orgs).values({
       id: payload.org_id,
       name: `${payload.email.split('@')[0]}'s Organization`
     }).returning();
-
-    // Create root folder
-    await db.insert(nodes).values({
-      orgId: org.id,
-      type: 'folder',
-      name: 'My Drive',
-      parentId: null
-    });
   }
 
   // Check if user exists
@@ -229,6 +420,9 @@ async function autoProvision(payload: PreSuiteJWT) {
       email: payload.email,
       name: payload.name || payload.email
     }).returning();
+
+    // Service-specific initialization
+    await initializeUserResources(user);
   }
 
   return user;
@@ -237,126 +431,123 @@ async function autoProvision(payload: PreSuiteJWT) {
 
 ---
 
-## Shared Database Schema
+## Database Architecture
 
-### Common Tables
+### Central User Store (PreSuite Hub)
 
-All services that share users maintain compatible schemas:
+PreSuite Hub maintains the authoritative user database:
 
 ```sql
--- Organizations (shared concept)
-CREATE TABLE orgs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(255) NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- PreSuite Hub Database
 
--- Users (shared format)
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   org_id UUID NOT NULL REFERENCES orgs(id),
   email VARCHAR(255) UNIQUE NOT NULL,
   name VARCHAR(255) NOT NULL,
-  password_hash VARCHAR(255),  -- Only in PreMail
+  password_hash VARCHAR(255) NOT NULL,
+  email_verified BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE orgs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE registration_sources (
+  user_id UUID NOT NULL REFERENCES users(id),
+  source VARCHAR(50) NOT NULL,  -- presuite, premail, predrive, preoffice
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (user_id)
+);
+```
+
+### Service-Local User Cache
+
+Each service maintains a local cache of user data (synced from JWT claims):
+
+```sql
+-- PreDrive/PreMail local tables
+CREATE TABLE users (
+  id UUID PRIMARY KEY,  -- Same ID as PreSuite Hub
+  org_id UUID NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  -- No password_hash - auth handled by Hub
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
-### ID Synchronization
-
-- User IDs and Org IDs are UUIDs generated by PreMail at registration
-- These IDs are embedded in JWT tokens
-- Other services use the same IDs for consistency
-
 ---
 
-## API Gateway Pattern (Future)
+## Environment Variables
 
-For unified API access:
-
-```
-                  ┌─────────────────┐
-                  │   API Gateway   │
-                  │ api.presuite.eu │
-                  └────────┬────────┘
-                           │
-        ┌──────────────────┼──────────────────┐
-        │                  │                  │
-        ▼                  ▼                  ▼
-   /mail/*            /drive/*          /office/*
-   → PreMail          → PreDrive        → PreOffice
-```
-
-**Gateway Routes:**
-```nginx
-# Future gateway configuration
-location /mail/ {
-    proxy_pass https://premail.site/api/;
-}
-
-location /drive/ {
-    proxy_pass https://predrive.eu/api/;
-}
-
-location /office/ {
-    proxy_pass https://preoffice.site/api/;
-}
-```
-
----
-
-## Environment Variable Template
+### PreSuite Hub (Identity Provider)
 
 ```bash
-# === SHARED (MUST MATCH EVERYWHERE) ===
-JWT_SECRET=your-shared-jwt-secret
+# Database (central user store)
+DATABASE_URL=postgresql://presuite:password@localhost:5432/presuite
+
+# Auth
+JWT_SECRET=<shared-secret>
 JWT_ISSUER=presuite
 
-# === PreMail (76.13.1.117) ===
-PREMAIL_DATABASE_URL=postgresql://premail:password@localhost:5432/premail
-STALWART_HOST=mail.premail.site
-STALWART_ADMIN_PASS=your-stalwart-admin-password
-PREDRIVE_URL=https://predrive.eu
+# Stalwart (for mailbox provisioning)
+STALWART_API_URL=https://mail.premail.site:443
+STALWART_ADMIN_USER=admin
+STALWART_ADMIN_PASS=<password>
 
-# === PreDrive (76.13.1.110) ===
-PREDRIVE_DATABASE_URL=postgres://predrive:password@postgres:5432/predrive
-S3_ENDPOINT=https://gateway.eu1.storjshare.io
-S3_ACCESS_KEY_ID=your-storj-access-key
-S3_SECRET_ACCESS_KEY=your-storj-secret-key
-S3_BUCKET=predrive
+# Service URLs (for redirects)
+PREDRIVE_URL=https://predrive.eu
 PREMAIL_URL=https://premail.site
 PREOFFICE_URL=https://preoffice.site
+```
 
-# === PreOffice (76.13.2.220) ===
-PREDRIVE_API_URL=https://predrive.eu/api
-WOPI_BASE_URL=https://preoffice.site/wopi
-COLLABORA_PUBLIC_URL=https://preoffice.site
-COLLABORA_ADMIN_USER=admin
-COLLABORA_ADMIN_PASS=your-collabora-admin-password
+### Other Services
 
-# === PreSuite (76.13.2.221) ===
-VENICE_API_KEY=your-venice-api-key
+```bash
+# Auth (points to Hub)
+AUTH_API_URL=https://presuite.eu/api/auth
+JWT_SECRET=<same-shared-secret>
+JWT_ISSUER=presuite
+
+# Service-specific config
+DATABASE_URL=...
 ```
 
 ---
 
-## Cross-Origin Configuration
+## CORS Configuration
 
-Each service needs CORS headers for cross-service communication:
+PreSuite Hub must accept requests from all services:
 
 ```typescript
-// Common CORS config
+// PreSuite Hub CORS config
 const corsOptions = {
   origin: [
     'https://presuite.eu',
     'https://predrive.eu',
     'https://premail.site',
     'https://preoffice.site',
-    /\.presearch\.org$/  // Future subdomain pattern
+    // Development
+    'http://localhost:3000',
+    'http://localhost:5173',
   ],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 ```
 
@@ -364,52 +555,25 @@ const corsOptions = {
 
 ## Health Checks
 
-Each service exposes health endpoints:
-
-| Service | Endpoint | Port |
-|---------|----------|------|
-| PreSuite | `/api/pregpt/status` | 3001 |
-| PreDrive | `/health` | 4000 |
-| PreMail | `/health` | 4001 |
-| PreOffice | `/health` | 8080 |
-
-**Unified Health Check Script:**
-```bash
-#!/bin/bash
-services=(
-  "presuite:https://presuite.eu/api/pregpt/status"
-  "predrive:https://predrive.eu/health"
-  "premail:https://premail.site/health"
-  "preoffice:https://preoffice.site/health"
-)
-
-for service in "${services[@]}"; do
-  name="${service%%:*}"
-  url="${service#*:}"
-  status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-  echo "$name: $status"
-done
-```
+| Service | Endpoint |
+|---------|----------|
+| PreSuite Hub Auth | `https://presuite.eu/api/auth/health` |
+| PreSuite Hub | `https://presuite.eu/api/pregpt/status` |
+| PreDrive | `https://predrive.eu/health` |
+| PreMail | `https://premail.site/health` |
+| PreOffice | `https://preoffice.site/health` |
 
 ---
 
-## Deployment Coordination
+## Migration from Current Architecture
 
-When updating shared infrastructure:
+If migrating from PreMail as identity provider:
 
-1. **JWT Secret Rotation:**
-   - Update all services simultaneously
-   - Use rolling restart to minimize downtime
-   - Clear all active sessions
-
-2. **Database Migrations:**
-   - Coordinate if schema changes affect shared tables
-   - PreMail owns `users` table definition
-   - Other services should follow
-
-3. **SSL Certificate Renewal:**
-   - Each service handles its own SSL via Let's Encrypt/Certbot
-   - Monitor expiration dates across all domains
+1. **Export users from PreMail database**
+2. **Import to PreSuite Hub database**
+3. **Update PreMail to use Hub for auth**
+4. **Update other services to use Hub**
+5. **Keep JWT_SECRET the same** (tokens remain valid)
 
 ---
 

@@ -118,6 +118,21 @@ All apps open interactive modals with demo data:
   - `POST /api/pregpt/ask` - Follow-up questions
   - `POST /api/pregpt/related-searches` - Related search suggestions
 
+### 7. Central Identity Provider (v2.0.0)
+- [x] PostgreSQL database for user storage
+- [x] Auth API endpoints:
+  - `POST /api/auth/register` - Create new account
+  - `POST /api/auth/login` - Authenticate user
+  - `GET /api/auth/verify` - Validate JWT token
+  - `GET /api/auth/me` - Get current user
+  - `PATCH /api/auth/me` - Update user profile
+  - `POST /api/auth/logout` - End session
+  - `POST /api/auth/reset-password` - Password reset
+  - `GET /api/auth/health` - Auth service health
+- [x] Stalwart mailbox provisioning on registration
+- [x] JWT token issuance for all PreSuite services
+- [x] CORS enabled for all PreSuite domains
+
 ---
 
 ## Pending Features (TODO)

@@ -1,12 +1,17 @@
 /**
  * PreSuite SSO Configuration
+ * Version: 2.0.0
  *
- * This file defines the shared SSO configuration used across all PreSuite services.
- * Each service should implement token verification using this specification.
+ * ARCHITECTURE CHANGE: PreSuite Hub is now the central identity provider.
+ * All services delegate authentication to PreSuite Hub.
+ * Registration is available from any service.
  */
 
-// JWT Configuration (must match across all services)
-export const SSOConfig = {
+// ============================================
+// JWT Configuration
+// ============================================
+
+export const JWTConfig = {
   // Algorithm for JWT signing
   algorithm: 'HS256' as const,
 
@@ -18,34 +23,77 @@ export const SSOConfig = {
     access: '7d',      // Access token: 7 days
     refresh: '30d',    // Refresh token: 30 days
     wopi: '24h',       // WOPI access token: 24 hours
-  },
-
-  // Services that participate in SSO
-  services: {
-    premail: {
-      url: 'https://premail.site',
-      role: 'identity-provider',
-      description: 'Primary identity provider - handles user registration/login',
-    },
-    predrive: {
-      url: 'https://predrive.eu',
-      role: 'service-provider',
-      description: 'Accepts SSO tokens from PreMail',
-    },
-    preoffice: {
-      url: 'https://preoffice.site',
-      role: 'service-provider',
-      description: 'Accepts SSO tokens for document editing',
-    },
-    presuite: {
-      url: 'https://presuite.eu',
-      role: 'portal',
-      description: 'Central hub - links to all services',
-    },
+    reset: '1h',       // Password reset token: 1 hour
   },
 } as const;
 
-// JWT Payload interface
+// ============================================
+// Service Registry
+// ============================================
+
+export const Services = {
+  presuite: {
+    name: 'PreSuite Hub',
+    url: 'https://presuite.eu',
+    server: '76.13.2.221',
+    role: 'identity-provider',
+    description: 'Central identity provider and hub',
+    features: ['auth', 'pregpt', 'search', 'dashboard'],
+  },
+  premail: {
+    name: 'PreMail',
+    url: 'https://premail.site',
+    server: '76.13.1.117',
+    role: 'service-provider',
+    description: 'Privacy-focused email service',
+    features: ['imap', 'smtp', 'email'],
+  },
+  predrive: {
+    name: 'PreDrive',
+    url: 'https://predrive.eu',
+    server: '76.13.1.110',
+    role: 'service-provider',
+    description: 'Cloud storage service',
+    features: ['storage', 'sharing', 'webdav'],
+  },
+  preoffice: {
+    name: 'PreOffice',
+    url: 'https://preoffice.site',
+    server: '76.13.2.220',
+    role: 'service-provider',
+    description: 'Document editing service',
+    features: ['wopi', 'documents', 'collabora'],
+  },
+} as const;
+
+// ============================================
+// Auth API Configuration
+// ============================================
+
+export const AuthAPI = {
+  // Base URL for auth endpoints
+  baseUrl: 'https://presuite.eu/api/auth',
+
+  // Endpoints
+  endpoints: {
+    register: '/register',
+    login: '/login',
+    logout: '/logout',
+    verify: '/verify',
+    me: '/me',
+    resetPassword: '/reset-password',
+    resetPasswordConfirm: '/reset-password/confirm',
+    health: '/health',
+  },
+
+  // Which services can register users
+  registrationSources: ['presuite', 'premail', 'predrive', 'preoffice'],
+} as const;
+
+// ============================================
+// JWT Payload Interface
+// ============================================
+
 export interface PreSuiteJWTPayload {
   // Subject (user ID) - UUID
   sub: string;
@@ -69,56 +117,166 @@ export interface PreSuiteJWTPayload {
   exp: number;
 }
 
-// Token verification result
-export interface TokenVerificationResult {
-  valid: boolean;
-  payload?: PreSuiteJWTPayload;
-  error?: string;
+// ============================================
+// Registration Source Tracking
+// ============================================
+
+export type RegistrationSource = 'presuite' | 'premail' | 'predrive' | 'preoffice';
+
+export interface RegistrationRequest {
+  email: string;
+  password: string;
+  name: string;
+  source: RegistrationSource;
 }
 
-// Auto-provisioning configuration
-export const AutoProvisionConfig = {
-  // Create user if not exists when valid JWT received
-  enabled: true,
+export interface RegistrationResponse {
+  success: boolean;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    org_id: string;
+  };
+  token: string;
+}
+
+// ============================================
+// Auto-Provisioning Configuration
+// ============================================
+
+export const ProvisioningConfig = {
+  // Create user resources when valid JWT received
+  autoProvision: true,
 
   // Default organization name template
   orgNameTemplate: (email: string) => `${email.split('@')[0]}'s Organization`,
 
-  // Default storage quota (5GB in bytes)
-  defaultStorageQuota: 5 * 1024 * 1024 * 1024,
+  // Default quotas
+  quotas: {
+    // Email quota (1GB)
+    email: 1 * 1024 * 1024 * 1024,
+    // Storage quota (5GB)
+    storage: 5 * 1024 * 1024 * 1024,
+  },
 
-  // Default email quota (1GB in bytes)
-  defaultEmailQuota: 1 * 1024 * 1024 * 1024,
+  // On registration, create:
+  onRegistration: {
+    // Create Stalwart mailbox
+    createMailbox: true,
+    // Initialize PreDrive storage
+    createStorage: true,
+  },
 } as const;
 
-// SSO Link patterns
+// ============================================
+// SSO Link Generators
+// ============================================
+
 export const SSOLinks = {
-  // From PreMail to PreDrive
-  toPreDrive: (token: string) => `https://predrive.eu?token=${token}`,
+  // Generate SSO URL with token
+  withToken: (serviceUrl: string, token: string) =>
+    `${serviceUrl}?token=${encodeURIComponent(token)}`,
 
-  // From PreMail to PreOffice (for general access)
-  toPreOffice: (token: string) => `https://preoffice.site?token=${token}`,
+  // Service-specific links
+  toPreSuite: (token?: string) =>
+    token ? `https://presuite.eu?token=${token}` : 'https://presuite.eu',
 
-  // From PreDrive to PreOffice (for editing a specific file)
+  toPreMail: (token?: string) =>
+    token ? `https://premail.site?token=${token}` : 'https://premail.site',
+
+  toPreDrive: (token?: string) =>
+    token ? `https://predrive.eu?token=${token}` : 'https://predrive.eu',
+
+  toPreOffice: (token?: string) =>
+    token ? `https://preoffice.site?token=${token}` : 'https://preoffice.site',
+
+  // Open document in PreOffice
   toPreOfficeEdit: (fileId: string, token: string) =>
     `https://preoffice.site/edit?file=${fileId}&token=${token}`,
 
-  // Back to PreMail
-  toPreMail: () => 'https://premail.site',
+  // Auth page links (for redirect-based SSO)
+  toLogin: (returnUrl?: string) =>
+    returnUrl
+      ? `https://presuite.eu/login?redirect=${encodeURIComponent(returnUrl)}`
+      : 'https://presuite.eu/login',
 
-  // To main hub
-  toPreSuite: () => 'https://presuite.eu',
+  toRegister: (returnUrl?: string) =>
+    returnUrl
+      ? `https://presuite.eu/register?redirect=${encodeURIComponent(returnUrl)}`
+      : 'https://presuite.eu/register',
 } as const;
 
-// CORS configuration for cross-service requests
+// ============================================
+// CORS Configuration
+// ============================================
+
 export const CORSConfig = {
+  // Allowed origins
   origins: [
     'https://presuite.eu',
     'https://predrive.eu',
     'https://premail.site',
     'https://preoffice.site',
+    // Development
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:4000',
+    'http://localhost:4001',
+    'http://localhost:5173',
   ],
+
+  // CORS options
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+} as const;
+
+// ============================================
+// Token Verification Helpers
+// ============================================
+
+export const TokenVerification = {
+  // Extract token from Authorization header
+  extractToken: (authHeader: string | undefined): string | null => {
+    if (!authHeader?.startsWith('Bearer ')) return null;
+    return authHeader.slice(7);
+  },
+
+  // Extract token from URL query parameter
+  extractTokenFromUrl: (url: string): string | null => {
+    const params = new URLSearchParams(new URL(url).search);
+    return params.get('token');
+  },
+
+  // Check if token is about to expire (within 1 hour)
+  isExpiringSoon: (exp: number): boolean => {
+    const oneHour = 60 * 60;
+    return exp - Math.floor(Date.now() / 1000) < oneHour;
+  },
+} as const;
+
+// ============================================
+// Error Codes
+// ============================================
+
+export const AuthErrors = {
+  // Registration errors
+  INVALID_EMAIL: 'Email format is invalid',
+  WEAK_PASSWORD: 'Password does not meet requirements',
+  EMAIL_EXISTS: 'Email already registered',
+  PROVISIONING_FAILED: 'Failed to create user resources',
+
+  // Login errors
+  MISSING_CREDENTIALS: 'Email and password are required',
+  INVALID_CREDENTIALS: 'Invalid email or password',
+  ACCOUNT_DISABLED: 'Account has been disabled',
+
+  // Token errors
+  TOKEN_MISSING: 'Authorization header required',
+  TOKEN_INVALID: 'Invalid or malformed token',
+  TOKEN_EXPIRED: 'Token has expired',
+
+  // General errors
+  INTERNAL_ERROR: 'An internal error occurred',
 } as const;
