@@ -94,7 +94,7 @@ This document tracks the implementation status and versions of all PreSuite serv
 - [x] Implement auth routes
 - [x] Stalwart integration
 - [x] CORS configuration
-- [ ] Frontend auth pages (pending)
+- [x] Frontend auth pages (Login & Register)
 
 ### Phase 3: Service Updates (Complete)
 - [x] Update PreMail
@@ -133,6 +133,13 @@ If v2.0.0 fails:
 ---
 
 ## Change Log
+
+### 2026-01-15 (v2.0.1 - Frontend Auth Pages)
+- Added Login page (`/login`) to PreSuite Hub frontend
+- Added Register page (`/register`) to PreSuite Hub frontend
+- Created auth service for API calls
+- Added react-router-dom for routing
+- Deployed to production (presuite.eu)
 
 ### 2026-01-15 (v2.0.0 Release)
 - Implemented centralized auth on PreSuite Hub

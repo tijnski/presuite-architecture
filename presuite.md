@@ -46,9 +46,12 @@ presuite/
 │   │   ├── PreSuiteLaunchpad.jsx   # Main landing page
 │   │   ├── SearchBar.jsx            # Search with autocomplete
 │   │   ├── PreGPTChat.jsx           # AI chat modal
-│   │   └── AppModal.jsx             # App modals (Mail, Drive, etc.)
+│   │   ├── AppModal.jsx             # App modals (Mail, Drive, etc.)
+│   │   ├── Login.jsx                # Login page (/login)
+│   │   └── Register.jsx             # Register page (/register)
 │   ├── services/
-│   │   └── preGPTService.js         # API client for PreGPT
+│   │   ├── preGPTService.js         # API client for PreGPT
+│   │   └── authService.js           # Auth API client
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
@@ -133,6 +136,15 @@ All apps open interactive modals with demo data:
 - [x] JWT token issuance for all PreSuite services
 - [x] CORS enabled for all PreSuite domains
 
+### 8. Frontend Auth Pages (v2.0.1)
+- [x] Login page (`/login`) with glassmorphism design
+- [x] Register page (`/register`) with password validation
+- [x] Auth service for API communication
+- [x] React Router for page navigation
+- [x] Dark mode support on auth pages
+- [x] Redirect after successful auth
+- [x] Error handling and loading states
+
 ---
 
 ## Pending Features (TODO)
@@ -150,7 +162,7 @@ All apps open interactive modals with demo data:
    - Integrate with Presearch wallet API or blockchain
    - Show real PRE token balance
 
-4. **Add user authentication/login system**
+4. ~~**Add user authentication/login system**~~ ✅ COMPLETED
    - User accounts with secure authentication
    - Session management
    - Profile data storage
@@ -304,7 +316,10 @@ scp -r dist/* root@76.13.2.221:/var/www/presuite/
 | `src/components/SearchBar.jsx` | Search input with autocomplete |
 | `src/components/PreGPTChat.jsx` | AI chat modal component |
 | `src/components/AppModal.jsx` | All app modal UIs (700+ lines) |
+| `src/components/Login.jsx` | Login page with auth flow |
+| `src/components/Register.jsx` | Registration page with validation |
 | `src/services/preGPTService.js` | Venice AI API client |
+| `src/services/authService.js` | Auth API client (login, register, etc.) |
 | `server.js` | Express backend for API proxy |
 
 ---
