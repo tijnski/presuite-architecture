@@ -45,17 +45,23 @@ presuite/
 │   ├── components/
 │   │   ├── PreSuiteLaunchpad.jsx   # Main landing page
 │   │   ├── SearchBar.jsx            # Search with autocomplete
-│   │   ├── PreGPTChat.jsx           # AI chat modal
+│   │   ├── PreGPTChat.jsx           # AI chat modal (with history)
 │   │   ├── AppModal.jsx             # App modals (Mail, Drive, etc.)
+│   │   ├── Settings.jsx             # Settings panel modal
+│   │   ├── Notifications.jsx        # Notifications dropdown
+│   │   ├── UserProfile.jsx          # User profile panel
 │   │   ├── Login.jsx                # Login page (/login)
 │   │   └── Register.jsx             # Register page (/register)
 │   ├── services/
 │   │   ├── preGPTService.js         # API client for PreGPT
-│   │   └── authService.js           # Auth API client
+│   │   ├── authService.js           # Auth API client
+│   │   ├── preDriveService.js       # PreDrive API client
+│   │   └── preMailService.js        # PreMail API client
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── index.css
 ├── server.js                # Express backend for Venice AI proxy
+├── deploy.sh                # Server deployment script
 ├── package.json
 ├── vite.config.js
 └── index.html
@@ -91,24 +97,26 @@ presuite/
 - [x] Dark mode support
 - [x] "Anonymous & Non-profiling" header
 
-### 4. App Modals (Functional Placeholders)
-All apps open interactive modals with demo data:
+### 4. App Modals
+Interactive modals for each PreSuite app:
 
-| App | Features |
-|-----|----------|
-| **PreMail** | Inbox, folders (Sent, Starred, Archive, Trash), email list, compose button, search |
-| **PreDrive** | File browser, folders/files list, upload, new folder, breadcrumb, storage indicator |
-| **PreDocs** | Recent documents grid, document list, new document button, shared indicators |
-| **PreSheets** | Spreadsheet grid previews, row counts, timestamps |
-| **PreSlides** | Presentation cards, slide counts, aspect-ratio previews |
-| **PreCalendar** | Monthly calendar, today's events, new event button |
-| **PreWallet** | Balance card, Send/Receive/Swap, staking stats, transaction history |
+| App | Features | Status |
+|-----|----------|--------|
+| **PreMail** | Inbox, folders (Sent, Starred, Archive, Trash), email list, compose button, search | ✅ Real data via PreMail API |
+| **PreDrive** | File browser, folders/files list, upload, new folder, breadcrumb, storage indicator | ✅ Real data via PreDrive API |
+| **PreDocs** | Recent documents grid, document list, new document button, shared indicators | Demo data |
+| **PreSheets** | Spreadsheet grid previews, row counts, timestamps | Demo data |
+| **PreSlides** | Presentation cards, slide counts, aspect-ratio previews | Demo data |
+| **PreCalendar** | Monthly calendar, today's events, new event button | Demo data |
+| **PreWallet** | Balance card, Send/Receive/Swap, staking stats, transaction history | Demo data |
 
 ### 5. Dashboard Widgets
-- [x] Recent files section (4 items with app icons)
+- [x] Recent files section (real data from PreDrive API)
 - [x] Trust/verification status card
-- [x] Storage usage indicator (progress bar)
+- [x] Storage usage indicator (real data from PreDrive API)
 - [x] PRE Balance card with gradient design
+- [x] Notifications dropdown with badge count
+- [x] User profile panel (click avatar to open)
 
 ### 6. Backend & Deployment
 - [x] Express server proxying to Venice AI
@@ -150,13 +158,13 @@ All apps open interactive modals with demo data:
 ## Pending Features (TODO)
 
 ### High Priority
-1. **Replace hardcoded Recent files with actual data/storage integration**
-   - Connect to real file system or database
-   - Track user's actual recent activity
+1. ~~**Replace hardcoded Recent files with actual data/storage integration**~~ ✅ COMPLETED
+   - Connected to PreDrive API via `preDriveService.js`
+   - Shows user's actual recent files from PreDrive
 
-2. **Implement actual storage tracking**
-   - Currently shows mock "4.2 GB / 30 GB"
-   - Need real storage calculation
+2. ~~**Implement actual storage tracking**~~ ✅ COMPLETED
+   - Connected to PreDrive API storage endpoint
+   - Shows real storage usage with progress bar
 
 3. **Connect PRE Balance to real wallet/blockchain data**
    - Integrate with Presearch wallet API or blockchain
@@ -168,26 +176,27 @@ All apps open interactive modals with demo data:
    - Profile data storage
 
 ### Medium Priority
-5. **Implement Settings panel functionality**
-   - Theme preferences
+5. ~~**Implement Settings panel functionality**~~ ✅ COMPLETED
+   - Theme preferences (dark mode toggle)
    - Notification settings
    - Account settings
    - Privacy controls
 
-6. **Add notifications system**
-   - Real-time notifications
-   - Notification preferences
-   - Bell icon badge count
+6. ~~**Add notifications system**~~ ✅ COMPLETED
+   - Notifications dropdown with bell icon
+   - Mark as read/delete functionality
+   - Badge count for unread notifications
+   - Persisted to localStorage
 
-7. **Persist PreGPT chat history across sessions**
-   - Local storage or backend storage
+7. ~~**Persist PreGPT chat history across sessions**~~ ✅ COMPLETED
+   - Stored in localStorage
    - Chat history retrieval
    - Conversation management
 
 ### Future Enhancements
-- Connect app modals to real backend services
+- ~~Connect app modals to real backend services~~ ✅ PreMail & PreDrive connected
 - File upload/download in PreDrive
-- Real email integration in PreMail
+- ~~Real email integration in PreMail~~ ✅ COMPLETED
 - Document editing in PreDocs
 - Spreadsheet functionality in PreSheets
 - Presentation viewer in PreSlides
@@ -215,7 +224,7 @@ server {
     ssl_certificate /etc/letsencrypt/live/presuite.eu/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/presuite.eu/privkey.pem;
 
-    root /var/www/presuite;
+    root /var/www/presuite/dist;
     index index.html;
 
     # API proxy to Node.js backend
@@ -266,7 +275,7 @@ The backend (`server.js`) proxies requests to Venice AI:
 
 ```javascript
 const VENICE_API_URL = 'https://api.venice.ai/api/v1';
-const VENICE_API_KEY = 'H8d2T0helnDflIuGixZRRRAhEw0eJHdMWu6CRfXMH7';
+const VENICE_API_KEY = process.env.VENICE_API_KEY; // Stored in server .env
 
 // Models used:
 // - Fast: llama-3.3-70b
@@ -301,9 +310,61 @@ npm run server
 
 # Build for production
 npm run build
+```
 
-# Deploy to production
-scp -r dist/* root@76.13.2.221:/var/www/presuite/
+---
+
+## Deployment Workflow
+
+The server has a git-based deployment setup at `/var/www/presuite/`.
+
+### Local Development → Deploy
+
+**Step 1: Make changes locally**
+```bash
+cd /path/to/presuite
+# Edit files...
+```
+
+**Step 2: Commit and push to GitHub**
+```bash
+git add -A
+git commit -m "Your changes"
+git push origin main
+```
+
+**Step 3: Deploy to server**
+```bash
+# Option A: Use deploy script (recommended)
+ssh root@76.13.2.221 "/var/www/presuite/deploy.sh"
+
+# Option B: Manual deployment
+ssh root@76.13.2.221
+cd /var/www/presuite
+git pull origin main
+npm install  # Only if dependencies changed
+npm run build
+```
+
+### Server Paths
+| Path | Description |
+|------|-------------|
+| `/var/www/presuite/` | Git repository root |
+| `/var/www/presuite/dist/` | Built files (served by Nginx) |
+| `/var/www/presuite/deploy.sh` | Auto-deploy script |
+| `/var/www/presuite-api/` | Backend API (separate) |
+
+### Deploy Script (`/var/www/presuite/deploy.sh`)
+```bash
+#!/bin/bash
+cd /var/www/presuite
+echo "Pulling latest changes..."
+git pull origin main
+echo "Installing dependencies..."
+npm install
+echo "Building..."
+npm run build
+echo "Done! Site updated."
 ```
 
 ---
@@ -316,10 +377,15 @@ scp -r dist/* root@76.13.2.221:/var/www/presuite/
 | `src/components/SearchBar.jsx` | Search input with autocomplete |
 | `src/components/PreGPTChat.jsx` | AI chat modal component |
 | `src/components/AppModal.jsx` | All app modal UIs (700+ lines) |
+| `src/components/Notifications.jsx` | Notifications dropdown with badge |
+| `src/components/UserProfile.jsx` | User profile panel |
+| `src/components/Settings.jsx` | Settings panel modal |
 | `src/components/Login.jsx` | Login page with auth flow |
 | `src/components/Register.jsx` | Registration page with validation |
 | `src/services/preGPTService.js` | Venice AI API client |
 | `src/services/authService.js` | Auth API client (login, register, etc.) |
+| `src/services/preDriveService.js` | PreDrive API client (files, storage) |
+| `src/services/preMailService.js` | PreMail API client (emails, unread counts) |
 | `server.js` | Express backend for API proxy |
 
 ---
@@ -366,12 +432,12 @@ border: 1px solid rgba(255, 255, 255, 0.1);
 
 ## Notes for AI Agent
 
-1. **When making changes**, always rebuild with `npm run build` and deploy with `scp`
+1. **When making changes**, commit to GitHub and run `ssh root@76.13.2.221 "/var/www/presuite/deploy.sh"`
 2. **Backend changes** require PM2 restart: `ssh root@76.13.2.221 "pm2 restart presuite-api"`
 3. **Test PreGPT** with: `curl -s https://presuite.eu/api/pregpt/status`
-4. **The app modals are placeholders** - they have realistic UI but no real backend functionality yet
+4. **PreMail and PreDrive modals** are connected to real APIs; other app modals use demo data
 5. **Dark mode state** is managed in PreSuiteLaunchpad and passed down via `isDark` prop
-6. **Venice AI key** is hardcoded in server.js - consider moving to environment variables
+6. **Venice AI key** is stored in environment variables on the server
 
 ---
 
