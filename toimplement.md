@@ -14,8 +14,8 @@ tasks:
   - id: PSH-001
     title: PRE Balance Integration
     description: Connect PRE Balance widget to real Presearch wallet/blockchain data
-    status: pending
-    files: [src/components/PreSuiteLaunchpad.jsx]
+    status: done
+    files: [src/services/preBalanceService.js]
 
   - id: PSH-002
     title: Real Recent Files
@@ -40,8 +40,8 @@ tasks:
   - id: PM-001
     title: Attachment Handling
     description: Add attachment upload/download support in email UI
-    status: pending
-    files: [apps/web/src/pages/InboxPage.tsx, apps/api/src/routes/mail.ts]
+    status: done
+    files: [apps/api/src/routes/attachments.ts]
 
   - id: PM-002
     title: Email Threading
@@ -126,8 +126,8 @@ tasks:
   - id: PO-001
     title: Persistent Demo Storage
     description: Demo mode stores files in memory - add persistent storage option
-    status: pending
-    files: [presearch/online/wopi-server/src/index.js]
+    status: done
+    files: [presearch/online/wopi-server/src/index.js, presearch/online/docker-compose.yml]
 
   - id: PO-002
     title: Full PreDrive Integration
@@ -204,9 +204,9 @@ tasks:
 
 | ID | Location | Issue | Status |
 |----|----------|-------|--------|
-| TD-001 | PreMail API | Folder name mismatch (sent vs "Sent Items") | `pending` |
+| TD-001 | PreMail API | Folder name mismatch (sent vs "Sent Items") | `done` |
 | TD-002 | PreMail Web | localStorage persists account ID after DB reset | `pending` |
-| TD-003 | PreOffice WOPI | Demo mode files in memory (not persistent) | `pending` |
+| TD-003 | PreOffice WOPI | Demo mode files in memory (not persistent) | `done` |
 | TD-004 | PreMail | `mail_password` stored in plain text for IMAP | `pending` |
 | TD-005 | PreSuite | Venice API key hardcoded | `done` |
 
@@ -216,10 +216,10 @@ tasks:
 
 | Item | Status | Description |
 |------|--------|-------------|
-| API Documentation | `pending` | OpenAPI/Swagger specs |
+| API Documentation | `done` | See API-DOCS.md |
 | User Guide | `pending` | End-user documentation |
-| Deployment Guide | `pending` | Consolidated deployment docs |
-| Troubleshooting | `pending` | Expanded troubleshooting |
+| Deployment Guide | `done` | See DEPLOYMENT.md |
+| Troubleshooting | `done` | Included in DEPLOYMENT.md |
 | Architecture Diagrams | `pending` | Visual data flow diagrams |
 
 ---
@@ -252,10 +252,10 @@ tasks:
 
 ```
 Total Tasks: 45
-Completed: 18
+Completed: 26
 In Progress: 0
-Pending: 27
-Completion: 40%
+Pending: 19
+Completion: 58%
 ```
 
 ---
