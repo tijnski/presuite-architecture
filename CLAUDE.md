@@ -267,11 +267,21 @@ AUTH_API_URL=https://presuite.eu/api/auth
 
 ## BRAND COLORS
 
+### Official Presearch (from Brandfetch)
 **Primary:** `#0190FF` (Presearch Azure)
 **Hover:** `#0177D6`
 **Light Tint:** `#E6F4FF`
 **Dark Background:** `#1E1E1E`
 **Dark Surface:** `#323232` (Mine Shaft)
+
+### presearch-web Colors (for reference)
+**Primary:** `#3591FC` / `#2D8EFF`
+**Dark Glass BG:** `rgba(13, 15, 18, 0.55)`
+**Toggle Active:** `#2266ff`
+**Dark-900:** `#191919`
+**Dark-800:** `#1e1e1e`
+
+> Note: Use official Presearch colors (`#0190FF`) for PreSuite services. See `UIPatterns-PresearchWeb.md` for complete presearch-web patterns.
 
 ---
 
@@ -410,5 +420,6 @@ ssh root@<server> "openssl s_client -connect <domain>:443 -servername <domain>"
 
 - Detailed service docs: See individual `*.md` files
 - UI implementation: `UIimplement.md`, `NewUI-*.md`
+- **presearch-web UI patterns: `UIPatterns-PresearchWeb.md`** (Dark Glass theme, toggles, animations)
 - Task tracking: `toimplement.md`
 - API specs: `AUTH-API.md`
