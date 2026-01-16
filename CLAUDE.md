@@ -2,6 +2,7 @@
 
 > **Purpose:** Primary reference document for AI agents working on the PreSuite ecosystem.
 > **Last Updated:** January 16, 2026
+> **Start Here:** [INDEX.md](INDEX.md) for full documentation navigation
 
 ---
 
@@ -399,20 +400,54 @@ ssh root@76.13.2.220 "cd /opt/preoffice && git checkout -b $BRANCH"
 
 ### This Repository (ARC)
 
-| File | Purpose |
-|------|---------|
-| `CLAUDE.md` | AI agent reference (this file) |
-| `README.md` | Project overview |
-| `PRESUITE.md` | PreSuite Hub documentation |
-| `PREDRIVE.md` | PreDrive documentation |
-| `PREMAIL.md` | PreMail documentation |
-| `PREOFFICE.md` | PreOffice documentation |
-| `PRESOCIAL.md` | PreSocial documentation (Lemmy integration) |
-| `INTEGRATION.md` | Cross-service integration |
-| `API-REFERENCE.md` | Complete API documentation |
-| `IMPLEMENTATION-STATUS.md` | Task tracking and status |
-| `UIimplement.md` | UI design system |
-| `INDEX.md` | Documentation navigation hub |
+```
+ARC/
+├── INDEX.md                    # Navigation hub (start here)
+├── README.md                   # Project overview
+├── CLAUDE.md                   # AI agent reference (this file)
+│
+├── Service Documentation
+│   ├── PRESUITE.md             # PreSuite Hub
+│   ├── PREDRIVE.md             # PreDrive (cloud storage)
+│   ├── PREMAIL.md              # PreMail (email)
+│   ├── PREOFFICE.md            # PreOffice (documents)
+│   └── PRESOCIAL.md            # PreSocial (Lemmy)
+│
+├── API & Integration
+│   ├── API-REFERENCE.md        # Complete API documentation
+│   └── INTEGRATION.md          # Cross-service integration
+│
+├── Architecture (architecture/)
+│   ├── README.md               # Architecture index
+│   ├── OVERVIEW.md             # High-level system design
+│   ├── OAUTH-SSO.md            # OAuth 2.0 flow & tokens
+│   ├── PREMAIL.md              # Email service architecture
+│   ├── PREDRIVE.md             # Cloud storage architecture
+│   ├── PREOFFICE.md            # Document editing (WOPI)
+│   ├── INFRASTRUCTURE.md       # Server layout & Docker
+│   ├── DATA-FLOWS.md           # Email & collaboration flows
+│   └── SECURITY.md             # Security layers
+│
+├── UI/UX
+│   ├── UIimplement.md          # Design system
+│   └── UIPatterns-PresearchWeb.md  # Dark Glass theme
+│
+├── Operations
+│   ├── DEPLOYMENT.md           # Deployment guide
+│   ├── DEPLOYMENT-SUMMARY.md   # Production status
+│   ├── MONITORING-INFRASTRUCTURE.md
+│   └── TESTING-INFRASTRUCTURE.md
+│
+├── Status
+│   ├── IMPLEMENTATION-STATUS.md  # Task tracking (~85%)
+│   └── VERSION.md              # Version history
+│
+└── Infrastructure
+    ├── config/                 # env.template, sso.config.ts
+    ├── scripts/                # deploy, health, sync
+    ├── monitoring/             # logging, metrics, alerting
+    └── e2e-tests/              # Playwright tests
+```
 
 ---
 
@@ -476,9 +511,11 @@ ssh root@<server> "openssl s_client -connect <domain>:443 -servername <domain>"
 
 ## RELATED DOCUMENTS
 
-- **Navigation hub: `INDEX.md`** - Start here for all documentation
-- Detailed service docs: See individual `*.md` files
-- UI implementation: `UIimplement.md`
-- **presearch-web UI patterns: `UIPatterns-PresearchWeb.md`** (Dark Glass theme, toggles, animations)
-- Task tracking: `IMPLEMENTATION-STATUS.md`
-- API specs: `API-REFERENCE.md`
+| Document | Purpose |
+|----------|---------|
+| **[INDEX.md](INDEX.md)** | Navigation hub - start here |
+| [API-REFERENCE.md](API-REFERENCE.md) | Complete API documentation |
+| [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) | Task tracking (~85% complete) |
+| [architecture/](architecture/README.md) | System architecture diagrams |
+| [UIimplement.md](UIimplement.md) | Design system |
+| [UIPatterns-PresearchWeb.md](UIPatterns-PresearchWeb.md) | Dark Glass theme patterns |
