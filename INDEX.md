@@ -105,6 +105,7 @@
 |------|---------|
 | [config/env.template](config/env.template) | Environment variables template |
 | [config/sso.config.ts](config/sso.config.ts) | OAuth SSO TypeScript configuration |
+| [config/STORJ-SETUP.md](config/STORJ-SETUP.md) | Storj S3 storage configuration |
 | [scripts/deploy-all.sh](scripts/deploy-all.sh) | Deploy all services to production |
 | [scripts/health-check.sh](scripts/health-check.sh) | Monitor service health |
 | [scripts/sync-secrets.sh](scripts/sync-secrets.sh) | Verify JWT secrets match across services |

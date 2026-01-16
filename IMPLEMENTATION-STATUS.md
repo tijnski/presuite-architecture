@@ -140,6 +140,7 @@
 - [ ] Filters & Rules
 - [ ] Rich Text Compose editor
 - [ ] Contact Management/Address book
+- [ ] Storj bucket for email attachments (see [config/STORJ-SETUP.md](config/STORJ-SETUP.md))
 
 #### PreDrive Features
 - [ ] Real-time Collaboration
