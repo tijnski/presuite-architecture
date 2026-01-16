@@ -91,16 +91,15 @@
 
 ## In Progress / High Priority
 
-### PreMail - Remove Postal Code (Deprecated)
-**Location:** See [DEPRECATED-POSTAL.md](DEPRECATED-POSTAL.md)
-**Status:** To be removed - Stalwart handles all email
+### PreMail - Postal Server Testing
+**Location:** `premail/POSTAL_MIGRATION_PROGRESS.md`
+**Status:** Implementation complete, needs testing
 
-- [ ] Remove `packages/postal/` directory from premail repo
-- [ ] Remove `@premail/postal` references from package.json files
-- [ ] Remove `POSTAL_*` environment variables
-- [ ] Update PREMAIL.md project structure
-- [ ] Delete `premail/POSTAL_MIGRATION_PROGRESS.md`
-- [ ] Verify build passes after removal
+- [ ] Run `pnpm install` to link new postal package
+- [ ] Initialize Postal server (create user, organization, server)
+- [ ] Generate API credentials in Postal web UI
+- [ ] Test send flow end-to-end
+- [ ] Verify webhook delivery
 
 ---
 
@@ -202,8 +201,8 @@
 
 ## Recommended Next Steps
 
-1. **Immediate:** Remove deprecated Postal code from PreMail
-2. **This Week:** Implement WebDAV copy handler in PreDrive
-3. **Next Week:** Add PreMail Storj bucket for attachments
+1. **Immediate:** Deploy PreCalendar changes to production
+2. **This Week:** Test Postal server migration for PreMail
+3. **Next Week:** Implement WebDAV copy handler in PreDrive
 4. **Ongoing:** Add integration tests
 5. **Ongoing:** Security audit
