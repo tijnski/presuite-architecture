@@ -158,16 +158,16 @@
 
 ## File Statistics
 
-| Category | Files | Total Size |
-|----------|-------|------------|
-| Core docs | 4 | ~60K |
-| Service docs | 5 | ~86K |
-| Architecture | 8 | ~30K |
-| UI docs | 2 | ~31K |
-| API docs | 1 | ~18K |
-| Operations | 4 | ~34K |
-| Tracking | 1 | ~8K |
-| **Total Markdown** | **27** | **~267K** |
+| Category | Files | Description |
+|----------|-------|-------------|
+| Core docs | 5 | README, CLAUDE, INDEX, USER-GUIDE, VERSION |
+| Service docs | 5 | PRESUITE, PREDRIVE, PREMAIL, PREOFFICE, PRESOCIAL |
+| Architecture | 9 | architecture/ directory |
+| Integration | 2 | API-REFERENCE, INTEGRATION |
+| UI docs | 2 | UIimplement, UIPatterns-PresearchWeb |
+| Operations | 4 | DEPLOYMENT, DEPLOYMENT-SUMMARY, MONITORING, TESTING |
+| Other | 2 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS |
+| **Total Markdown** | **29** | |
 
 ---
 
