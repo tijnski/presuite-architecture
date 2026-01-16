@@ -56,7 +56,10 @@ PreSocial is a **standalone social layer** for the PreSuite/Presearch ecosystem 
 │   │  │  GET  /api/social/communities          - List relevant communities  │ │   │
 │   │  │  GET  /api/social/trending             - Trending discussions       │ │   │
 │   │  │  POST /api/social/vote                 - Vote on post (auth req)    │ │   │
-│   │  │  POST /api/social/comment              - Add comment (auth req)     │ │   │
+│   │  │  GET  /api/social/votes                - Get user's votes (auth)    │ │   │
+│   │  │  POST /api/social/bookmark             - Save/unsave post (auth)    │ │   │
+│   │  │  GET  /api/social/bookmarks            - Get saved posts (auth)     │ │   │
+│   │  │  GET  /api/social/bookmark/:postId     - Check if saved (auth)      │ │   │
 │   │  │  GET  /api/social/health               - Health check               │ │   │
 │   │  │                                                                     │ │   │
 │   │  └────────────────────────────────────────────────────────────────────┘ │   │
@@ -148,9 +151,12 @@ PreSocial/
 │       │   │   ├── CommunitiesPage.jsx
 │       │   │   ├── SearchPage.jsx
 │       │   │   ├── PostPage.jsx
-│       │   │   └── LoginPage.jsx
+│       │   │   ├── LoginPage.jsx
+│       │   │   └── SavedPage.jsx      # Bookmarked posts
 │       │   ├── context/
-│       │   │   └── AuthContext.jsx    # Auth state
+│       │   │   ├── AuthContext.jsx    # Auth state
+│       │   │   ├── VoteContext.jsx    # Vote state
+│       │   │   └── BookmarkContext.jsx # Bookmark state
 │       │   └── services/
 │       │       ├── preSocialService.js
 │       │       └── authService.js     # PreSuite auth
@@ -549,6 +555,53 @@ Get a single post with its comments.
 }
 ```
 
+#### POST /api/social/vote
+
+Vote on a post (requires authentication).
+
+**Request:**
+```
+POST /api/social/vote
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "postId": 12345,
+  "vote": "up"  // "up", "down", or "none"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "postId": 12345,
+  "vote": "up",
+  "previousVote": null,
+  "scoreChange": 1
+}
+```
+
+#### GET /api/social/votes
+
+Get all votes for the authenticated user.
+
+**Request:**
+```
+GET /api/social/votes
+Authorization: Bearer <jwt-token>
+```
+
+**Response:**
+```json
+{
+  "votes": {
+    "12345": "up",
+    "67890": "down"
+  }
+}
+```
+
 #### GET /api/social/trending
 
 Get trending discussions (cached, updated hourly).
@@ -565,6 +618,94 @@ Get trending discussions (cached, updated hourly).
       "hot_rank": 9500
     }
   ]
+}
+```
+
+#### POST /api/social/bookmark
+
+Toggle save/unsave a post (requires authentication).
+
+**Request:**
+```
+POST /api/social/bookmark
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "postId": 12345,
+  "post": {
+    "id": 12345,
+    "title": "Post title",
+    "url": "https://lemmy.world/post/12345",
+    "score": 234,
+    "commentCount": 87,
+    "community": "technology",
+    "author": "username",
+    "timestamp": "2025-01-10T14:30:00Z",
+    "thumbnail": "https://...",
+    "excerpt": "Preview text..."
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "postId": 12345,
+  "saved": true
+}
+```
+
+> Note: The `post` object is required when saving (not when unsaving). The endpoint toggles the bookmark state.
+
+#### GET /api/social/bookmarks
+
+Get all saved posts for the authenticated user.
+
+**Request:**
+```
+GET /api/social/bookmarks
+Authorization: Bearer <jwt-token>
+```
+
+**Response:**
+```json
+{
+  "bookmarks": [
+    {
+      "id": 12345,
+      "title": "Saved post title",
+      "url": "https://lemmy.world/post/12345",
+      "score": 234,
+      "commentCount": 87,
+      "community": "technology",
+      "author": "username",
+      "timestamp": "2025-01-10T14:30:00Z",
+      "thumbnail": "https://...",
+      "excerpt": "Preview text...",
+      "savedAt": "2026-01-16T15:30:00Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+#### GET /api/social/bookmark/:postId
+
+Check if a specific post is bookmarked.
+
+**Request:**
+```
+GET /api/social/bookmark/12345
+Authorization: Bearer <jwt-token>
+```
+
+**Response:**
+```json
+{
+  "postId": 12345,
+  "saved": true
 }
 ```
 
@@ -643,9 +784,11 @@ PreSocial uses PreSuite Hub for centralized authentication.
 - [x] Session persistence (localStorage)
 - [x] Token verification on page load
 
-### Future Auth Features
-- [ ] Vote on posts (via Lemmy bot account)
-- [ ] Comment on discussions
+### Authenticated Features
+- [x] Vote on posts (upvote/downvote with visual feedback)
+- [x] Save/bookmark posts (yellow highlight when saved)
+- [x] View saved posts page (/saved)
+- [ ] Comment on discussions (via Lemmy bot account)
 - [ ] Save favorite communities
 
 ---
@@ -809,10 +952,10 @@ const preSuiteApps = [
 - [x] Trending discussions
 - [x] Mobile-responsive design
 
-### Phase 3: Interactions (In Progress)
+### Phase 3: Interactions ✅
 - [x] PreSuite auth integration (login/register via PreSuite Hub)
-- [ ] Voting capability (via bot account)
-- [ ] Save/bookmark discussions
+- [x] Voting capability (upvote/downvote with optimistic updates)
+- [x] Save/bookmark discussions (with Saved page)
 - [ ] Comment viewing
 
 ### Phase 4: Advanced Features (Future)
@@ -835,3 +978,4 @@ const preSuiteApps = [
 
 *Last updated: January 16, 2026*
 *Status: Production - Live at https://presocial.presuite.eu*
+*Features: Authentication, Voting, Bookmarks*
