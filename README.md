@@ -48,33 +48,48 @@ See [`architecture/`](architecture/README.md) for detailed diagrams.
 
 ```
 ARC/
-├── INDEX.md                 # Start here - navigation hub
-├── CLAUDE.md                # AI agent reference
-│
-├── architecture/            # System architecture diagrams
-│   ├── OVERVIEW.md          # High-level system design
-│   ├── OAUTH-SSO.md         # OAuth flow & tokens
-│   ├── PREMAIL.md           # Email service
-│   ├── PREDRIVE.md          # Cloud storage
-│   ├── PREOFFICE.md         # Document editing
-│   ├── INFRASTRUCTURE.md    # Server layout & Docker
-│   ├── DATA-FLOWS.md        # Email & collaboration flows
-│   └── SECURITY.md          # Security layers
+├── INDEX.md                    # Start here - navigation hub
+├── README.md                   # Project overview (this file)
+├── CLAUDE.md                   # AI agent reference
 │
 ├── Service Documentation
-│   ├── PRESUITE.md          # PreSuite Hub
-│   ├── PREDRIVE.md          # PreDrive
-│   ├── PREMAIL.md           # PreMail
-│   ├── PREOFFICE.md         # PreOffice
-│   └── PRESOCIAL.md         # PreSocial
+│   ├── PRESUITE.md             # PreSuite Hub
+│   ├── PREDRIVE.md             # PreDrive
+│   ├── PREMAIL.md              # PreMail
+│   ├── PREOFFICE.md            # PreOffice
+│   └── PRESOCIAL.md            # PreSocial
 │
-├── API-REFERENCE.md         # Complete API documentation
-├── INTEGRATION.md           # Cross-service integration
-├── IMPLEMENTATION-STATUS.md # Task tracking (~85% complete)
+├── architecture/               # System architecture diagrams (9 files)
+│   ├── README.md               # Architecture index
+│   ├── OVERVIEW.md             # High-level system design
+│   ├── OAUTH-SSO.md            # OAuth flow & tokens
+│   ├── PREMAIL.md              # Email service
+│   ├── PREDRIVE.md             # Cloud storage
+│   ├── PREOFFICE.md            # Document editing
+│   ├── INFRASTRUCTURE.md       # Server layout & Docker
+│   ├── DATA-FLOWS.md           # Email & collaboration flows
+│   └── SECURITY.md             # Security layers
 │
-├── scripts/                 # Deployment & operations
-├── monitoring/              # Logging, metrics, alerting
-└── e2e-tests/               # Playwright E2E tests
+├── API & Integration
+│   ├── API-REFERENCE.md        # Complete API documentation
+│   └── INTEGRATION.md          # Cross-service integration
+│
+├── UI/UX
+│   ├── UIimplement.md          # Design system
+│   └── UIPatterns-PresearchWeb.md  # Dark Glass theme
+│
+├── Operations
+│   ├── DEPLOYMENT.md           # Deployment guide
+│   ├── DEPLOYMENT-SUMMARY.md   # Production status
+│   ├── MONITORING-INFRASTRUCTURE.md
+│   └── TESTING-INFRASTRUCTURE.md
+│
+├── IMPLEMENTATION-STATUS.md    # Task tracking (~85% complete)
+│
+├── config/                     # Environment templates
+├── scripts/                    # Deployment & operations
+├── monitoring/                 # Logging, metrics, alerting
+└── e2e-tests/                  # Playwright E2E tests
 ```
 
 ---
@@ -127,6 +142,7 @@ ARC/
 | 76.13.1.110 | predrive.eu | PreDrive |
 | 76.13.1.117 | premail.site | PreMail |
 | 76.13.2.220 | preoffice.site | PreOffice |
+| 76.13.2.221 | presocial.presuite.eu | PreSocial |
 
 ---
 
@@ -138,6 +154,7 @@ git clone https://github.com/tijnski/presuite
 git clone https://github.com/tijnski/predrive
 git clone https://github.com/tijnski/premail
 git clone https://github.com/tijnski/preoffice
+git clone https://github.com/tijnski/presocial
 
 # Required environment variables (must be identical across all services)
 JWT_SECRET=<your-secret-here>
@@ -162,4 +179,5 @@ AUTH_API_URL=https://presuite.eu/api/auth
 - [predrive](https://github.com/tijnski/predrive) - Cloud storage
 - [premail](https://github.com/tijnski/premail) - Email service
 - [preoffice](https://github.com/tijnski/preoffice) - Document editing
+- [presocial](https://github.com/tijnski/presocial) - Community discussions
 - [presuite-architecture](https://github.com/tijnski/presuite-architecture) - This repository
