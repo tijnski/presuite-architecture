@@ -61,7 +61,7 @@ tasks:
 tasks:
   - id: SEC-001
     title: Rate Limiting Verification
-    description: Verify rate limiting is implemented per AUTH-API.md spec
+    description: Verify rate limiting is implemented per API-REFERENCE.md spec
     status: done
 
   - id: SEC-002
@@ -220,7 +220,7 @@ tasks:
 
 | Item | Status | Description |
 |------|--------|-------------|
-| API Documentation | `done` | See API-DOCS.md |
+| API Documentation | `done` | See API-REFERENCE.md |
 | User Guide | `pending` | End-user documentation |
 | Deployment Guide | `done` | See DEPLOYMENT.md |
 | Troubleshooting | `done` | Included in DEPLOYMENT.md |

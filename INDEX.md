@@ -13,7 +13,7 @@
 | Understand the project | [README.md](README.md) |
 | Use PreSuite as a user | [USER-GUIDE.md](USER-GUIDE.md) |
 | Deploy services | [DEPLOYMENT.md](DEPLOYMENT.md) |
-| Check API endpoints | [API-DOCS.md](API-DOCS.md) |
+| Check API endpoints | [API-REFERENCE.md](API-REFERENCE.md) |
 | See what's left to build | [toimplement.md](toimplement.md) |
 
 ---
@@ -57,8 +57,7 @@
 
 | File | Purpose |
 |------|---------|
-| [AUTH-API.md](AUTH-API.md) | Authentication API specification, JWT format |
-| [API-DOCS.md](API-DOCS.md) | Complete API reference for all services |
+| [API-REFERENCE.md](API-REFERENCE.md) | Complete API documentation (auth, PreDrive, PreMail, PreOffice) |
 
 ---
 
@@ -138,9 +137,8 @@
 2. [UIPatterns-PresearchWeb.md](UIPatterns-PresearchWeb.md) - Component patterns
 
 ### For Backend/API Work
-1. [AUTH-API.md](AUTH-API.md) - Authentication
-2. [API-DOCS.md](API-DOCS.md) - All endpoints
-3. [INTEGRATION.md](INTEGRATION.md) - Service communication
+1. [API-REFERENCE.md](API-REFERENCE.md) - All endpoints and authentication
+2. [INTEGRATION.md](INTEGRATION.md) - Service communication
 
 ### For DevOps/Deployment
 1. [DEPLOYMENT.md](DEPLOYMENT.md) - Deployment procedures
@@ -156,10 +154,10 @@
 | Core docs | 4 | ~60K |
 | Service docs | 5 | ~86K |
 | UI docs | 2 | ~31K |
-| API docs | 2 | ~16K |
+| API docs | 1 | ~18K |
 | Operations | 4 | ~34K |
 | Tracking | 2 | ~16K |
-| **Total Markdown** | **22** | **~243K** |
+| **Total Markdown** | **21** | **~245K** |
 
 ---
 
