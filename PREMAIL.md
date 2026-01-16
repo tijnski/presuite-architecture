@@ -40,10 +40,20 @@ premail/
 - **Nodemailer** for SMTP/sending emails
 
 ### Infrastructure
-- **Stalwart Mail Server** - Handles IMAP/SMTP for @premail.site accounts
+- **Stalwart Mail Server** - Handles IMAP/SMTP for @premail.site accounts (AGPLv3 license)
 - **PostgreSQL** - Database (runs in Docker container `premail-postgres`)
 - **PM2** - Process management on production server
 - **Nginx** - Reverse proxy
+
+### Third-Party Licensing
+
+| Component | License | Notes |
+|-----------|---------|-------|
+| **Stalwart Mail Server** | AGPLv3 | Open source, requires source disclosure if modified and deployed as network service |
+| **PostgreSQL** | PostgreSQL License | Permissive, similar to MIT/BSD |
+| **Nginx** | BSD-2-Clause | Permissive |
+
+> **Note:** Stalwart Community Edition is AGPLv3 licensed. If you modify Stalwart and deploy it as a network service, you must make your modifications available under AGPLv3. Using it unmodified does not trigger this requirement.
 
 ## Server Configuration
 

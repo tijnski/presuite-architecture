@@ -28,6 +28,7 @@
 | [CLAUDE.md](CLAUDE.md) | AI agent/developer quick reference, SSH commands, servers | Developers |
 | [VERSION.md](VERSION.md) | Version history versus implementation milestones | Project managers |
 | [USER-GUIDE.md](USER-GUIDE.md) | End-user documentation, features, troubleshooting | End users |
+| [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) | Third-party software licenses (AGPLv3, MPL, etc.) | Legal/Compliance |
 
 ---
 
@@ -161,14 +162,15 @@
 
 | Category | Files | Description |
 |----------|-------|-------------|
-| Core docs | 5 | README, CLAUDE, INDEX, USER-GUIDE, VERSION |
+| Core docs | 6 | README, CLAUDE, INDEX, USER-GUIDE, VERSION, THIRD-PARTY-LICENSES |
 | Service docs | 5 | PRESUITE, PREDRIVE, PREMAIL, PREOFFICE, PRESOCIAL |
 | Architecture | 9 | architecture/ directory |
 | Integration | 2 | API-REFERENCE, INTEGRATION |
 | UI docs | 2 | UIimplement, UIPatterns-PresearchWeb |
 | Operations | 4 | DEPLOYMENT, DEPLOYMENT-SUMMARY, MONITORING, TESTING |
+| Config | 1 | config/STORJ-SETUP.md |
 | Other | 2 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS |
-| **Total Markdown** | **29** | |
+| **Total Markdown** | **31** | |
 
 ---
 
