@@ -91,6 +91,24 @@
 
 ## In Progress / High Priority
 
+### PreSuite Hub - Password Requirements UI Bug
+**Location:** `presuite/src/components/Register.jsx`
+**Status:** Bug - needs fix
+
+**Issue:** Registration form requires special character but checklist doesn't show it.
+
+Checklist shows:
+- ✅ At least 8 characters
+- ✅ One uppercase letter
+- ✅ One lowercase letter
+- ✅ One number
+
+**Missing from checklist:** One special character (!@#$%^&*)
+
+**Fix:** Add "One special character" requirement to visible checklist in Register.jsx
+
+---
+
 ### PreMail - Postal Server Testing
 **Location:** `premail/POSTAL_MIGRATION_PROGRESS.md`
 **Status:** Implementation complete, needs testing
