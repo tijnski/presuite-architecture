@@ -729,7 +729,7 @@ const preSuiteApps = [
 
 ## Related Documents
 
-- [PreSuite Architecture](presuite.md)
+- [PreSuite Architecture](PRESUITE.md)
 - [UI Patterns](UIPatterns-PresearchWeb.md)
 - [Integration Guide](INTEGRATION.md)
 - [Lemmy API Docs](https://join-lemmy.org/api/)

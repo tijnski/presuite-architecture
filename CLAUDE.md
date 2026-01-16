@@ -15,6 +15,7 @@
 | PreDrive | `76.13.1.110` | `ssh root@76.13.1.110` | `/opt/predrive` |
 | PreMail | `76.13.1.117` | `ssh root@76.13.1.117` | `/opt/premail` |
 | PreOffice | `76.13.2.220` | `ssh root@76.13.2.220` | `/opt/preoffice` |
+| PreSocial | `76.13.2.221` | `ssh root@76.13.2.221` | `/opt/presocial` |
 
 ### Production URLs
 
@@ -350,16 +351,16 @@ ssh root@76.13.2.220 "cd /opt/preoffice && git checkout -b $BRANCH"
 |------|---------|
 | `CLAUDE.md` | AI agent reference (this file) |
 | `README.md` | Project overview |
-| `presuite.md` | PreSuite Hub documentation |
+| `PRESUITE.md` | PreSuite Hub documentation |
 | `PREDRIVE.md` | PreDrive documentation |
-| `Premail.md` | PreMail documentation |
+| `PREMAIL.md` | PreMail documentation |
 | `PREOFFICE.md` | PreOffice documentation |
 | `PRESOCIAL.md` | PreSocial documentation (Lemmy integration) |
 | `INTEGRATION.md` | Cross-service integration |
 | `AUTH-API.md` | Authentication API spec |
 | `toimplement.md` | Task tracking |
 | `UIimplement.md` | UI design system |
-| `NewUI-*.md` | Service-specific UI guides |
+| `INDEX.md` | Documentation navigation hub |
 
 ---
 
@@ -423,8 +424,9 @@ ssh root@<server> "openssl s_client -connect <domain>:443 -servername <domain>"
 
 ## RELATED DOCUMENTS
 
+- **Navigation hub: `INDEX.md`** - Start here for all documentation
 - Detailed service docs: See individual `*.md` files
-- UI implementation: `UIimplement.md`, `NewUI-*.md`
+- UI implementation: `UIimplement.md`
 - **presearch-web UI patterns: `UIPatterns-PresearchWeb.md`** (Dark Glass theme, toggles, animations)
 - Task tracking: `toimplement.md`
 - API specs: `AUTH-API.md`

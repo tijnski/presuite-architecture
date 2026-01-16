@@ -115,9 +115,9 @@ All services share the same JWT format:
 ## Documentation
 
 - [Integration Guide](INTEGRATION.md) - Service-to-service integration
-- [PreSuite Hub](presuite.md) - Landing page, auth, and widgets
+- [PreSuite Hub](PRESUITE.md) - Landing page, auth, and widgets
 - [PreDrive](PREDRIVE.md) - Cloud storage architecture
-- [PreMail](Premail.md) - Email service architecture
+- [PreMail](PREMAIL.md) - Email service architecture
 - [PreOffice](PREOFFICE.md) - Document editing system
 - [PreSocial](PRESOCIAL.md) - Community discussions (Lemmy integration)
 

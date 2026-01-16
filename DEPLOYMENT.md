@@ -356,9 +356,9 @@ Environment variables are stored in `.env` files on each server. Never commit th
 
 ## Related Documentation
 
-- [presuite.md](./presuite.md) - PreSuite Hub details
+- [PRESUITE.md](./PRESUITE.md) - PreSuite Hub details
 - [PREDRIVE.md](./PREDRIVE.md) - PreDrive details
-- [Premail.md](./Premail.md) - PreMail details
+- [PREMAIL.md](./PREMAIL.md) - PreMail details
 - [PREOFFICE.md](./PREOFFICE.md) - PreOffice details
 - [toimplement.md](./toimplement.md) - Pending features
 

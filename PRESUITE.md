@@ -444,7 +444,7 @@ border: 1px solid rgba(255, 255, 255, 0.1);
 ## Related Projects
 
 - **PreDrive:** See `/presearch/ARC/PREDRIVE.md`
-- **PreMail:** See `/presearch/ARC/Premail.md`
+- **PreMail:** See `/presearch/ARC/PREMAIL.md`
 - **PreOffice:** See `/presearch/ARC/PREOFFICE.md`
 
 ---
