@@ -107,6 +107,7 @@
 | [config/env.template](config/env.template) | Environment variables template |
 | [config/sso.config.ts](config/sso.config.ts) | OAuth SSO TypeScript configuration |
 | [config/STORJ-SETUP.md](config/STORJ-SETUP.md) | Storj S3 storage configuration |
+| [config/POSTAL-SETUP.md](config/POSTAL-SETUP.md) | Postal outbound email server |
 | [scripts/deploy-all.sh](scripts/deploy-all.sh) | Deploy all services to production |
 | [scripts/health-check.sh](scripts/health-check.sh) | Monitor service health |
 | [scripts/sync-secrets.sh](scripts/sync-secrets.sh) | Verify JWT secrets match across services |
@@ -168,9 +169,9 @@
 | Integration | 2 | API-REFERENCE, INTEGRATION |
 | UI docs | 2 | UIimplement, UIPatterns-PresearchWeb |
 | Operations | 4 | DEPLOYMENT, DEPLOYMENT-SUMMARY, MONITORING, TESTING |
-| Config | 1 | config/STORJ-SETUP.md |
+| Config | 2 | config/STORJ-SETUP.md, config/POSTAL-SETUP.md |
 | Other | 2 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS |
-| **Total Markdown** | **31** | |
+| **Total Markdown** | **33** | |
 
 ---
 
