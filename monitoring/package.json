@@ -1,0 +1,55 @@
+{
+  "name": "@presuite/monitoring",
+  "version": "1.0.0",
+  "description": "Monitoring infrastructure for PreSuite services",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./logging": {
+      "import": "./dist/logging/logger.js",
+      "types": "./dist/logging/logger.d.ts"
+    },
+    "./metrics": {
+      "import": "./dist/metrics/metrics.js",
+      "types": "./dist/metrics/metrics.d.ts"
+    },
+    "./health": {
+      "import": "./dist/health/health-check.js",
+      "types": "./dist/health/health-check.d.ts"
+    },
+    "./alerting": {
+      "import": "./dist/alerting/alerting.js",
+      "types": "./dist/alerting/alerting.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.10.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "backups/*.sh",
+    "backups/*.example"
+  ],
+  "keywords": [
+    "presuite",
+    "monitoring",
+    "logging",
+    "metrics",
+    "alerting",
+    "health-check"
+  ]
+}

@@ -24,6 +24,7 @@
 | PreDrive | `https://predrive.eu` | Cloud storage |
 | PreMail | `https://premail.site` | Email (@premail.site) |
 | PreOffice | `https://preoffice.site` | Document editing |
+| PreSocial | `https://presocial.presuite.eu` | Community discussions (Lemmy) |
 
 ### GitHub Repositories
 
@@ -32,6 +33,7 @@ https://github.com/tijnski/presuite          # Hub & Identity
 https://github.com/tijnski/predrive          # Cloud Storage
 https://github.com/tijnski/premail           # Email Service
 https://github.com/tijnski/preoffice         # Document Editor
+https://github.com/tijnski/presocial         # Social Layer (Lemmy)
 https://github.com/tijnski/presuite-architecture  # This repo
 ```
 
@@ -352,6 +354,7 @@ ssh root@76.13.2.220 "cd /opt/preoffice && git checkout -b $BRANCH"
 | `PREDRIVE.md` | PreDrive documentation |
 | `Premail.md` | PreMail documentation |
 | `PREOFFICE.md` | PreOffice documentation |
+| `PRESOCIAL.md` | PreSocial documentation (Lemmy integration) |
 | `INTEGRATION.md` | Cross-service integration |
 | `AUTH-API.md` | Authentication API spec |
 | `toimplement.md` | Task tracking |
@@ -406,13 +409,15 @@ ssh root@<server> "openssl s_client -connect <domain>:443 -servername <domain>"
 
 ## RULES FOR AI AGENTS
 
-1. **Always SSH to modify code** - Don't try to modify files locally unless explicitly in this repo
-2. **Use branch workflow** - Create feature branches, don't commit directly to main
-3. **Verify before deploy** - Check syntax/build before restarting services
-4. **Keep JWT_SECRET synced** - Never change on one service without others
-5. **Backup before DB changes** - Always backup PostgreSQL before migrations
-6. **Check logs after deploy** - Verify no errors after any deployment
-7. **Use brand colors** - Primary: `#0190FF`, not `#2D8EFF` or `#3591FC`
+1. **Always work locally first** - Edit code in local repos (`~/Documents/Documents-MacBook/presearch/`), never directly on servers
+2. **Git workflow** - Local → git push → GitHub → ssh + git pull → Production
+3. **Never edit on servers** - All changes must go through Git, no direct server edits
+4. **Use branch workflow** - Create feature branches, don't commit directly to main
+5. **Verify before deploy** - Check syntax/build before restarting services
+6. **Keep JWT_SECRET synced** - Never change on one service without others
+7. **Backup before DB changes** - Always backup PostgreSQL before migrations
+8. **Check logs after deploy** - Verify no errors after any deployment
+9. **Use brand colors** - Primary: `#0190FF`, not `#2D8EFF` or `#3591FC`
 
 ---
 

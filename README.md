@@ -18,6 +18,7 @@ PreSuite is a privacy-focused productivity suite built on the Presearch ecosyste
 | **PreDrive** | https://predrive.eu | Cloud storage (Google Drive alternative) |
 | **PreMail** | https://premail.site | Privacy-focused email (@premail.site) |
 | **PreOffice** | https://preoffice.site | Document editing (LibreOffice/Collabora) |
+| **PreSocial** | https://presocial.presuite.eu | Community discussions (Lemmy-powered) |
 
 ## Architecture
 
@@ -118,6 +119,7 @@ All services share the same JWT format:
 - [PreDrive](PREDRIVE.md) - Cloud storage architecture
 - [PreMail](Premail.md) - Email service architecture
 - [PreOffice](PREOFFICE.md) - Document editing system
+- [PreSocial](PRESOCIAL.md) - Community discussions (Lemmy integration)
 
 ## Technology Stack
 
@@ -137,6 +139,7 @@ All services share the same JWT format:
 | PreDrive | Hono | PostgreSQL | Docker, Caddy |
 | PreMail | Hono | PostgreSQL | PM2, Nginx, Stalwart |
 | PreOffice | Express (WOPI) | - | Docker, Nginx, Collabora |
+| PreSocial | Hono | Redis (cache) | Docker, Lemmy API |
 
 ## Servers
 

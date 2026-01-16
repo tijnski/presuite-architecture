@@ -1,0 +1,54 @@
+# PreSuite Backup Cron Configuration
+# Add these entries to your crontab with: crontab -e
+
+# Environment variables
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+BACKUP_ROOT=/opt/presuite-backups
+RETENTION_DAYS=30
+
+# Database credentials (use environment variables or secrets manager in production)
+PRESUITE_DB_HOST=localhost
+PRESUITE_DB_NAME=presuite
+PRESUITE_DB_USER=presuite
+PRESUITE_DB_PASSWORD=your_password_here
+
+PREDRIVE_DB_HOST=localhost
+PREDRIVE_DB_NAME=predrive
+PREDRIVE_DB_USER=predrive
+PREDRIVE_DB_PASSWORD=your_password_here
+PREDRIVE_STORAGE_PATH=/opt/predrive/storage
+
+PREMAIL_DB_HOST=localhost
+PREMAIL_DB_NAME=stalwart
+PREMAIL_DB_USER=stalwart
+PREMAIL_DB_PASSWORD=your_password_here
+
+# S3 configuration (optional)
+# S3_BUCKET=presuite-backups
+# S3_ENDPOINT=https://s3.example.com
+# AWS_ACCESS_KEY_ID=your_key
+# AWS_SECRET_ACCESS_KEY=your_secret
+
+# Alert webhook (optional)
+# ALERT_WEBHOOK_URL=https://hooks.slack.com/services/xxx/xxx/xxx
+
+# =====================================
+# BACKUP SCHEDULES
+# =====================================
+
+# Daily backup at 2:00 AM
+0 2 * * * /opt/presuite/monitoring/backups/backup.sh >> /var/log/presuite-backup.log 2>&1
+
+# Weekly full backup on Sunday at 3:00 AM
+0 3 * * 0 FULL_BACKUP=1 /opt/presuite/monitoring/backups/backup.sh >> /var/log/presuite-backup.log 2>&1
+
+# =====================================
+# MONITORING CHECKS
+# =====================================
+
+# Health check every 5 minutes
+*/5 * * * * curl -sf https://presuite.eu/health > /dev/null || echo "PreSuite Hub down" | mail -s "Alert" admin@example.com
+
+# Check backup age daily at 8:00 AM
+0 8 * * * find /opt/presuite-backups/databases -mtime +2 -type f | head -1 && echo "Backup may be stale" | mail -s "Backup Warning" admin@example.com

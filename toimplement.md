@@ -46,8 +46,8 @@ tasks:
   - id: PM-002
     title: Email Threading
     description: Implement threaded conversation view (like Gmail)
-    status: pending
-    files: [apps/web/src/pages/InboxPage.tsx]
+    status: done
+    files: [apps/api/src/lib/threading.ts, apps/api/src/routes/messages.ts, apps/web/src/pages/InboxPage.tsx]
 
   - id: PM-003
     title: Real-time Badge Counts
@@ -111,12 +111,14 @@ tasks:
   - id: PM-010
     title: Push Notifications
     description: Implement push notifications for new emails
-    status: pending
+    status: done
+    files: [apps/api/src/lib/push-notifications.ts, apps/api/src/routes/notifications.ts, apps/web/public/sw.js, apps/web/src/hooks/useNotifications.ts]
 
   - id: PM-011
     title: External IMAP Accounts
     description: Allow users to add external email accounts (not just @premail.site)
-    status: pending
+    status: done
+    files: [apps/web/src/pages/AccountsPage.tsx]
 ```
 
 ### PreOffice (preoffice.site) — Server: 76.13.2.220
@@ -132,7 +134,8 @@ tasks:
   - id: PO-002
     title: Full PreDrive Integration
     description: Complete WOPI integration with PreDrive for real file editing
-    status: pending
+    status: done
+    files: [preoffice/presearch/online/wopi-server/src/index.js, PreDrive/apps/api/src/routes/nodes.ts]
 ```
 
 ### Cross-Service
@@ -142,7 +145,8 @@ tasks:
   - id: XS-001
     title: OAuth-Style SSO
     description: Implement optional OAuth redirect flow for traditional SSO experience
-    status: pending
+    status: done
+    files: [presuite/server.js, premail/apps/web/src/pages/OAuthCallbackPage.tsx, premail/apps/web/src/pages/LoginPage.tsx]
 
   - id: XS-002
     title: Unified User Profile
@@ -205,9 +209,9 @@ tasks:
 | ID | Location | Issue | Status |
 |----|----------|-------|--------|
 | TD-001 | PreMail API | Folder name mismatch (sent vs "Sent Items") | `done` |
-| TD-002 | PreMail Web | localStorage persists account ID after DB reset | `pending` |
+| TD-002 | PreMail Web | localStorage persists account ID after DB reset | `done` |
 | TD-003 | PreOffice WOPI | Demo mode files in memory (not persistent) | `done` |
-| TD-004 | PreMail | `mail_password` stored in plain text for IMAP | `pending` |
+| TD-004 | PreMail | `mail_password` stored in plain text for IMAP | `done` |
 | TD-005 | PreSuite | Venice API key hardcoded | `done` |
 
 ---
@@ -252,10 +256,10 @@ tasks:
 
 ```
 Total Tasks: 45
-Completed: 26
+Completed: 33
 In Progress: 0
-Pending: 19
-Completion: 58%
+Pending: 12
+Completion: 73%
 ```
 
 ---
