@@ -678,4 +678,22 @@ pnpm test
 
 ---
 
-*Last Updated: January 2026*
+## Current Status (January 2026)
+
+### Working
+- File/folder CRUD operations
+- WebDAV access
+- Share link functionality
+- SSO integration with PreSuite Hub
+- SSO Token Pass-through (from PreSuite Hub)
+- CORS configured for presuite.eu
+- **PreSuite Hub Widget Integration:** The PreDrive widget on presuite.eu is working correctly. Users can see their recent files and storage usage in real-time.
+
+### Known Limitations
+- WebDAV COPY handler returns 501 (not fully implemented)
+- Shift+Click range selection in file list not implemented
+- Real-time collaboration not implemented
+
+---
+
+*Last Updated: January 16, 2026*

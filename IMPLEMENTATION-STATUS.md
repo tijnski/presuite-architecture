@@ -11,9 +11,9 @@
 |----------|-----------|-----------|--------|
 | Core Infrastructure | 12/12 | 0 | ✅ 100% |
 | OAuth SSO | 4/4 | 0 | ✅ 100% |
-| PreSuite Hub | 9/11 | 2 | 🟡 82% |
+| PreSuite Hub | 10/11 | 1 | 🟡 91% |
 | PreMail | 8/12 | 4 | 🟡 67% |
-| PreDrive | 5/8 | 3 | 🟡 63% |
+| PreDrive | 6/8 | 2 | 🟡 75% |
 | PreOffice | 3/6 | 3 | 🟡 50% |
 | Monitoring | 5/5 | 0 | ✅ 100% |
 | Testing | 2/5 | 3 | 🔴 40% |
@@ -34,12 +34,15 @@
 | ID | Task | Status |
 |----|------|--------|
 | PSH-001 | PRE Balance Integration | ✅ Done |
-| PSH-002 | Real Recent Files (PreDrive/PreMail data) | ✅ Done |
-| PSH-003 | Real Storage Tracking | ✅ Done |
-| PSH-004 | Venice API Key → Environment Variables | ✅ Done |
+| PSH-002 | PreDrive Widget (real-time file sync) | ✅ Done |
+| PSH-003 | PreMail Widget (real-time email sync) | 🔴 Blocked (PreMail API issue) |
+| PSH-004 | Real Storage Tracking | ✅ Done |
+| PSH-005 | Venice API Key → Environment Variables | ✅ Done |
 | PSH-010 | Settings Panel (theme, notifications, account) | ✅ Done |
 | PSH-011 | Notifications System | ✅ Done |
 | PSH-012 | PreGPT Chat History | ✅ Done |
+| PSH-013 | SSO Token Pass-through | ✅ Done |
+| PSH-014 | CORS for Cross-Origin Widget Requests | ✅ Done |
 
 ### PreMail (premail.site)
 | ID | Task | Status |

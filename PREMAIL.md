@@ -383,6 +383,11 @@ curl -X DELETE -u "admin:$PASS" "https://mail.premail.site:443/api/principal/use
 - Email sending via SMTP
 - Folder navigation (Inbox, Sent, Drafts, etc.)
 - Authentication (JWT)
+- SSO Token Pass-through (from PreSuite Hub)
+- CORS configured for presuite.eu
+
+### Known Issues
+- **PreSuite Hub Widget Integration:** The PreMail widget on presuite.eu is not syncing emails. CORS is configured correctly, but the PreMail API may have internal issues preventing cross-origin requests from completing successfully. Needs investigation.
 
 ### Known Limitations
 - No real-time badge counts (hardcoded removed)

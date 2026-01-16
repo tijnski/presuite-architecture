@@ -2,7 +2,18 @@
 
 How all PreSuite services integrate and communicate with each other.
 
-> **Last Updated:** January 2026
+> **Last Updated:** January 16, 2026
+
+---
+
+## Current Integration Status
+
+| Integration | Status | Notes |
+|-------------|--------|-------|
+| PreSuite Hub → PreDrive Widget | ✅ Working | Real-time file sync on presuite.eu |
+| PreSuite Hub → PreMail Widget | 🔴 Not Working | CORS configured, but PreMail API returns errors |
+| SSO Token Pass-through | ✅ Working | Token appended to cross-service links |
+| Cross-Origin CORS | ✅ Configured | presuite.eu allowed on both services |
 
 ---
 
