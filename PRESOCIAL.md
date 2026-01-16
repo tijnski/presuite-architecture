@@ -7,9 +7,10 @@ PreSocial is a **standalone social layer** for the PreSuite/Presearch ecosystem 
 **Status:** Standalone service (not integrated into SERP)
 **Purpose:** Provide community-driven insights and discussions as a dedicated PreSuite application.
 
-**Live URL:** https://presocial.presuite.eu (planned)
-**Lemmy Instance:** https://lemmy.world (primary) / Self-hosted fallback
+**Live URL:** https://presocial.presuite.eu
+**Lemmy Instance:** https://lemmy.world (primary)
 **GitHub Repository:** https://github.com/tijnski/presocial
+**Server:** `ssh root@76.13.2.221` → `/opt/presocial`
 
 > **Future Integration:** SERP integration may be added later as a three-column layout enhancement.
 
@@ -96,21 +97,68 @@ PreSocial is a **standalone social layer** for the PreSuite/Presearch ecosystem 
 
 ## Tech Stack
 
-### Frontend (SERP Integration)
-- **Framework:** Vanilla JS + Alpine.js (matches presearch-web)
+### Frontend (Standalone App)
+- **Framework:** React 18 + Vite
 - **Styling:** Tailwind CSS with Dark Glass theme
-- **Component Library:** Custom PreSocial components
+- **Routing:** React Router DOM
+- **Icons:** Lucide React
 
 ### Backend
-- **Runtime:** Bun / Node.js 20+
+- **Runtime:** Node.js 20+ (with @hono/node-server)
 - **Framework:** Hono (consistent with PreDrive/PreMail)
-- **Database:** PostgreSQL (for caching, user preferences)
-- **Cache:** Redis or in-memory LRU cache
-- **Process Manager:** PM2 or Docker
+- **Cache:** In-memory LRU cache
+- **Process Manager:** PM2
 
 ### External Services
-- **Lemmy API:** lemmy.world (primary instance)
-- **Authentication:** PreSuite Hub JWT (optional for voting/commenting)
+- **Lemmy API:** lemmy.world (via lemmy-js-client)
+- **Authentication:** PreSuite Hub JWT
+
+---
+
+## Project Structure
+
+```
+PreSocial/
+├── apps/
+│   ├── api/                    # Backend API
+│   │   ├── src/
+│   │   │   ├── api/
+│   │   │   │   ├── index.ts           # Hono app entry
+│   │   │   │   ├── routes/social.ts   # API routes
+│   │   │   │   └── middleware/        # Rate limiting
+│   │   │   ├── services/
+│   │   │   │   ├── lemmy.ts           # Lemmy API client
+│   │   │   │   └── cache.ts           # Caching layer
+│   │   │   └── types/index.ts
+│   │   └── package.json
+│   │
+│   └── web/                    # Frontend React app
+│       ├── src/
+│       │   ├── App.jsx
+│       │   ├── main.jsx
+│       │   ├── components/
+│       │   │   ├── Header.jsx         # Nav with auth
+│       │   │   ├── Layout.jsx
+│       │   │   ├── Sidebar.jsx
+│       │   │   ├── PostCard.jsx
+│       │   │   └── PostSkeleton.jsx
+│       │   ├── pages/
+│       │   │   ├── FeedPage.jsx
+│       │   │   ├── TrendingPage.jsx
+│       │   │   ├── CommunitiesPage.jsx
+│       │   │   ├── SearchPage.jsx
+│       │   │   ├── PostPage.jsx
+│       │   │   └── LoginPage.jsx
+│       │   ├── context/
+│       │   │   └── AuthContext.jsx    # Auth state
+│       │   └── services/
+│       │       ├── preSocialService.js
+│       │       └── authService.js     # PreSuite auth
+│       └── package.json
+│
+├── package.json                # Root workspace
+└── ecosystem.config.cjs        # PM2 config
+```
 
 ---
 
@@ -568,27 +616,37 @@ export const cache = {
 
 ---
 
-## Authentication (Optional)
+## Authentication
 
-PreSocial supports optional authentication through PreSuite Hub for users who want to:
-- Vote on posts
-- Comment on discussions
-- Save favorite communities
+PreSocial uses PreSuite Hub for centralized authentication.
 
-### Auth Flow
+### Implementation
 
-```
-User wants to vote → Check PreSuite JWT → Valid? →
-  → YES: Link PreSuite account to Lemmy bot account → Execute action
-  → NO: Prompt login via PreSuite Hub
-```
+**Frontend Auth Flow:**
+1. User clicks "Sign In" in header
+2. Redirected to `/login` page
+3. Credentials sent to `https://presuite.eu/api/auth/login`
+4. JWT token stored in localStorage
+5. AuthContext provides user state to components
 
-### Lemmy Bot Account
+**Key Files:**
+- `apps/web/src/services/authService.js` - Auth API client
+- `apps/web/src/context/AuthContext.jsx` - React context
+- `apps/web/src/pages/LoginPage.jsx` - Login/Register UI
+- `apps/web/src/components/Header.jsx` - User menu
 
-For authenticated actions, PreSocial uses a bot account on lemmy.world:
-- Bot performs actions on behalf of verified PreSuite users
-- Actions are rate-limited per user
-- No direct Lemmy account creation required
+### Auth Features
+- [x] Sign in with PreSuite credentials
+- [x] Register new accounts
+- [x] User avatar with initials
+- [x] Sign out
+- [x] Session persistence (localStorage)
+- [x] Token verification on page load
+
+### Future Auth Features
+- [ ] Vote on posts (via Lemmy bot account)
+- [ ] Comment on discussions
+- [ ] Save favorite communities
 
 ---
 
@@ -604,14 +662,32 @@ For authenticated actions, PreSocial uses a bot account on lemmy.world:
 
 ## Deployment
 
-### Server Requirements
+### Production Server
 
-| Resource | Specification |
-|----------|---------------|
-| CPU | 2 vCPUs |
-| RAM | 4 GB |
-| Storage | 20 GB SSD |
-| OS | Ubuntu 24.04 |
+| Property | Value |
+|----------|-------|
+| Server | `76.13.2.221` (shared with PreSuite Hub) |
+| SSH | `ssh root@76.13.2.221` |
+| Path | `/opt/presocial` |
+| Process | PM2 (`presocial-api`) |
+| Port | 3002 (API) |
+| Domain | presocial.presuite.eu |
+
+### Deploy Commands
+
+```bash
+# Full deployment
+ssh root@76.13.2.221 "cd /opt/presocial && git pull && cd apps/web && npm run build && pm2 restart presocial-api"
+
+# Check status
+ssh root@76.13.2.221 "pm2 status presocial-api"
+
+# View logs
+ssh root@76.13.2.221 "pm2 logs presocial-api --lines 50"
+
+# Health check
+curl https://presocial.presuite.eu/health
+```
 
 ### Environment Variables
 
@@ -622,47 +698,67 @@ NODE_ENV=production
 
 # Lemmy
 LEMMY_INSTANCE_URL=https://lemmy.world
-LEMMY_BOT_USERNAME=presocial_bot
-LEMMY_BOT_PASSWORD=<secret>
-
-# Cache
-REDIS_URL=redis://localhost:6379
-
-# Auth (optional)
-JWT_SECRET=<same-as-presuite>
-AUTH_API_URL=https://presuite.eu/api/auth
 
 # Rate Limiting
 RATE_LIMIT_WINDOW=60000
 RATE_LIMIT_MAX=100
 ```
 
-### Docker Compose
+### Nginx Configuration
 
-```yaml
-version: '3.8'
+```nginx
+server {
+    server_name presocial.presuite.eu;
 
-services:
-  presocial-api:
-    build: .
-    ports:
-      - "3002:3002"
-    environment:
-      - NODE_ENV=production
-      - LEMMY_INSTANCE_URL=https://lemmy.world
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
-    restart: unless-stopped
+    # Frontend (static files)
+    root /opt/presocial/apps/web/dist;
+    index index.html;
 
-  redis:
-    image: redis:7-alpine
-    volumes:
-      - redis-data:/data
-    restart: unless-stopped
+    # API proxy
+    location /api/ {
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 
-volumes:
-  redis-data:
+    # Health endpoint
+    location /health {
+        proxy_pass http://127.0.0.1:3002;
+    }
+
+    # SPA routing
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/presocial.presuite.eu/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/presocial.presuite.eu/privkey.pem;
+}
+```
+
+### PM2 Ecosystem
+
+```javascript
+// ecosystem.config.cjs
+module.exports = {
+  apps: [{
+    name: 'presocial-api',
+    script: 'npx',
+    args: 'tsx apps/api/src/index.ts',
+    cwd: '/opt/presocial',
+    instances: 1,
+    exec_mode: 'cluster',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3002,
+      LEMMY_INSTANCE_URL: 'https://lemmy.world'
+    }
+  }]
+};
 ```
 
 ---
@@ -699,27 +795,28 @@ const preSuiteApps = [
 
 ## Roadmap
 
-### Phase 1: Standalone MVP
+### Phase 1: Standalone MVP ✅
 - [x] Basic Lemmy API integration
 - [x] Search endpoint with caching
 - [x] Standalone app architecture
-- [ ] Dark Glass styled UI
-- [ ] PreSuite dashboard integration
+- [x] Dark Glass styled UI (React + Tailwind)
+- [x] PreSuite dashboard integration
+- [x] Production deployment (presocial.presuite.eu)
 
-### Phase 2: Core Features
-- [ ] Post browsing and search
-- [ ] Community discovery
-- [ ] Trending discussions
-- [ ] Mobile-responsive design
+### Phase 2: Core Features ✅
+- [x] Post browsing and search
+- [x] Community discovery
+- [x] Trending discussions
+- [x] Mobile-responsive design
 
-### Phase 3: Interactions
-- [ ] PreSuite auth integration
+### Phase 3: Interactions (In Progress)
+- [x] PreSuite auth integration (login/register via PreSuite Hub)
 - [ ] Voting capability (via bot account)
 - [ ] Save/bookmark discussions
 - [ ] Comment viewing
 
 ### Phase 4: Advanced Features (Future)
-- [ ] Self-hosted Lemmy instance (presocial.presuite.eu)
+- [ ] Self-hosted Lemmy instance
 - [ ] Presearch-specific communities
 - [ ] SERP integration (three-column layout)
 - [ ] AI-powered relevance scoring
@@ -737,3 +834,4 @@ const preSuiteApps = [
 ---
 
 *Last updated: January 16, 2026*
+*Status: Production - Live at https://presocial.presuite.eu*
