@@ -170,8 +170,8 @@
 | UI docs | 2 | UIimplement, UIPatterns-PresearchWeb |
 | Operations | 4 | DEPLOYMENT, DEPLOYMENT-SUMMARY, MONITORING, TESTING |
 | Config | 2 | config/STORJ-SETUP.md, config/POSTAL-SETUP.md |
-| Other | 2 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS |
-| **Total Markdown** | **33** | |
+| Other | 3 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS, DEBUG-PREMAIL-WIDGET |
+| **Total Markdown** | **34** | |
 
 ---
 

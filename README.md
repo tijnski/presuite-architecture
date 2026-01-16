@@ -109,7 +109,7 @@ ARC/
 - [PRESOCIAL.md](PRESOCIAL.md) - Community discussions
 
 ### Architecture
-- [architecture/](architecture/README.md) - System diagrams (8 focused files)
+- [architecture/](architecture/README.md) - System diagrams (9 files)
 - [INTEGRATION.md](INTEGRATION.md) - Service-to-service integration
 - [PRESUITE-SSO-IMPLEMENTATION.md](PRESUITE-SSO-IMPLEMENTATION.md) - OAuth SSO details
 

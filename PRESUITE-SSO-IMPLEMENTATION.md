@@ -415,6 +415,6 @@ ssh root@76.13.2.220 "cd /opt/preoffice && docker compose restart nginx"
 
 ## Related Documentation
 
-- [SECURITY-FIXES.md](../premail/SECURITY-FIXES.md) - Security fixes applied to PreMail
-- PreSuite API Documentation (TODO)
-- Architecture Diagrams (TODO)
+- [PREMAIL.md](PREMAIL.md) - PreMail service documentation
+- [API-REFERENCE.md](API-REFERENCE.md) - PreSuite API documentation
+- [architecture/](architecture/README.md) - Architecture diagrams
