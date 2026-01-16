@@ -14,7 +14,7 @@
 | Use PreSuite as a user | [USER-GUIDE.md](USER-GUIDE.md) |
 | Deploy services | [DEPLOYMENT.md](DEPLOYMENT.md) |
 | Check API endpoints | [API-REFERENCE.md](API-REFERENCE.md) |
-| See what's left to build | [toimplement.md](toimplement.md) |
+| See what's left to build | [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) |
 
 ---
 
@@ -85,8 +85,7 @@
 
 | File | Purpose | Status |
 |------|---------|--------|
-| [toimplement.md](toimplement.md) | Task tracker (YAML format) | ~73% complete |
-| [TODO-REMAINING-WORK.md](TODO-REMAINING-WORK.md) | Prioritized remaining work | ~85% complete |
+| [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) | Task tracker and remaining work | ~85% complete |
 
 ---
 
@@ -156,8 +155,8 @@
 | UI docs | 2 | ~31K |
 | API docs | 1 | ~18K |
 | Operations | 4 | ~34K |
-| Tracking | 2 | ~16K |
-| **Total Markdown** | **21** | **~245K** |
+| Tracking | 1 | ~8K |
+| **Total Markdown** | **20** | **~237K** |
 
 ---
 

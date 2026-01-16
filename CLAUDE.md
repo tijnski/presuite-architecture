@@ -358,7 +358,7 @@ ssh root@76.13.2.220 "cd /opt/preoffice && git checkout -b $BRANCH"
 | `PRESOCIAL.md` | PreSocial documentation (Lemmy integration) |
 | `INTEGRATION.md` | Cross-service integration |
 | `API-REFERENCE.md` | Complete API documentation |
-| `toimplement.md` | Task tracking |
+| `IMPLEMENTATION-STATUS.md` | Task tracking and status |
 | `UIimplement.md` | UI design system |
 | `INDEX.md` | Documentation navigation hub |
 
@@ -428,5 +428,5 @@ ssh root@<server> "openssl s_client -connect <domain>:443 -servername <domain>"
 - Detailed service docs: See individual `*.md` files
 - UI implementation: `UIimplement.md`
 - **presearch-web UI patterns: `UIPatterns-PresearchWeb.md`** (Dark Glass theme, toggles, animations)
-- Task tracking: `toimplement.md`
+- Task tracking: `IMPLEMENTATION-STATUS.md`
 - API specs: `API-REFERENCE.md`
