@@ -47,9 +47,19 @@
 
 | File | Purpose |
 |------|---------|
-| [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md) | Visual system diagrams (high-level, OAuth, data flow, security) |
+| [architecture/](architecture/README.md) | Architecture diagrams (split into focused files) |
 | [INTEGRATION.md](INTEGRATION.md) | Cross-service communication, auth flows, federation |
 | [PRESUITE-SSO-IMPLEMENTATION.md](PRESUITE-SSO-IMPLEMENTATION.md) | OAuth SSO implementation details |
+
+**Architecture Directory:**
+- [OVERVIEW.md](architecture/OVERVIEW.md) - High-level system architecture
+- [OAUTH-SSO.md](architecture/OAUTH-SSO.md) - OAuth 2.0 flow and token structure
+- [PREMAIL.md](architecture/PREMAIL.md) - Email service architecture
+- [PREDRIVE.md](architecture/PREDRIVE.md) - Cloud storage architecture
+- [PREOFFICE.md](architecture/PREOFFICE.md) - Document editing (WOPI/Collabora)
+- [INFRASTRUCTURE.md](architecture/INFRASTRUCTURE.md) - Server layout and Docker
+- [DATA-FLOWS.md](architecture/DATA-FLOWS.md) - Email and collaboration flows
+- [SECURITY.md](architecture/SECURITY.md) - Security layers and measures
 
 ---
 
@@ -128,7 +138,7 @@
 ### For New Developers
 1. [README.md](README.md) - Understand the project
 2. [CLAUDE.md](CLAUDE.md) - Developer quick reference
-3. [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md) - System design
+3. [architecture/](architecture/README.md) - System design diagrams
 4. Service doc for your area (e.g., [PREDRIVE.md](PREDRIVE.md))
 
 ### For UI/Frontend Work
@@ -152,11 +162,12 @@
 |----------|-------|------------|
 | Core docs | 4 | ~60K |
 | Service docs | 5 | ~86K |
+| Architecture | 8 | ~30K |
 | UI docs | 2 | ~31K |
 | API docs | 1 | ~18K |
 | Operations | 4 | ~34K |
 | Tracking | 1 | ~8K |
-| **Total Markdown** | **20** | **~237K** |
+| **Total Markdown** | **27** | **~267K** |
 
 ---
 

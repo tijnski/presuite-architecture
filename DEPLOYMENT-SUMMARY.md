@@ -364,7 +364,7 @@ ssh root@76.13.2.221 "/opt/presuite/monitoring/backups/restore.sh list"
 | Document | Location | Description |
 |----------|----------|-------------|
 | SSO Implementation | `ARC/PRESUITE-SSO-IMPLEMENTATION.md` | OAuth 2.0 SSO details |
-| Architecture Diagrams | `ARC/ARCHITECTURE-DIAGRAMS.md` | System architecture |
+| Architecture Diagrams | `ARC/architecture/` | System architecture (split into focused files) |
 | User Guide | `ARC/USER-GUIDE.md` | End-user documentation |
 | Testing Infrastructure | `ARC/TESTING-INFRASTRUCTURE.md` | Test setup guide |
 | Monitoring Infrastructure | `ARC/MONITORING-INFRASTRUCTURE.md` | Monitoring details |

@@ -342,6 +342,6 @@ npm run test:debug
 
 ## Related Documentation
 
-- [Architecture Diagrams](./ARCHITECTURE-DIAGRAMS.md)
+- [Architecture Diagrams](./architecture/README.md)
 - [User Guide](./USER-GUIDE.md)
 - [SSO Implementation](./PRESUITE-SSO-IMPLEMENTATION.md)

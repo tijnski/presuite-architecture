@@ -521,7 +521,7 @@ bash -x ./backup.sh
 
 ## Related Documentation
 
-- [Architecture Diagrams](./ARCHITECTURE-DIAGRAMS.md)
+- [Architecture Diagrams](./architecture/README.md)
 - [Testing Infrastructure](./TESTING-INFRASTRUCTURE.md)
 - [SSO Implementation](./PRESUITE-SSO-IMPLEMENTATION.md)
 - [User Guide](./USER-GUIDE.md)

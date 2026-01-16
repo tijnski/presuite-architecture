@@ -175,7 +175,7 @@
 | API Documentation | ✅ Done | API-REFERENCE.md |
 | User Guide | ✅ Done | USER-GUIDE.md |
 | Deployment Guide | ✅ Done | DEPLOYMENT.md |
-| Architecture Diagrams | ✅ Done | ARCHITECTURE-DIAGRAMS.md |
+| Architecture Diagrams | ✅ Done | architecture/ directory |
 | SSO Implementation | ✅ Done | PRESUITE-SSO-IMPLEMENTATION.md |
 
 ---
