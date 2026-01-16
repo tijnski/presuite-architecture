@@ -1,7 +1,7 @@
 # CLAUDE.md - AI Agent Reference for PreSuite
 
 > **Purpose:** Primary reference document for AI agents working on the PreSuite ecosystem.
-> **Last Updated:** January 15, 2026
+> **Last Updated:** January 16, 2026
 
 ---
 
@@ -230,6 +230,49 @@ curl https://preoffice.site/health
 
 ---
 
+## SSO & DATABASE ARCHITECTURE
+
+### Authentication Flow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              PRESUITE HUB (Identity Provider)                │
+│                    presuite.eu                               │
+│                                                              │
+│  Database: presuite                                          │
+│  └── users, orgs, sessions, oauth_clients, auth_events      │
+│                                                              │
+│  Auth: /api/auth/* (register, login, verify, logout)        │
+│  OAuth: /api/oauth/* (authorize, token, userinfo)           │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                   JWT Token (HS256)
+                            │
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+   ┌─────────┐        ┌─────────┐        ┌─────────┐
+   │ PreMail │        │PreDrive │        │PreOffice│
+   │         │        │         │        │         │
+   │ DB:     │        │ DB:     │        │(No DB)  │
+   │ premail │        │ predrive│        │         │
+   └─────────┘        └─────────┘        └─────────┘
+```
+
+### Databases
+
+| Database | Purpose | Key Tables |
+|----------|---------|------------|
+| `presuite` | Identity provider (source of truth) | users, orgs, sessions, oauth_clients |
+| `premail` | Email service | email_accounts, email_folders (+ cached users/orgs) |
+| `predrive` | Cloud storage | nodes, files, shares, permissions (+ cached users/orgs) |
+
+**Initialize all databases:**
+```bash
+psql -U postgres -f scripts/init-db.sql
+```
+
+---
+
 ## AUTH API REFERENCE
 
 **Base URL:** `https://presuite.eu/api/auth`
@@ -238,11 +281,15 @@ curl https://preoffice.site/health
 
 | Method | Endpoint | Body | Response |
 |--------|----------|------|----------|
-| POST | `/register` | `{email, password, name}` | `{token, user}` |
+| POST | `/register` | `{email, password, name, source?}` | `{token, user}` |
 | POST | `/login` | `{email, password}` | `{token, user}` |
 | POST | `/logout` | - | `{success}` |
 | GET | `/verify` | Header: `Authorization: Bearer <token>` | `{valid, user}` |
 | GET | `/me` | Header: `Authorization: Bearer <token>` | `{user}` |
+| PATCH | `/me` | `{name?}` | `{user}` |
+| POST | `/reset-password` | `{email}` | `{success}` |
+| POST | `/reset-password/confirm` | `{token, password}` | `{success}` |
+| POST | `/me/password` | `{current_password, new_password}` | `{success}` |
 
 ### JWT Token Format
 
@@ -258,11 +305,16 @@ curl https://preoffice.site/health
 }
 ```
 
+**Token Expiration:** 7 days (configurable via `JWT_EXPIRES_IN`)
+
 ### Environment Variables (Required on ALL services)
 
 ```bash
-JWT_SECRET=<must-be-identical-across-all-services>
+# CRITICAL: Must be identical across all services
+JWT_SECRET=<256-bit-random-secret>
 JWT_ISSUER=presuite
+
+# Points to PreSuite Hub
 AUTH_API_URL=https://presuite.eu/api/auth
 ```
 

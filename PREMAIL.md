@@ -144,58 +144,82 @@ Authentication state:
 - `loginAtom` - Action to set auth state
 - `logoutAtom` - Action to clear auth state
 
+## Authentication
+
+PreMail uses **PreSuite Hub** (`presuite.eu`) as the central identity provider. Users register and login via PreSuite Hub, and PreMail validates JWT tokens using a shared secret.
+
+See `INTEGRATION.md` for the complete SSO flow.
+
+---
+
 ## Database Schema
 
-### Utility Functions
+PreMail's local database caches user information from PreSuite Hub and stores email-specific data.
 
-```sql
--- Auto-update updated_at timestamp on row changes
-CREATE OR REPLACE FUNCTION update_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-```
-
-### Core Tables
+### User Cache Tables (from PreSuite Hub)
 
 ```
-orgs
-├── id (uuid, PK)
+orgs (cached from presuite database)
+├── id (uuid, PK) -- Same ID as presuite.orgs
 ├── name (varchar)
 ├── created_at, updated_at (timestamptz)
 └── Trigger: trg_orgs_updated_at
 
-users
-├── id (uuid, PK)
+users (cached from presuite database)
+├── id (uuid, PK) -- Same ID as presuite.users
 ├── org_id (uuid, FK → orgs)
 ├── email (varchar, unique)
 ├── name (varchar)
-├── password_hash (varchar, nullable)
 ├── created_at, updated_at (timestamptz)
 └── Trigger: trg_users_updated_at
+-- NOTE: No password_hash - authentication is handled by PreSuite Hub
+```
 
+### Email-Specific Tables
+
+```
 email_accounts
 ├── id (uuid, PK)
 ├── user_id (uuid, FK → users, CASCADE)
 ├── engine_account_id (varchar, unique) -- "stalwart:{username}"
-├── name (varchar)
+├── display_name (varchar)
 ├── email (varchar)
-├── provider (ENUM: 'imap', 'gmail', 'microsoft')
+├── provider (ENUM: 'stalwart', 'imap', 'gmail', 'microsoft')
 ├── status (ENUM: 'connecting', 'connected', 'disconnected', 'error', 'auth_error')
 ├── error_message (text, nullable)
+├── imap_host, imap_port (varchar, int) -- Mail server config
+├── smtp_host, smtp_port (varchar, int)
 ├── mail_password (text) -- IMAP/SMTP password (see security note)
 ├── last_sync_at (timestamptz, nullable)
+├── sync_state (jsonb) -- IMAP sync state
 ├── created_at, updated_at (timestamptz)
 └── Trigger: trg_email_accounts_updated_at
+
+email_folders (cached folder list per account)
+├── id (uuid, PK)
+├── account_id (uuid, FK → email_accounts, CASCADE)
+├── name (varchar) -- Display name
+├── path (varchar) -- IMAP path
+├── special_use (varchar) -- \Inbox, \Sent, etc.
+├── unread_count, total_count (int)
+├── last_sync_at (timestamptz)
+├── created_at, updated_at (timestamptz)
+└── Constraint: UNIQUE(account_id, path)
+
+email_signatures
+├── id (uuid, PK)
+├── account_id (uuid, FK → email_accounts, CASCADE)
+├── name (varchar)
+├── content_html, content_text (text)
+├── is_default (boolean)
+├── created_at, updated_at (timestamptz)
+└── Trigger: trg_email_signatures_updated_at
 ```
 
 ### ENUM Types
 
 ```sql
-CREATE TYPE account_provider AS ENUM ('imap', 'gmail', 'microsoft');
+CREATE TYPE account_provider AS ENUM ('stalwart', 'imap', 'gmail', 'microsoft');
 CREATE TYPE account_status AS ENUM ('connecting', 'connected', 'disconnected', 'error', 'auth_error');
 ```
 

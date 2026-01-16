@@ -103,22 +103,26 @@ PreDrive/
 
 ## Database Schema
 
-### Core Tables
+PreDrive's local database caches user information from PreSuite Hub and stores storage-specific data. See `INTEGRATION.md` for the complete SSO architecture.
+
+### User Cache Tables (from PreSuite Hub)
 
 ```
-orgs
-├── id (uuid, PK)
+orgs (cached from presuite database)
+├── id (uuid, PK) -- Same ID as presuite.orgs
 ├── name (varchar)
+├── storage_quota (bigint, default 5GB)
 ├── created_at, updated_at (timestamp)
 └── Trigger: trg_orgs_updated_at
 
-users (cached from PreSuite Hub)
-├── id (uuid, PK)
+users (cached from presuite database)
+├── id (uuid, PK) -- Same ID as presuite.users
 ├── org_id (uuid, FK → orgs, CASCADE)
 ├── email (varchar, unique)
 ├── name (varchar)
 ├── created_at, updated_at (timestamp)
 └── Trigger: trg_users_updated_at
+-- NOTE: No password_hash - authentication is handled by PreSuite Hub
 
 groups (permission management)
 ├── id (uuid, PK)
@@ -330,29 +334,31 @@ POST   /api/verification/verify # Trigger integrity check
 
 ## Authentication System
 
+PreDrive uses **PreSuite Hub** (`presuite.eu`) as the central identity provider. JWT tokens issued by the Hub are validated locally using a shared secret.
+
 ### JWT Configuration
 ```typescript
-const JWT_SECRET = process.env.JWT_SECRET;  // Shared with PreMail
-const JWT_ISSUER = 'presuite';              // Shared issuer
+const JWT_SECRET = process.env.JWT_SECRET;  // MUST match PreSuite Hub
+const JWT_ISSUER = 'presuite';              // Always "presuite"
 ```
 
 ### JWT Payload
 ```typescript
 interface JWTPayload {
-  sub: string;      // User ID
-  org_id: string;   // Organization ID
+  sub: string;      // User ID (UUID)
+  org_id: string;   // Organization ID (UUID)
   email: string;    // User email
   name?: string;    // User display name
   iss: string;      // 'presuite'
   iat: number;      // Issued at
-  exp: number;      // Expiration
+  exp: number;      // Expiration (7 days)
 }
 ```
 
 ### Auth Flow
-1. **SSO from PreMail:** User clicks PreDrive link in PreMail, redirected to `https://predrive.eu?token=JWT`
-2. **Token Verification:** PreDrive verifies JWT signature using shared secret
-3. **Auto-Provisioning:** If user doesn't exist, creates user and org from JWT claims
+1. **SSO Navigation:** User clicks PreDrive link from any PreSuite service, redirected to `https://predrive.eu?token=JWT`
+2. **Token Verification:** PreDrive verifies JWT signature using shared `JWT_SECRET`
+3. **Auto-Provisioning:** If user doesn't exist locally, creates user and org from JWT claims (see `INTEGRATION.md`)
 4. **Session:** Token stored in localStorage, used for API calls
 
 ### Basic Auth (WebDAV)
