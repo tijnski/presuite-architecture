@@ -788,7 +788,8 @@ PreSocial uses PreSuite Hub for centralized authentication.
 - [x] Vote on posts (upvote/downvote with visual feedback)
 - [x] Save/bookmark posts (yellow highlight when saved)
 - [x] View saved posts page (/saved)
-- [ ] Comment on discussions (via Lemmy bot account)
+- [x] View comments with nested threads (collapsible, color-coded)
+- [ ] Post comments (via Lemmy bot account)
 - [ ] Save favorite communities
 
 ---
@@ -956,7 +957,7 @@ const preSuiteApps = [
 - [x] PreSuite auth integration (login/register via PreSuite Hub)
 - [x] Voting capability (upvote/downvote with optimistic updates)
 - [x] Save/bookmark discussions (with Saved page)
-- [ ] Comment viewing
+- [x] Comment viewing (nested threads, collapsible, sorted by score)
 
 ### Phase 4: Advanced Features (Future)
 - [ ] Self-hosted Lemmy instance
