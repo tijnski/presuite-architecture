@@ -146,46 +146,83 @@ Authentication state:
 
 ## Database Schema
 
-### users
+### Utility Functions
+
 ```sql
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  org_id UUID NOT NULL REFERENCES orgs(id),
-  email VARCHAR(255) UNIQUE NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  password_hash VARCHAR(255),
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now()
-);
+-- Auto-update updated_at timestamp on row changes
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 ```
 
-### email_accounts
-```sql
-CREATE TABLE email_accounts (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  engine_account_id VARCHAR(255) UNIQUE NOT NULL,  -- "stalwart:{username}"
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  provider account_provider DEFAULT 'imap',  -- ENUM: imap, gmail, microsoft
-  status account_status DEFAULT 'connecting', -- ENUM: connecting, connected, disconnected, error, auth_error
-  error_message TEXT,
-  mail_password TEXT,  -- Plain password for IMAP/SMTP access
-  last_sync_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
+### Core Tables
+
+```
+orgs
+├── id (uuid, PK)
+├── name (varchar)
+├── created_at, updated_at (timestamptz)
+└── Trigger: trg_orgs_updated_at
+
+users
+├── id (uuid, PK)
+├── org_id (uuid, FK → orgs)
+├── email (varchar, unique)
+├── name (varchar)
+├── password_hash (varchar, nullable)
+├── created_at, updated_at (timestamptz)
+└── Trigger: trg_users_updated_at
+
+email_accounts
+├── id (uuid, PK)
+├── user_id (uuid, FK → users, CASCADE)
+├── engine_account_id (varchar, unique) -- "stalwart:{username}"
+├── name (varchar)
+├── email (varchar)
+├── provider (ENUM: 'imap', 'gmail', 'microsoft')
+├── status (ENUM: 'connecting', 'connected', 'disconnected', 'error', 'auth_error')
+├── error_message (text, nullable)
+├── mail_password (text) -- IMAP/SMTP password (see security note)
+├── last_sync_at (timestamptz, nullable)
+├── created_at, updated_at (timestamptz)
+└── Trigger: trg_email_accounts_updated_at
 ```
 
-### orgs
+### ENUM Types
+
 ```sql
-CREATE TABLE orgs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now()
-);
+CREATE TYPE account_provider AS ENUM ('imap', 'gmail', 'microsoft');
+CREATE TYPE account_status AS ENUM ('connecting', 'connected', 'disconnected', 'error', 'auth_error');
 ```
+
+### Indexes
+
+| Table | Index | Purpose |
+|-------|-------|---------|
+| users | `idx_users_org_id` | Filter users by organization |
+| users | `idx_users_email` | Email lookups for auth |
+| email_accounts | `idx_email_accounts_user_id` | List accounts for user |
+| email_accounts | `idx_email_accounts_email` | Email address lookups |
+| email_accounts | `idx_email_accounts_status` | Filter by connection status |
+
+### Triggers
+
+| Trigger | Table | Purpose |
+|---------|-------|---------|
+| `trg_orgs_updated_at` | orgs | Auto-update `updated_at` on changes |
+| `trg_users_updated_at` | users | Auto-update `updated_at` on changes |
+| `trg_email_accounts_updated_at` | email_accounts | Auto-update `updated_at` on changes |
+
+### Security Note
+
+The `mail_password` field in `email_accounts` stores the IMAP/SMTP password in plain text. This is required for the server to authenticate with Stalwart Mail Server on behalf of the user. In production:
+- Ensure database access is restricted
+- Consider application-level encryption (AES-256) for this field
+- Never expose this field in API responses
 
 ## Environment Variables
 

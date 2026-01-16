@@ -110,84 +110,172 @@ orgs
 ├── id (uuid, PK)
 ├── name (varchar)
 ├── created_at, updated_at (timestamp)
+└── Trigger: trg_orgs_updated_at
 
-users
+users (cached from PreSuite Hub)
 ├── id (uuid, PK)
-├── org_id (uuid, FK → orgs)
+├── org_id (uuid, FK → orgs, CASCADE)
 ├── email (varchar, unique)
 ├── name (varchar)
-├── password_hash (varchar, nullable)
 ├── created_at, updated_at (timestamp)
+└── Trigger: trg_users_updated_at
 
+groups (permission management)
+├── id (uuid, PK)
+├── org_id (uuid, FK → orgs, CASCADE)
+├── name (varchar)
+├── description (text, nullable)
+├── created_at, updated_at (timestamp)
+├── Constraint: UNIQUE(org_id, name)
+└── Trigger: trg_groups_updated_at
+
+group_members (many-to-many)
+├── group_id (uuid, FK → groups, CASCADE)
+├── user_id (uuid, FK → users, CASCADE)
+├── added_at (timestamp)
+└── PK: (group_id, user_id)
+```
+
+### File Storage Tables
+
+```
 nodes (files and folders in tree structure)
 ├── id (uuid, PK)
-├── org_id (uuid, FK → orgs)
+├── org_id (uuid, FK → orgs, CASCADE)
 ├── type ('folder' | 'file')
-├── parent_id (uuid, self-ref, nullable for root)
+├── parent_id (uuid, self-ref, CASCADE, nullable for root)
 ├── name (varchar)
 ├── starred (boolean)
 ├── deleted_at (timestamp, soft delete)
 ├── created_at, updated_at (timestamp)
+├── Constraint: chk_not_self_parent (parent_id != id)
+└── Trigger: trg_nodes_updated_at
 
 files (metadata for file nodes)
-├── node_id (uuid, PK, FK → nodes)
-├── current_version (int)
+├── node_id (uuid, PK, FK → nodes, CASCADE)
+├── current_version (int, default 1)
 ├── mime (varchar)
-├── size (bigint)
+├── size (bigint, default 0)
 ├── checksum (varchar, sha256)
 ├── created_at (timestamp)
+├── Constraint: chk_version_positive (current_version >= 1)
+└── Constraint: chk_size_non_negative (size >= 0)
 
 file_versions
 ├── id (uuid, PK)
-├── node_id (uuid, FK → nodes)
+├── node_id (uuid, FK → nodes, CASCADE)
 ├── version (int)
 ├── storage_key (varchar, S3 path)
 ├── size, checksum (bigint, varchar)
 ├── created_at (timestamp)
+├── Constraint: UNIQUE(node_id, version)
+├── Constraint: chk_version_num_positive (version >= 1)
+└── Constraint: chk_version_size_non_negative (size >= 0)
+```
 
+### Sharing & Permissions Tables
+
+```
 shares (public/org share links)
 ├── id (uuid, PK)
-├── org_id, node_id (uuid, FKs)
+├── org_id (uuid, FK → orgs, CASCADE)
+├── node_id (uuid, FK → nodes, CASCADE)
 ├── token (varchar, unique)
 ├── expires_at (timestamp, nullable)
 ├── password_hash (varchar, nullable)
 ├── scope ('view' | 'download')
 ├── org_only (boolean)
-├── created_by (uuid, FK → users)
-├── created_at (timestamp)
+├── created_by (uuid, FK → users, SET NULL)
+└── created_at (timestamp)
 
 permissions (ACL)
 ├── id (uuid, PK)
-├── org_id, node_id (uuid, FKs)
+├── org_id (uuid, FK → orgs, CASCADE)
+├── node_id (uuid, FK → nodes, CASCADE)
 ├── principal_type ('user' | 'group')
 ├── principal_id (uuid)
 ├── role ('owner' | 'editor' | 'viewer')
 ├── inherited (boolean)
 ├── created_at (timestamp)
+└── Constraint: UNIQUE(node_id, principal_type, principal_id)
+```
 
+### WebDAV & Upload Tables
+
+```
 locks (WebDAV locking)
 ├── id (uuid, PK)
-├── org_id, node_id (uuid, FKs)
-├── token, owner (varchar)
-├── depth, timeout (varchar, int)
-├── expires_at, created_at (timestamp)
+├── org_id (uuid, FK → orgs, CASCADE)
+├── node_id (uuid, FK → nodes, CASCADE)
+├── token (varchar, unique)
+├── owner (varchar)
+├── depth (varchar, default 'infinity')
+├── timeout (int, default 3600)
+├── expires_at (timestamp)
+└── created_at (timestamp)
 
 upload_sessions (multipart uploads)
 ├── id (uuid, PK)
-├── org_id, node_id, parent_id (uuid)
-├── file_name, key, multipart_id (varchar)
-├── status ('pending' | 'uploading' | 'completed' | 'failed')
-├── mime, size (varchar, bigint)
-├── expires_at, created_at (timestamp)
+├── org_id (uuid, FK → orgs, CASCADE)
+├── user_id (uuid, FK → users, CASCADE)
+├── parent_id (uuid, FK → nodes, CASCADE, nullable)
+├── file_name (varchar)
+├── storage_key (varchar)
+├── multipart_id (varchar, nullable)
+├── status ('pending' | 'uploading' | 'completed' | 'failed' | 'expired')
+├── mime (varchar)
+├── size (bigint, nullable)
+├── expires_at (timestamp)
+├── created_at, updated_at (timestamp)
+├── Constraint: chk_upload_size_non_negative
+└── Trigger: trg_upload_sessions_updated_at
+```
 
+### Audit & Logging
+
+```
 audit_log
 ├── id (uuid, PK)
-├── org_id, actor_id, node_id (uuid)
+├── org_id (uuid, FK → orgs, CASCADE)
+├── actor_id (uuid, FK → users, SET NULL)
+├── node_id (uuid, FK → nodes, SET NULL)
 ├── action (varchar)
-├── meta (jsonb)
-├── ip (varchar)
-├── created_at (timestamp)
+├── meta (jsonb, default '{}')
+├── ip (varchar(45))
+├── user_agent (text, nullable)
+└── created_at (timestamp)
 ```
+
+### Indexes
+
+| Table | Index | Type |
+|-------|-------|------|
+| nodes | `idx_nodes_org_id` | B-tree |
+| nodes | `idx_nodes_parent_id` | B-tree |
+| nodes | `idx_nodes_deleted_at` | B-tree |
+| nodes | `idx_nodes_org_parent_active` | Partial (WHERE deleted_at IS NULL) |
+| nodes | `idx_nodes_name` | B-tree |
+| files | `idx_files_mime` | B-tree |
+| file_versions | `idx_file_versions_node_id` | B-tree |
+| shares | `idx_shares_token` | B-tree |
+| shares | `idx_shares_node_id` | B-tree |
+| shares | `idx_shares_org_id` | B-tree |
+| shares | `idx_shares_expires` | Partial (WHERE expires_at IS NOT NULL) |
+| permissions | `idx_permissions_node_id` | B-tree |
+| permissions | `idx_permissions_principal` | B-tree (principal_type, principal_id) |
+| permissions | `idx_permissions_org_id` | B-tree |
+| groups | `idx_groups_org_id` | B-tree |
+| group_members | `idx_group_members_user_id` | B-tree |
+| locks | `idx_locks_node_id` | B-tree |
+| locks | `idx_locks_expires` | B-tree |
+| upload_sessions | `idx_upload_sessions_user_id` | B-tree |
+| upload_sessions | `idx_upload_sessions_status` | B-tree |
+| upload_sessions | `idx_upload_sessions_expires` | B-tree |
+| audit_log | `idx_audit_log_org_id` | B-tree |
+| audit_log | `idx_audit_log_actor_id` | B-tree |
+| audit_log | `idx_audit_log_node_id` | B-tree |
+| audit_log | `idx_audit_log_action` | B-tree |
+| audit_log | `idx_audit_log_created_at` | B-tree |
 
 ---
 

@@ -433,62 +433,102 @@ async function autoProvision(payload: PreSuiteJWT) {
 
 ## Database Architecture
 
-### Central User Store (PreSuite Hub)
+### Utility Functions (All Databases)
 
-PreSuite Hub maintains the authoritative user database:
+All PreSuite databases include a trigger function for auto-updating timestamps:
 
 ```sql
--- PreSuite Hub Database
-
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  org_id UUID NOT NULL REFERENCES orgs(id),
-  email VARCHAR(255) UNIQUE NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  email_verified BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE orgs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(255) NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE sessions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  token_hash VARCHAR(255) NOT NULL,
-  expires_at TIMESTAMPTZ NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE registration_sources (
-  user_id UUID NOT NULL REFERENCES users(id),
-  source VARCHAR(50) NOT NULL,  -- presuite, premail, predrive, preoffice
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  PRIMARY KEY (user_id)
-);
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 ```
+
+### Central User Store (PreSuite Hub)
+
+PreSuite Hub (`presuite.eu`) maintains the authoritative user database:
+
+```
+orgs
+├── id (uuid, PK)
+├── name (varchar)
+├── created_at (timestamptz)
+└── Trigger: trg_orgs_updated_at
+
+users
+├── id (uuid, PK)
+├── org_id (uuid, FK → orgs, CASCADE)
+├── email (varchar, unique)
+├── name (varchar)
+├── password_hash (varchar)
+├── email_verified (boolean, default FALSE)
+├── created_at, updated_at (timestamptz)
+└── Trigger: trg_users_updated_at
+
+sessions
+├── id (uuid, PK)
+├── user_id (uuid, FK → users, CASCADE)
+├── token_hash (varchar)
+├── expires_at (timestamptz)
+├── created_at (timestamptz)
+└── Index: idx_sessions_user_id, idx_sessions_expires
+
+registration_sources
+├── user_id (uuid, PK, FK → users, CASCADE)
+├── source (varchar) -- presuite, premail, predrive, preoffice
+└── created_at (timestamptz)
+```
+
+#### PreSuite Hub Indexes
+
+| Table | Index | Purpose |
+|-------|-------|---------|
+| users | `idx_users_email` | Email lookups for auth |
+| users | `idx_users_org_id` | Filter users by org |
+| sessions | `idx_sessions_user_id` | List user sessions |
+| sessions | `idx_sessions_expires` | Cleanup expired sessions |
 
 ### Service-Local User Cache
 
-Each service maintains a local cache of user data (synced from JWT claims):
+Each service (PreDrive, PreMail) maintains a local cache of user data, synced from JWT claims during auto-provisioning:
 
-```sql
--- PreDrive/PreMail local tables
-CREATE TABLE users (
-  id UUID PRIMARY KEY,  -- Same ID as PreSuite Hub
-  org_id UUID NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  -- No password_hash - auth handled by Hub
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
 ```
+orgs (cached)
+├── id (uuid, PK) -- Same ID as PreSuite Hub
+├── name (varchar)
+├── created_at, updated_at (timestamptz)
+└── Trigger: trg_orgs_updated_at
+
+users (cached)
+├── id (uuid, PK) -- Same ID as PreSuite Hub
+├── org_id (uuid, FK → orgs, CASCADE)
+├── email (varchar, unique)
+├── name (varchar)
+├── created_at, updated_at (timestamptz)
+└── Trigger: trg_users_updated_at
+```
+
+**Note:** Service-local user tables do NOT store `password_hash` since authentication is handled centrally by PreSuite Hub. The exception is PreMail which stores `password_hash` for users who registered directly there before migration.
+
+### Service-Specific Tables
+
+Each service extends the base schema with its own tables:
+
+#### PreMail Additions
+- `email_accounts` - IMAP/SMTP account connections to Stalwart
+
+#### PreDrive Additions
+- `groups`, `group_members` - Permission group management
+- `nodes`, `files`, `file_versions` - File storage tree
+- `shares`, `permissions` - Sharing and ACL
+- `locks` - WebDAV locking
+- `upload_sessions` - Multipart upload tracking
+- `audit_log` - Activity logging
+
+See `PREDRIVE.md` and `Premail.md` for complete service-specific schemas.
 
 ---
 
