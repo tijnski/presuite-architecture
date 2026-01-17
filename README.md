@@ -27,17 +27,17 @@ PreSuite is a privacy-focused productivity suite built on the Presearch ecosyste
                     PreSuite Hub (Identity Provider)
                            presuite.eu
                                │
-                         JWT Tokens
+                    JWT Tokens + Web3 Auth
                                │
-         ┌─────────────────────┼─────────────────────┐
-         │                     │                     │
-         ▼                     ▼                     ▼
-    ┌─────────┐          ┌─────────┐          ┌─────────┐
-    │ PreMail │          │PreDrive │          │PreOffice│
-    │         │          │         │          │         │
-    │Stalwart │          │  Storj  │          │Collabora│
-    │  IMAP   │          │   S3    │          │ Online  │
-    └─────────┘          └─────────┘          └─────────┘
+    ┌──────────────┬───────────┼───────────┬──────────────┐
+    │              │           │           │              │
+    ▼              ▼           ▼           ▼              ▼
+┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐
+│ PreMail │  │PreDrive │  │PreOffice│  │PreSocial│  │ PreGPT  │
+│         │  │         │  │         │  │         │  │         │
+│Stalwart │  │  Storj  │  │Collabora│  │  Lemmy  │  │ Venice  │
+│  IMAP   │  │   S3    │  │ Online  │  │   API   │  │   AI    │
+└─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘
 ```
 
 See [`architecture/`](architecture/README.md) for detailed diagrams.
@@ -84,7 +84,7 @@ ARC/
 │   ├── MONITORING-INFRASTRUCTURE.md
 │   └── TESTING-INFRASTRUCTURE.md
 │
-├── IMPLEMENTATION-STATUS.md    # Task tracking (~85% complete)
+├── IMPLEMENTATION-STATUS.md    # Task tracking (~90% complete)
 │
 ├── config/                     # Environment templates
 ├── scripts/                    # Deployment & operations
@@ -128,7 +128,7 @@ ARC/
 | PreDrive | Hono | PostgreSQL | Docker, Nginx |
 | PreMail | Hono | PostgreSQL | PM2, Stalwart |
 | PreOffice | Express (WOPI) | - | Docker, Collabora |
-| PreSocial | Hono | Redis | Docker, Lemmy API |
+| PreSocial | Bun + Hono | File-based (JSON) | PM2, Lemmy API |
 
 **Common:** React 18+, TypeScript, Vite, Tailwind CSS, JWT (HS256)
 
