@@ -22,7 +22,7 @@
 │                    │                                │                            │
 │                    ▼                                ▼                            │
 │   ┌────────────────────────────┐    ┌────────────────────────────────────────┐  │
-│   │      WOPI Server (Bun)     │    │         Collabora Online              │  │
+│   │   WOPI Server (Express)   │    │         Collabora Online              │  │
 │   │                            │    │                                        │  │
 │   │  ┌──────────────────────┐  │    │  ┌──────────────────────────────────┐ │  │
 │   │  │    WOPI Endpoints    │  │    │  │        Document Editor           │ │  │

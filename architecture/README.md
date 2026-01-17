@@ -1,6 +1,6 @@
 # PreSuite Architecture Documentation
 
-> **Last Updated:** January 16, 2026
+> **Last Updated:** January 17, 2026
 
 This directory contains detailed architecture diagrams and documentation for the PreSuite ecosystem.
 
@@ -27,6 +27,7 @@ This directory contains detailed architecture diagrams and documentation for the
 | PreMail | https://premail.site | 76.13.1.117 |
 | PreDrive | https://predrive.eu | 76.13.1.110 |
 | PreOffice | https://preoffice.site | 76.13.2.220 |
+| PreSocial | https://presocial.presuite.eu | 76.13.2.221 |
 
 ### Technology Stack
 

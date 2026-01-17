@@ -47,10 +47,11 @@
 
 | Service | Role | Key Features |
 |---------|------|--------------|
-| **PreSuite Hub** | Identity Provider | User auth, JWT issuance, dashboard |
-| **PreMail** | Email Service | IMAP/SMTP via Stalwart, threading |
+| **PreSuite Hub** | Identity Provider | User auth, JWT issuance, Web3 wallet auth, dashboard |
+| **PreMail** | Email Service | IMAP/SMTP via Stalwart, threading, labels |
 | **PreDrive** | Cloud Storage | Files, folders, sharing, Storj backend |
-| **PreOffice** | Document Editing | Collabora Online, WOPI protocol |
+| **PreOffice** | Document Editing | Collabora Online, WOPI protocol, PrePanda AI |
+| **PreSocial** | Community Platform | Lemmy-powered discussions, voting, bookmarks |
 
 ## Ports Reference
 

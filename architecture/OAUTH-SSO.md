@@ -110,7 +110,9 @@
 | `org_id` | Organization ID |
 | `email` | User email address |
 | `name` | Display name |
+| `wallet_address` | Ethereum wallet address (Web3 users only) |
+| `is_web3` | Boolean flag for Web3 accounts |
 | `iss` | Issuer (always "presuite") |
 | `aud` | Audience (target service) |
 | `iat` | Issued at timestamp |
-| `exp` | Expiration timestamp |
+| `exp` | Expiration timestamp (7 days) |

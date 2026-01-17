@@ -146,7 +146,7 @@
 │   ┌──────────────────┐  ┌──────────────────┐                    │
 │   │       wopi       │  │    collabora     │                    │
 │   │                  │  │                  │                    │
-│   │  Bun + Hono      │  │  Collabora CODE  │                    │
+│   │  Node + Express  │  │  Collabora CODE  │                    │
 │   │  Port: 8080      │  │  Port: 9980      │                    │
 │   │                  │  │                  │                    │
 │   │  WOPI Protocol:  │  │  Features:       │                    │
