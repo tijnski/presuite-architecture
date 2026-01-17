@@ -1,7 +1,7 @@
 # Web3 SSO Implementation Progress
 
-> **Last Updated:** January 17, 2026
-> **Status:** Fully Functional
+> **Last Updated:** January 17, 2026 (Evening Update)
+> **Status:** Fully Functional - PreMail Integration Complete
 
 ---
 
@@ -125,8 +125,34 @@ SELECT email, wallet_address, is_web3 FROM users WHERE wallet_address LIKE '0x51
 |---------|-------------------|---------|
 | PreSuite Hub | User, Org, web3_mail_credentials | Web3 login |
 | Stalwart | Mailbox with IMAP/SMTP access | Web3 login |
-| PreMail | User, Org, email_account (status: connected) | First API call |
+| PreMail | User, Org, email_account (with encrypted password) | Web3 login (via internal API) |
 | PreDrive | User, Org, Root folder, Permissions | First API call |
+
+### PreMail Internal API
+
+Hub now calls PreMail's internal API during Web3 registration to provision the account with encrypted IMAP credentials:
+
+```
+Hub (Web3 Login) ──> Stalwart (Create Mailbox)
+                 └─> PreMail (POST /api/internal/web3-account)
+                     └─> Creates user, org, email_account with encrypted password
+```
+
+**Endpoint:** `POST /api/internal/web3-account`
+**Authentication:** `X-Internal-Secret` header
+**Payload:**
+```json
+{
+  "userId": "uuid",
+  "orgId": "uuid",
+  "email": "0x...@web3.premail.site",
+  "name": "Wallet 0x...",
+  "mailPassword": "plain-text-password",
+  "walletAddress": "0x..."
+}
+```
+
+The password is encrypted using AES-256-GCM before storage in PreMail's database.
 
 ---
 
@@ -256,6 +282,8 @@ CREATE TABLE web3_mail_credentials (
 
 ## Fixes Applied (January 17, 2026)
 
+### Morning Fixes
+
 | Issue | Fix | Location |
 |-------|-----|----------|
 | Stalwart admin password mismatch | Changed to `adminpass123` | `/var/www/presuite/.env` |
@@ -265,6 +293,29 @@ CREATE TABLE web3_mail_credentials (
 | PreDrive missing Web3 columns | Added `wallet_address`, `is_web3` | `deploy-postgres-1` |
 | PreDrive error message incorrect | Updated to generic message | `PreDriveFilePicker.tsx` |
 | Stalwart password pre-hashing | Changed to plain text (Stalwart hashes internally) | `presuite/server.js` |
+
+### Evening Fixes
+
+| Issue | Fix | Location |
+|-------|-----|----------|
+| PreMail missing IMAP credentials | Created internal API to provision accounts | `premail/apps/api/src/routes/internal.ts` |
+| Passwords stored unencrypted | Added AES-256-GCM encryption | `premail/apps/api/src/routes/internal.ts` |
+| Hub not provisioning PreMail | Added PreMail API call in `provisionWeb3Email()` | `presuite/server.js` |
+| Existing users missing PreMail accounts | Bulk fix script for 11 affected users | Manual migration |
+
+### Bulk User Migration
+
+Fixed 15 Web3 users total:
+- 11 users had missing or incomplete PreMail accounts
+- All users now have encrypted IMAP credentials
+- All accounts have `status: connected`
+
+```sql
+-- Verification query
+SELECT COUNT(*) FROM email_accounts
+WHERE email LIKE '%@web3.premail.site' AND mail_password IS NOT NULL;
+-- Result: 15 accounts with passwords
+```
 
 ---
 
@@ -373,16 +424,89 @@ Password: 6HnyS_xEGHku0UE_J2FOFTZBwNIG-AT8
 
 ---
 
+## PreMail API Send Test (January 17, 2026 - Evening)
+
+Successfully tested sending email via PreMail's API (not direct SMTP):
+
+### Test Flow
+```
+1. Create Web3 account via Hub
+2. Get JWT token
+3. Fetch account from PreMail API
+4. Send email via POST /api/v1/messages/send
+5. Verify email received in inbox
+```
+
+### Results
+```
+Wallet: 0xdCC68Cb5EA924897307F56b0c6fdD1b6F3db8fA0
+Email: 0xdcc68cb5ea924897307f56b0c6fdd1b6f3db8fa0@web3.premail.site
+
+Send Request:
+POST /api/v1/messages/send
+{
+  "accountId": "c0eaeb02-2cb6-4882-b84e-f13d38bd9c48",
+  "to": [{"address": "0xdcc68cb5ea924897307f56b0c6fdd1b6f3db8fa0@web3.premail.site"}],
+  "subject": "Web3 PreMail Send Test",
+  "text": "This email was sent from PreMail using a Web3 wallet account.",
+  "html": "<h1>Web3 Email Test</h1>..."
+}
+
+Response:
+{
+  "success": true,
+  "messageId": "<bc1b7dc6-3cb3-fddf-9171-7d0aba693076@premail.site>",
+  "provider": "stalwart"
+}
+
+Inbox Check:
+{
+  "messages": [{
+    "id": "1",
+    "subject": "Web3 PreMail Send Test - 17:36:55",
+    "from": [{"address": "0xdcc68cb5ea924897307f56b0c6fdd1b6f3db8fa0@premail.site"}],
+    "to": [{"address": "0xdcc68cb5ea924897307f56b0c6fdd1b6f3db8fa0@web3.premail.site"}]
+  }],
+  "total": 1
+}
+```
+
+### Verified Working
+- ✅ PreMail sends via Stalwart using stored encrypted credentials
+- ✅ Email delivered to recipient mailbox
+- ✅ IMAP fetch retrieves sent message
+- ✅ Full message content intact (text + HTML)
+
+---
+
 ## Conclusion
 
 Web3 SSO is fully functional across all PreSuite services. Users can:
 
 1. ✅ Login with MetaMask wallet
 2. ✅ Get automatic email address at `@web3.premail.site`
-3. ✅ Access PreMail with auto-provisioned account
+3. ✅ Access PreMail with auto-provisioned account (with encrypted IMAP credentials)
 4. ✅ Access PreDrive with auto-provisioned storage
-5. ✅ Send emails from their wallet address (SMTP)
-6. ✅ Receive emails at their wallet address (IMAP)
-7. ✅ Use single JWT token across all services
+5. ✅ Send emails from their wallet address (via PreMail API)
+6. ✅ Receive emails at their wallet address (via PreMail API)
+7. ✅ Send emails directly via SMTP (port 587)
+8. ✅ Receive emails directly via IMAP (port 993)
+9. ✅ Use single JWT token across all services
 
-The implementation follows security best practices with nonce-based replay protection, signature verification, and rate limiting.
+The implementation follows security best practices with:
+- Nonce-based replay protection
+- Signature verification via ethers.js
+- Rate limiting on all Web3 endpoints
+- AES-256-GCM encryption for stored mail passwords
+- Service-to-service authentication for internal APIs
+
+---
+
+## Git Commits
+
+| Repository | Commit | Description |
+|------------|--------|-------------|
+| presuite | `83904b5` | Integrate PreMail provisioning for Web3 accounts |
+| presuite | `af5083f` | Fix Web3 SSO password handling for Stalwart |
+| premail | `4d8a5dd` | Add internal API for Web3 account provisioning |
+| premail | `0a174c0` | Add Web3 email support (@web3.premail.site) |
