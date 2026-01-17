@@ -1,49 +1,48 @@
-# PreOffice - Architecture Reference Document
+# PreOffice - Document Editing Documentation
 
 ## Overview
 
-PreOffice is a LibreOffice fork branded for the Presearch/Presuite ecosystem. It consists of two main components:
-1. **PreOffice Desktop** - Full LibreOffice fork with Presearch integrations
-2. **PreOffice Online** - Web-based document editing powered by Collabora Online
+PreOffice is a web-based document editing service powered by Collabora Online (LibreOffice-based), integrated with PreDrive for cloud storage. It uses the WOPI (Web Application Open Platform Interface) protocol for file operations.
 
 **Production URL:** https://preoffice.site
-**Production Server:** 76.13.2.220 (srv1273269)
+**Server:** `ssh root@76.13.2.220` → `/opt/preoffice`
 **GitHub Repository:** https://github.com/tijnski/preoffice
 
 ---
 
 ## Technology Stack
 
-### PreOffice Online (Web Version)
+### WOPI Server
 
-#### Backend
-- **WOPI Server:** Node.js 20 with Express
-- **Document Engine:** Collabora Online (CODE)
-- **Protocol:** WOPI (Web Application Open Platform Interface)
-- **Auth:** JWT with HS256 signing
-- **Storage:** PreDrive integration via API
+| Package | Version | Purpose |
+|---------|---------|---------|
+| Express | 4.18.2 | Web framework |
+| jsonwebtoken | 9.0.2 | JWT handling |
+| axios | 1.6.2 | HTTP client |
+| helmet | 7.1.0 | Security headers |
+| cors | 2.8.5 | CORS middleware |
+| uuid | 9.0.1 | UUID generation |
+| redis | 4.6.11 | Session store |
+| morgan | 1.10.0 | Request logging |
+| dotenv | 16.3.1 | Environment config |
+| nodemon | 3.0.2 | Dev server |
+| jest | 29.7.0 | Testing |
 
-#### Frontend
-- **UI:** Collabora Online browser client
-- **Landing Page:** Static HTML with Presearch branding
+### Infrastructure
 
-#### Infrastructure
-- **Containerization:** Docker Compose
-- **Reverse Proxy:** Nginx with SSL
-- **SSL:** Let's Encrypt (auto-renewal via certbot)
-- **Session Store:** Redis
+| Component | Version | Purpose |
+|-----------|---------|---------|
+| Node.js | 20 (Alpine) | Runtime |
+| Collabora Online | latest | Document engine (CODE) |
+| Nginx | Alpine | Reverse proxy |
+| Redis | Alpine | Session store |
 
-### PreOffice Desktop
+### Landing Page
 
-#### Core
-- **Base:** LibreOffice core (C++, Java, Python)
-- **Extensions:** Python UNO API
-- **Build System:** GNU Make, autoconf
-
-#### Extensions
-- **PrePanda:** AI assistant sidebar (Python)
-- **PreDrive:** Cloud storage integration (Python)
-- **Presearch Search:** Quick search integration
+- HTML5 + vanilla JavaScript (no frameworks)
+- Presearch brand colors (`#2D8EFF`)
+- Dark mode support with CSS variables
+- Web3 support via ethers.js 6 (MetaMask integration)
 
 ---
 
@@ -51,158 +50,296 @@ PreOffice is a LibreOffice fork branded for the Presearch/Presuite ecosystem. It
 
 ```
 preoffice/
-├── presearch/
-│   ├── online/                    # PreOffice Online (web version)
-│   │   ├── docker-compose.yml     # Container orchestration
-│   │   ├── .env                   # Environment config
-│   │   ├── wopi-server/           # WOPI protocol server
-│   │   │   ├── Dockerfile
-│   │   │   ├── package.json
-│   │   │   └── src/
-│   │   │       └── index.js       # Main WOPI server
-│   │   ├── nginx/
-│   │   │   └── nginx.conf         # Reverse proxy config
-│   │   └── branding/
-│   │       └── static/
-│   │           └── index.html     # Landing page
-│   │
-│   ├── extension/                 # Main PreOffice extension
-│   │   ├── build-extension.sh
-│   │   ├── META-INF/manifest.xml
-│   │   ├── Addons.xcu            # Menu definitions
-│   │   ├── OptionsDialog.xcu     # Preferences UI
-│   │   ├── python/
-│   │   │   ├── prepanda.py       # AI assistant
-│   │   │   └── predrive.py       # Cloud storage
-│   │   ├── dialogs/              # XDL dialog definitions
-│   │   └── icons/                # Extension icons
-│   │
-│   ├── integrations/
-│   │   ├── predrive/             # Standalone PreDrive extension
-│   │   │   ├── build.sh
-│   │   │   ├── META-INF/manifest.xml
-│   │   │   ├── python/predrive.py
-│   │   │   └── dialogs/
-│   │   ├── pregpt/               # PreGPT AI integration
-│   │   ├── presearch-search/     # Search integration
-│   │   └── privacy-check/        # Privacy checker
-│   │
-│   ├── brand/
-│   │   ├── tokens.json           # Design tokens
-│   │   ├── assets/               # Logos, icons
-│   │   ├── splash/               # Splash screens
-│   │   └── patches/              # Core branding patches
-│   │
-│   └── ui/
-│       ├── icon-theme/           # Custom icon theme
-│       ├── color-scheme/         # Color configurations
-│       ├── startcenter/          # Start center branding
-│       ├── notebookbar/          # Ribbon UI customization
-│       ├── templates/            # Document templates
-│       └── defaults/             # Default settings
-│
-├── core/                          # LibreOffice source (submodule)
-├── compliance/
-│   ├── LICENSES/
-│   ├── NOTICE
-│   └── TRADEMARK.md
-├── installers/
-│   ├── windows/
-│   ├── macos/
-│   └── linux/
-└── docs/
-    ├── BUILDING.md
-    ├── CONTRIBUTING.md
-    └── SECURITY.md
+└── presearch/
+    └── online/                       # PreOffice Online (web version)
+        ├── docker-compose.yml        # Container orchestration
+        ├── .env                      # Production config
+        ├── .env.example              # Config template
+        ├── README.md                 # Documentation
+        │
+        ├── wopi-server/              # WOPI protocol server
+        │   ├── Dockerfile            # Node.js 20 Alpine
+        │   ├── package.json
+        │   └── src/
+        │       ├── index.js          # Main server (1,219 lines)
+        │       ├── config/
+        │       │   └── constants.js  # Config & validation
+        │       ├── middleware/
+        │       │   ├── auth.js       # JWT & PreSuite auth
+        │       │   ├── security.js   # Headers, CORS, CSP
+        │       │   └── rate-limiter.js # DoS protection
+        │       └── utils/
+        │           └── logger.js     # Secure logging
+        │
+        ├── nginx/
+        │   └── nginx.conf            # Reverse proxy config
+        │
+        ├── branding/
+        │   └── static/
+        │       ├── index.html        # Landing page (1,450 lines)
+        │       ├── predrive-picker.js # File browser
+        │       └── prepanda/         # AI assistant UI
+        │
+        └── scripts/
+            └── start.sh              # Deployment script
 ```
 
 ---
 
-## PreOffice Online Architecture
-
-### Docker Services
+## Docker Services
 
 ```yaml
 services:
-  collabora:    # Collabora Online (CODE) - port 9980
-  wopi:         # WOPI Server - port 8080
-  nginx:        # Reverse proxy - ports 80, 443
-  redis:        # Session store - port 6379
-```
+  collabora:
+    image: collabora/code:latest
+    container_name: preoffice-collabora
+    environment:
+      - aliasgroup1=https://preoffice.site
+      - username=${COLLABORA_ADMIN_USER:-admin}
+      - password=${COLLABORA_ADMIN_PASS:-changeme}
+      - server_name=preoffice.site
+      - extra_params=--o:ssl.enable=false --o:ssl.termination=true
+      - dictionaries=en_US,nl_NL,de_DE,fr_FR,es_ES
+    volumes:
+      - ./branding:/etc/coolwsd/branding:ro
+    cap_add:
+      - MKNOD
 
-### WOPI Protocol Flow
+  wopi:
+    container_name: preoffice-wopi
+    build: ./wopi-server
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - PREDRIVE_API_URL=https://predrive.eu/api
+      - USE_PREDRIVE=true
+      - WOPI_BASE_URL=https://preoffice.site/wopi
+      - COLLABORA_PUBLIC_URL=https://preoffice.site
+      - COLLABORA_URL=http://collabora:9980
+      - JWT_SECRET=${JWT_SECRET}
+      - STORAGE_DIR=/data/preoffice-files
+      - VENICE_API_URL=https://api.venice.ai/api/v1
+      - VENICE_API_KEY=${VENICE_API_KEY}
+    volumes:
+      - wopi-data:/data/preoffice-files
 
-```
-Browser → Nginx → Collabora (cool.html)
-                      ↓
-              WOPI CheckFileInfo
-                      ↓
-              Nginx → WOPI Server → PreDrive API
-                      ↓
-              WOPI GetFile / PutFile
-                      ↓
-              Document editing via WebSocket
-```
+  nginx:
+    image: nginx:alpine
+    container_name: preoffice-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./branding/static:/usr/share/nginx/html:ro
 
-### Key WOPI Endpoints
+  redis:
+    image: redis:alpine
+    container_name: preoffice-redis
+    volumes:
+      - redis-data:/data
 
-```
-GET  /wopi/files/:fileId              # CheckFileInfo - file metadata
-GET  /wopi/files/:fileId/contents     # GetFile - download content
-POST /wopi/files/:fileId/contents     # PutFile - save content
-POST /wopi/files/:fileId              # Lock/Unlock/Rename operations
-```
+volumes:
+  redis-data:
+  wopi-data:
 
-### API Endpoints
-
-```
-POST /api/edit                # Get editor URL for existing file
-POST /api/create              # Create new document
-GET  /health                  # Health check
-GET  /hosting/discovery       # WOPI discovery (proxied to Collabora)
+networks:
+  default:
+    name: preoffice-network
 ```
 
 ---
 
-## WOPI Server Implementation
+## API Endpoints
 
-### Configuration (index.js)
+### Document Operations
 
-```javascript
-const config = {
-  predriveApiUrl: process.env.PREDRIVE_API_URL,     // https://predrive.eu/api
-  wopiBaseUrl: process.env.WOPI_BASE_URL,           // https://preoffice.site/wopi
-  collaboraUrl: process.env.COLLABORA_URL,          // http://collabora:9980
-  collaboraPublicUrl: process.env.COLLABORA_PUBLIC_URL, // https://preoffice.site
-  jwtSecret: process.env.JWT_SECRET,
-  tokenExpiry: '24h'
-};
-```
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/create` | Create new document | Bearer |
+| POST | `/api/edit` | Open file for editing | Bearer |
+| GET | `/api/recent` | List recent documents | Bearer |
+| GET | `/api/browse` | Browse PreDrive folders | Bearer |
+| GET | `/api/search` | Search files | Bearer |
+| GET | `/api/user` | Get user info & quota | Bearer |
 
-### Demo Mode
+### PrePanda AI
 
-For local testing without PreDrive backend:
-- Files stored in memory (`demoFiles` Map)
-- CheckFileInfo returns mock metadata
-- GetFile/PutFile use in-memory storage
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/ai/chat` | AI chat completions | Bearer |
+| POST | `/api/ai/action` | Quick actions (summarize, translate, etc.) | Bearer |
+| GET | `/api/ai/status` | AI service status | None |
 
-### JWT Token Payload
+### WOPI Protocol
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/wopi/files/:fileId` | CheckFileInfo (metadata) | WOPI Token |
+| GET | `/wopi/files/:fileId/contents` | GetFile (download) | WOPI Token |
+| POST | `/wopi/files/:fileId/contents` | PutFile (save) | WOPI Token |
+| POST | `/wopi/files/:fileId` | Lock operations | WOPI Token |
+
+**Lock Operations (X-WOPI-Override header):**
+- `LOCK` - Lock file for editing
+- `GET_LOCK` - Check lock status
+- `REFRESH_LOCK` - Extend lock duration
+- `UNLOCK` - Release lock
+- `PUT_RELATIVE` - Save as / copy
+- `RENAME_FILE` - Rename file
+- `DELETE` - Delete file
+
+### Supporting Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/oauth/token` | OAuth code exchange |
+| GET | `/hosting/discovery` | Collabora WOPI discovery |
+| GET | `/hosting/capabilities` | Capabilities endpoint |
+| GET | `/health` | Health check |
+
+---
+
+## Authentication System
+
+### Two-Tier Authentication
+
+**1. Bearer Token (API Endpoints)**
+- Validates JWT from PreSuite Hub
+- Calls `https://presuite.eu/api/auth/verify`
+- Falls back to local JWT verification
+- Sets `req.auth` with user info
+
+**2. WOPI Token (File Operations)**
+- Session-based JWT tokens
+- Issued on `/api/create` and `/api/edit`
+- Stored in in-memory session store
+- Token Expiry: **4 hours**
+
+### WOPI Token Payload
 
 ```javascript
 {
-  userId: string,      // User identifier
+  userId: string,      // User UUID
   fileId: string,      // Base64-encoded file path
-  sessionId: string,   // UUID session ID
+  nodeId: string,      // PreDrive node ID
+  sessionId: string,   // Session UUID
   iat: number,         // Issued at
-  exp: number          // Expiration
+  exp: number          // Expiration (4h)
 }
+```
+
+### JWT Configuration
+
+| Setting | Value |
+|---------|-------|
+| Algorithm | HS256 |
+| Issuer | `presuite` |
+| WOPI Token Expiry | 4 hours |
+| Session TTL | 4 hours |
+
+---
+
+## Storage Modes
+
+### PreDrive Integration (Production)
+
+When `USE_PREDRIVE=true`:
+1. Downloads files from PreDrive API
+2. Uploads changes back to PreDrive
+3. Falls back to local storage on failure
+
+### Local Fallback (Development)
+
+- In-memory file map (`demoFiles` Map)
+- Disk storage at `/data/preoffice-files`
+- Demo mode for testing without PreDrive
+
+---
+
+## Security Configuration
+
+### Security Headers
+
+```javascript
+{
+  'Content-Security-Policy': "default-src 'self'; ...",
+  'X-Frame-Options': 'SAMEORIGIN',
+  'X-Content-Type-Options': 'nosniff',
+  'X-XSS-Protection': '1; mode=block',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
+}
+```
+
+### Rate Limiting
+
+| Endpoint | Limit |
+|----------|-------|
+| API | 60 req/min |
+| Edit | 30 req/min |
+| Create | 20 req/min |
+| WOPI | 100 req/min |
+
+### Input Validation
+
+- `validateFileId()` - Base64 format, path traversal detection
+- `sanitizeFilename()` - Removes dangerous characters
+- Maximum filename: 255 characters
+- Maximum file upload: 100 MB
+
+### Secure Logging
+
+- Masks sensitive data (tokens, emails, UUIDs)
+- Production: JSON structured logs
+- Development: Human-readable format
+- Log levels: error, warn, info, debug
+
+---
+
+## Environment Variables
+
+```bash
+# SECRETS (MUST change in production)
+COLLABORA_ADMIN_USER=admin
+COLLABORA_ADMIN_PASS=change-this-password
+JWT_SECRET=change-this-secret-in-production
+OAUTH_CLIENT_SECRET=preoffice-oauth-secret
+
+# SERVICE URLS
+PREDRIVE_API_URL=https://predrive.eu/api
+WOPI_BASE_URL=https://preoffice.site/wopi
+COLLABORA_PUBLIC_URL=https://preoffice.site
+COLLABORA_URL=http://collabora:9980
+
+# FEATURES
+USE_PREDRIVE=true
+DOMAIN=preoffice.site
+
+# AI (PrePanda)
+VENICE_API_URL=https://api.venice.ai/api/v1
+VENICE_API_KEY=your-venice-api-key
+
+# CORS
+CORS_ORIGINS=https://preoffice.site,https://predrive.eu,https://presuite.eu
+
+# STORAGE
+STORAGE_DIR=/data/preoffice-files
+
+# LOGGING
+LOG_LEVEL=info
+NODE_ENV=production
 ```
 
 ---
 
 ## Nginx Configuration
 
-### SSL Setup (Production)
+### Key Routing
 
 ```nginx
 server {
@@ -211,107 +348,142 @@ server {
 
     ssl_certificate /etc/letsencrypt/live/preoffice.site/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/preoffice.site/privkey.pem;
-    
-    # Collabora WebSocket (CRITICAL - must be regex for proper priority)
+
+    # Landing page
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+    }
+
+    # Static assets (7-day cache)
+    location /static/ {
+        root /usr/share/nginx/html;
+        expires 7d;
+    }
+
+    # WOPI endpoints (long timeout for editing)
+    location /wopi/ {
+        proxy_pass http://wopi:8080/wopi/;
+        proxy_read_timeout 36000s;
+    }
+
+    # PreOffice API
+    location /api/ {
+        proxy_pass http://wopi:8080/api/;
+    }
+
+    # Collabora WebSocket (CRITICAL - must be regex)
     location ~ ^/cool/(.*)/ws$ {
         proxy_pass http://collabora:9980;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "Upgrade";
-        proxy_set_header Host $host;
         proxy_read_timeout 36000s;
     }
 
     # Collabora static files
     location ^~ /browser {
         proxy_pass http://collabora:9980;
-        proxy_set_header Host $host;
     }
 
-    # WOPI endpoints
-    location /wopi/ {
-        proxy_pass http://wopi:8080/wopi/;
-        proxy_set_header Host $host;
-        proxy_read_timeout 36000s;
-    }
-
-    # Other cool endpoints (NO ^~ so websocket regex takes priority)
+    # Collabora main (NO ^~ so WebSocket takes priority)
     location ~ ^/cool {
         proxy_pass http://collabora:9980;
-        proxy_set_header Host $host;
+    }
+
+    # Legacy endpoints (backwards compatibility)
+    location ~ ^/lool {
+        proxy_pass http://collabora:9980;
+    }
+
+    # Health check
+    location /health {
+        proxy_pass http://wopi:8080/health;
     }
 }
 ```
 
-### Important: Nginx Location Priority
+### Nginx Location Priority
 
-Nginx location matching priority:
 1. Exact match `=`
 2. Prefix match with `^~`
 3. Regex match `~` or `~*`
 4. Regular prefix match
 
-The WebSocket location MUST be regex (`~`) and the general `/cool` MUST NOT use `^~` prefix, otherwise WebSocket connections will fail.
+**Important:** WebSocket location MUST use regex `~`, and general `/cool` MUST NOT use `^~`.
 
 ---
 
-## Environment Variables
+## File Type Support
 
-### Production (.env)
+### Documents
+- ODT (OpenDocument Text)
+- DOCX (Microsoft Word)
+- RTF (Rich Text Format)
+- TXT (Plain Text)
 
-```bash
-# Collabora Admin
-COLLABORA_ADMIN_USER=admin
-COLLABORA_ADMIN_PASS=<generated>
+### Spreadsheets
+- ODS (OpenDocument Spreadsheet)
+- XLSX (Microsoft Excel)
+- CSV (Comma-Separated Values)
 
-# API
-PREDRIVE_API_URL=https://predrive.eu/api
+### Presentations
+- ODP (OpenDocument Presentation)
+- PPTX (Microsoft PowerPoint)
 
-# WOPI Configuration
-WOPI_BASE_URL=https://preoffice.site/wopi
-COLLABORA_PUBLIC_URL=https://preoffice.site
+### Other
+- ODG (OpenDocument Drawing)
+- PDF (View only)
 
-# Security
-JWT_SECRET=<generated>
+---
 
-# Domain
-DOMAIN=preoffice.site
+## WOPI Protocol Flow
+
+```
+1. User clicks "Open in PreOffice" in PreDrive
+2. PreDrive calls POST /api/edit with file path and user token
+3. WOPI server generates access token and editor URL
+4. Browser redirects to Collabora cool.html
+5. Collabora calls GET /wopi/files/:fileId (CheckFileInfo)
+6. WOPI server returns file metadata
+7. Collabora calls GET /wopi/files/:fileId/contents (GetFile)
+8. WOPI server downloads file from PreDrive
+9. User edits document via WebSocket
+10. On save: POST /wopi/files/:fileId/contents (PutFile)
+11. WOPI server uploads to PreDrive
 ```
 
-### Docker Compose Environment
+---
 
-```yaml
-collabora:
-  environment:
-    - aliasgroup1=https://preoffice.site
-    - username=${COLLABORA_ADMIN_USER}
-    - password=${COLLABORA_ADMIN_PASS}
-    - server_name=preoffice.site
-    - extra_params=--o:ssl.enable=false --o:ssl.termination=true
-```
+## Landing Page Features
+
+The landing page (`branding/static/index.html`) includes:
+
+- **Authentication:**
+  - Email/password login via PreSuite API
+  - Web3/MetaMask wallet login
+  - OAuth callback handler
+  - Token storage in `sessionStorage`
+
+- **Document Creation:**
+  - Document type selection (Writer, Calc, Impress, Draw)
+  - File name input
+  - PreDrive folder browser
+
+- **UI Features:**
+  - Dark mode toggle
+  - Responsive design
+  - Smooth animations
+  - App selection cards
+  - Features showcase
 
 ---
 
 ## Deployment
 
-### Production Server (76.13.2.220)
+### Production Server
 
-#### Directory Structure
-```
-/opt/preoffice/
-├── presearch/online/
-│   ├── .env
-│   ├── docker-compose.yml
-│   ├── wopi-server/
-│   ├── nginx/
-│   └── branding/
-```
-
-#### SSL Certificates
-```
-/etc/letsencrypt/live/preoffice.site/
-├── fullchain.pem
-└── privkey.pem
-```
+**Server:** 76.13.2.220
+**Directory:** `/opt/preoffice/presearch/online`
 
 ### Deployment Commands
 
@@ -340,7 +512,7 @@ curl https://preoffice.site/health
 ### SSL Certificate Renewal
 
 ```bash
-# Certbot auto-renewal (already configured)
+# Auto-renewal (configured via certbot timer)
 certbot renew
 
 # Manual renewal
@@ -350,153 +522,19 @@ docker compose restart nginx
 
 ---
 
-## PreDrive Integration
+## Session Management
 
-### WOPI to PreDrive Flow
+- In-memory session store (`sessionStore` Map)
+- Session TTL: 4 hours
+- Auto-cleanup every 30 minutes
+- Stores user tokens for PreDrive API calls
 
-1. User clicks "Open in PreOffice" in PreDrive
-2. PreDrive calls `/api/edit` with file path and user token
-3. WOPI server generates access token and editor URL
-4. Collabora opens, calls CheckFileInfo
-5. WOPI server fetches file metadata from PreDrive API
-6. GetFile downloads content from PreDrive
-7. User edits document
-8. PutFile saves back to PreDrive
+### File Locking
 
-### PreDrive API Calls
-
-```javascript
-// Download file
-GET ${predriveApiUrl}/files/content?path=${filePath}
-Authorization: Bearer ${userToken}
-
-// Upload file
-PUT ${predriveApiUrl}/files/content?path=${filePath}
-Authorization: Bearer ${userToken}
-Content-Type: application/json
-{
-  "content": "<base64>",
-  "encoding": "base64"
-}
-```
-
----
-
-## Desktop Extension Development
-
-### Extension Structure
-
-```
-extension.oxt (ZIP archive)
-├── META-INF/
-│   └── manifest.xml          # Component registration
-├── description.xml           # Extension metadata
-├── Addons.xcu               # Menu items
-├── OptionsDialog.xcu        # Preferences page
-├── python/
-│   └── module.py            # Python UNO components
-├── dialogs/
-│   └── dialog.xdl           # Dialog definitions
-└── icons/
-    └── icon.png             # Toolbar icons
-```
-
-### Building Extensions
-
-```bash
-cd presearch/extension
-./build-extension.sh
-# Output: PreOffice-1.0.0.oxt
-
-# Install
-/Applications/LibreOffice.app/Contents/MacOS/unopkg add PreOffice-1.0.0.oxt
-```
-
-### Python UNO Example
-
-```python
-import uno
-from com.sun.star.task import XJobExecutor
-
-class MyJob(unohelper.Base, XJobExecutor):
-    def __init__(self, ctx):
-        self.ctx = ctx
-    
-    def trigger(self, args):
-        desktop = self.ctx.ServiceManager.createInstanceWithContext(
-            "com.sun.star.frame.Desktop", self.ctx)
-        doc = desktop.getCurrentComponent()
-        # Do something with document
-
-g_ImplementationHelper = unohelper.ImplementationHelper()
-g_ImplementationHelper.addImplementation(
-    MyJob, "com.presearch.MyJob", ("com.sun.star.task.Job",))
-```
-
----
-
-## Branding Guidelines
-
-### Design Tokens
-
-```json
-{
-  "colors": {
-    "primary": "#2D8EFF",
-    "background-tint": "#EAF3FF",
-    "background-soft": "#FAFBFC",
-    "text-primary": "#000000",
-    "text-secondary": "#494949"
-  }
-}
-```
-
-### Required Attribution
-
-- "Based on LibreOffice technology" in About dialog
-- MPL license notices preserved
-- LibreOffice trademarks NOT used in branding
-
----
-
-## Common Operations
-
-### Restart Services
-
-```bash
-# All services
-docker compose restart
-
-# Specific service
-docker compose restart wopi
-
-# Full rebuild
-docker compose down && docker compose up -d --build
-```
-
-### View Logs
-
-```bash
-# All logs
-docker compose logs -f
-
-# Specific service
-docker compose logs -f collabora
-docker compose logs -f wopi
-docker compose logs -f nginx
-```
-
-### Test WOPI Endpoints
-
-```bash
-# Health check
-curl https://preoffice.site/health
-
-# Create document
-curl -X POST https://preoffice.site/api/create \
-  -H "Content-Type: application/json" \
-  -d '{"type":"document"}'
-```
+- In-memory lock store (`fileLocks` Map)
+- Prevents concurrent edits
+- Lock-based concurrency control
+- Locks released on UNLOCK or session expiry
 
 ---
 
@@ -536,39 +574,47 @@ docker compose restart nginx
 
 ---
 
-## Security Notes
+## Resource Requirements
 
-- JWT secrets should be unique per deployment
-- SSL termination at nginx (Collabora runs HTTP internally)
-- Access tokens expire after 24 hours
-- File locks prevent concurrent editing conflicts
-- Demo mode stores files in memory (not persistent)
+| Service | CPU | RAM |
+|---------|-----|-----|
+| Collabora | 2+ cores | 2+ GB |
+| WOPI Server | 1 core | 512 MB |
+| Nginx | 1 core | 256 MB |
+| Redis | 1 core | 256 MB |
 
----
-
-## Related Services
-
-| Service | URL | Server | Purpose |
-|---------|-----|--------|---------|
-| PreDrive | https://predrive.eu | 76.13.1.110 | Cloud storage |
-| PreMail | https://premail.site | 76.13.1.117 | Email service |
-| PreOffice | https://preoffice.site | 76.13.2.220 | Document editing |
+**Storage:** 100 GB+ recommended for document storage
 
 ---
 
-## Key Files Reference
+## Current Status (January 2026)
 
-| File | Purpose |
-|------|---------|
-| `presearch/online/docker-compose.yml` | Container orchestration |
-| `presearch/online/wopi-server/src/index.js` | WOPI server implementation |
-| `presearch/online/nginx/nginx.conf` | Reverse proxy configuration |
-| `presearch/online/branding/static/index.html` | Landing page |
-| `presearch/extension/python/prepanda.py` | AI assistant extension |
-| `presearch/integrations/predrive/python/predrive.py` | PreDrive integration |
-| `presearch/brand/tokens.json` | Design tokens |
-| `CLAUDE.md` | AI agent guidelines |
+### Working
+
+- [x] Document editing (Writer, Calc, Impress, Draw)
+- [x] PreDrive integration
+- [x] WOPI protocol (CheckFileInfo, GetFile, PutFile)
+- [x] File locking (LOCK/UNLOCK)
+- [x] PrePanda AI integration
+- [x] Web3 wallet login
+- [x] Dark mode
+- [x] SSL/HTTPS
+
+### Known Limitations
+
+- No real-time collaboration (single editor per file)
+- Session store is in-memory (not distributed)
+- PDF viewing only (no editing)
 
 ---
 
-*Last Updated: January 2026*
+## Related Documentation
+
+- [API-REFERENCE.md](API-REFERENCE.md) - Complete API documentation
+- [PRESUITE.md](PRESUITE.md) - PreSuite Hub (identity provider)
+- [PREDRIVE.md](PREDRIVE.md) - PreDrive cloud storage
+- [PREMAIL.md](PREMAIL.md) - PreMail email service
+
+---
+
+*Last updated: January 17, 2026*

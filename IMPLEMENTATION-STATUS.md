@@ -1,7 +1,7 @@
 # PreSuite Implementation Status
 
-> **Last Updated:** January 17, 2026 (Web3 SSO Complete)
-> **Overall Progress:** ~87% Complete
+> **Last Updated:** January 17, 2026
+> **Overall Progress:** ~90% Complete
 
 ---
 
@@ -12,9 +12,10 @@
 | Core Infrastructure | 12/12 | 0 | ✅ 100% |
 | OAuth SSO | 4/4 | 0 | ✅ 100% |
 | PreSuite Hub | 11/11 | 0 | ✅ 100% |
-| PreMail | 9/12 | 3 | 🟡 75% |
+| PreMail | 10/12 | 2 | 🟡 83% |
 | PreDrive | 8/8 | 0 | ✅ 100% |
-| PreOffice | 3/6 | 3 | 🟡 50% |
+| PreOffice | 5/6 | 1 | 🟡 83% |
+| PreSocial | 7/8 | 1 | 🟡 88% |
 | Monitoring | 5/5 | 0 | ✅ 100% |
 | Testing | 2/5 | 3 | 🔴 40% |
 
@@ -53,6 +54,8 @@
 | PM-010 | Push Notifications | ✅ Done |
 | PM-011 | External IMAP Accounts | ✅ Done |
 | PM-012 | Labels/Tags System (Gmail-style) | ✅ Done |
+| PM-013 | Full-text Search (Typesense) | ✅ Done |
+| PM-014 | Rich Text Compose (TipTap) | ✅ Done |
 | - | PreCalendar Integration | ✅ Done |
 | - | Webhook Status Updates | ✅ Done |
 
@@ -61,6 +64,20 @@
 |----|------|--------|
 | PO-001 | Persistent Demo Storage | ✅ Done |
 | PO-002 | Full PreDrive Integration (WOPI) | ✅ Done |
+| PO-003 | PrePanda AI Assistant | ✅ Done |
+| PO-004 | File Locking (LOCK/UNLOCK) | ✅ Done |
+| PO-005 | Web3 Wallet Login | ✅ Done |
+
+### PreSocial (presocial.presuite.eu)
+| ID | Task | Status |
+|----|------|--------|
+| PS-001 | Lemmy Integration | ✅ Done |
+| PS-002 | Persistent Storage (votes, bookmarks) | ✅ Done |
+| PS-003 | Community Listing | ✅ Done |
+| PS-004 | Post Viewing | ✅ Done |
+| PS-005 | Comment System | ✅ Done |
+| PS-006 | Web3 Wallet Authentication | ✅ Done |
+| PS-007 | Voting System | ✅ Done |
 
 ### Cross-Service
 | ID | Task | Status |
@@ -165,15 +182,6 @@ Full Web3 wallet authentication allowing users to sign in with MetaMask (or comp
 | TXT (SPF) | web3.premail.site | v=spf1 ip4:76.13.1.117 ~all |
 | TXT (DMARC) | _dmarc.web3.premail.site | v=DMARC1; p=reject; rua=mailto:postmaster@web3.premail.site |
 
-### Configuration Fixed
-
-| Issue | Resolution |
-|-------|------------|
-| Stalwart admin password mismatch | Updated Hub `.env`: `STALWART_ADMIN_PASS=adminpass123` |
-| Domain not in Stalwart | Added via Stalwart API (domain id: 39) |
-| PreMail not auto-provisioning Web3 accounts | Updated `auth.ts` to handle `@web3.premail.site` with `status: connected` |
-| PreDrive error message incorrect | Updated `PreDriveFilePicker.tsx` error message |
-
 ### Test Results (Jan 17)
 
 - ✅ Nonce generation working
@@ -190,9 +198,33 @@ Full Web3 wallet authentication allowing users to sign in with MetaMask (or comp
 
 ---
 
-## In Progress / High Priority
+## PrePanda AI Implementation (Completed)
 
-### PreMail - Postal Server Testing
+### Overview
+AI assistant integrated into PreOffice for document assistance, powered by Venice API.
+
+### API Endpoints
+
+| Endpoint | Method | Description | Auth |
+|----------|--------|-------------|------|
+| `/api/ai/chat` | POST | AI chat completions | Bearer |
+| `/api/ai/action` | POST | Quick actions (summarize, translate, etc.) | Bearer |
+| `/api/ai/status` | GET | AI service status | None |
+
+### Features
+- Document summarization
+- Translation support
+- Writing assistance
+- Context-aware responses
+- Streaming responses
+
+---
+
+## Pending Work
+
+### High Priority
+
+#### PreMail - Postal Server Testing
 **Location:** `premail/POSTAL_MIGRATION_PROGRESS.md`
 **Status:** Implementation complete, needs testing
 
@@ -202,17 +234,7 @@ Full Web3 wallet authentication allowing users to sign in with MetaMask (or comp
 - [ ] Test send flow end-to-end
 - [ ] Verify webhook delivery
 
----
-
-## Pending Work
-
 ### Medium Priority
-
-#### PreDrive
-| Task | Location | Status |
-|------|----------|--------|
-| WebDAV Copy Handler | `packages/webdav/src/handlers/copy.ts` | ✅ Done (full implementation exists) |
-| File Range Selection | `apps/web/src/components/FileRow.tsx:47` | ✅ Done (Shift+Click working) |
 
 #### SSO Enhancements
 | Task | Description | Status |
@@ -240,28 +262,35 @@ Full Web3 wallet authentication allowing users to sign in with MetaMask (or comp
 | PreWallet | ✅ Done | Presearch Node API & Etherscan |
 
 #### PreMail Features
-- [x] Full-text email search ✅ (Typesense-based with autocomplete & filters, deployed Jan 17)
-- [x] Labels/Tags system ✅ (Gmail-style with colored labels, deployed Jan 17)
+- [x] Full-text email search ✅ (Typesense-based with autocomplete & filters)
+- [x] Labels/Tags system ✅ (Gmail-style with colored labels)
 - [ ] Filters & Rules
-- [x] Rich Text Compose editor ✅ (TipTap-based, deployed Jan 17)
+- [x] Rich Text Compose editor ✅ (TipTap-based)
 - [ ] Contact Management/Address book
-- [ ] Storj bucket for email attachments (see [config/STORJ-SETUP.md](config/STORJ-SETUP.md))
 
 #### PreDrive Features
 - [ ] Real-time Collaboration
 - [ ] Comments system
-- [x] Activity Feed ✅ (deployed Jan 17)
+- [x] Activity Feed ✅
 - [ ] Advanced Sharing (granular permissions)
 - [ ] Offline Mode
 - [ ] Mobile App
 
 #### PreOffice Features
 - [ ] Cloud upload (marked "Coming Soon")
-- [ ] PrePanda AI assistant sidebar
+- [x] PrePanda AI assistant sidebar ✅
 - [ ] Template Gallery
 - [ ] Real-time Co-editing
 - [ ] Export Formats (PDF, DOCX, ODT)
 - [ ] Enhanced Print Preview
+
+#### PreSocial Features
+- [ ] User profiles page
+- [x] Comment posting ✅
+- [x] Post voting ✅
+- [x] Bookmarking ✅
+- [ ] Community creation
+- [ ] Moderation tools
 
 ---
 
@@ -281,8 +310,12 @@ Full Web3 wallet authentication allowing users to sign in with MetaMask (or comp
 
 | Item | Status | Location |
 |------|--------|----------|
-| API Documentation | ✅ Done | API-REFERENCE.md |
-| User Guide | ✅ Done | USER-GUIDE.md |
+| API Documentation | ✅ Updated Jan 17 | API-REFERENCE.md |
+| PreSuite Hub | ✅ Updated Jan 17 | PRESUITE.md |
+| PreDrive | ✅ Updated Jan 17 | PREDRIVE.md |
+| PreMail | ✅ Updated Jan 17 | PREMAIL.md |
+| PreOffice | ✅ Updated Jan 17 | PREOFFICE.md |
+| PreSocial | ✅ Updated Jan 17 | PRESOCIAL.md |
 | Deployment Guide | ✅ Done | DEPLOYMENT.md |
 | Architecture Diagrams | ✅ Done | architecture/ directory |
 | SSO Implementation | ✅ Done | PRESUITE-SSO-IMPLEMENTATION.md |
@@ -296,12 +329,16 @@ Full Web3 wallet authentication allowing users to sign in with MetaMask (or comp
 | PRE Balance Service | `presuite/src/services/preBalanceService.js` |
 | App Modals | `presuite/src/components/AppModal.jsx` |
 | OAuth Server | `presuite/server.js` |
-| PreMail Webhooks | `premail/apps/api/src/routes/webhooks.ts` |
-| PreMail Labels API | `premail/apps/api/src/routes/labels.ts` |
+| Web3 Auth | `presuite/src/services/web3Auth.js` |
+| PreMail API Routes | `premail/apps/api/src/routes/*.ts` |
 | PreMail DB Schema | `premail/packages/db/src/schema/index.ts` |
 | PreCalendar API | `premail/apps/api/src/routes/calendar.ts` |
-| PreDrive WebDAV Copy | `PreDrive/packages/webdav/src/handlers/copy.ts` |
-| PreDrive File Selection | `PreDrive/apps/web/src/components/FileRow.tsx` |
+| PreDrive API | `PreDrive/apps/api/src/index.ts` |
+| PreDrive WebDAV | `PreDrive/packages/webdav/src/` |
+| PreOffice WOPI | `preoffice/presearch/online/wopi-server/src/index.js` |
+| PreOffice AI | `preoffice/presearch/online/wopi-server/src/index.js` (AI routes) |
+| PreSocial API | `PreSocial/src/routes/*.ts` |
+| PreSocial Storage | `PreSocial/src/services/storage.ts` |
 
 ---
 
@@ -312,3 +349,7 @@ Full Web3 wallet authentication allowing users to sign in with MetaMask (or comp
 3. **This Week:** PKCE support for OAuth
 4. **Ongoing:** Add integration tests
 5. **Ongoing:** Security audit
+
+---
+
+*Last updated: January 17, 2026*

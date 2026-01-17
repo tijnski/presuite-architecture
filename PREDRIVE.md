@@ -1,41 +1,60 @@
-# PreDrive - Architecture Reference Document
+# PreDrive - Cloud Storage Documentation
 
 ## Overview
 
-PreDrive is a cloud storage application similar to Google Drive, built as part of the Presearch/Presuite ecosystem. It provides file storage, sharing, and WebDAV access with SSO integration to PreMail.
+PreDrive is a cloud storage application similar to Google Drive, built as part of the PreSuite ecosystem. It provides file storage, sharing, permissions, and WebDAV access with SSO integration via PreSuite Hub.
 
 **Production URL:** https://predrive.eu
-**Production Server:** 76.13.1.110
-**SSO Partner:** PreMail at https://premail.site (server 76.13.1.117)
-
-## GitHub Repository
-- **URL:** https://github.com/tijnski/predrive
-- **Branch:** main
+**Server:** `ssh root@76.13.1.110` → `/opt/predrive`
+**GitHub Repository:** https://github.com/tijnski/predrive
 
 ---
 
 ## Technology Stack
 
-### Backend
-- **Runtime:** Node.js 20+
-- **Framework:** Hono (lightweight web framework)
-- **Database:** PostgreSQL 16 with Drizzle ORM
-- **Storage:** S3-compatible (Storj in production)
-- **Cache:** Valkey (Redis-compatible)
-- **Auth:** JWT with HS256 symmetric signing
+### Backend (API)
 
-### Frontend
-- **Framework:** React 18 with TypeScript
-- **Build Tool:** Vite
-- **State Management:** Zustand
-- **Styling:** Tailwind CSS
-- **Icons:** Lucide React
+| Package | Version | Purpose |
+|---------|---------|---------|
+| Hono | 4.2.0 | Web framework |
+| Drizzle ORM | 0.30.0 | Database ORM |
+| postgres | 3.4.0 | PostgreSQL driver |
+| jose | 5.2.0 | JWT handling |
+| bcryptjs | 3.0.3 | Password hashing |
+| @aws-sdk/client-s3 | 3.500.0 | S3 storage |
+| @aws-sdk/s3-request-presigner | 3.500.0 | Presigned URLs |
+| tsx | 4.7.0 | TypeScript execution |
+| Vitest | 1.4.0 | Testing |
+
+### Frontend (Web)
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| React | 18.2.0 | UI framework |
+| Vite | 5.2.0 | Build tool |
+| Tailwind CSS | 3.4.0 | Styling |
+| Zustand | 4.5.0 | State management |
+| React Query | 5.28.0 | Data fetching |
+| lucide-react | 0.359.0 | Icons |
+| ethers | 6.x | Web3 wallet support |
+
+### Shared Packages
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| Zod | 3.23.0 | Schema validation |
+| fast-xml-parser | 4.3.0 | WebDAV XML parsing |
 
 ### Infrastructure
-- **Package Manager:** pnpm 9 with workspaces
-- **Monorepo Tool:** Turborepo
-- **Containerization:** Docker with multi-stage builds
-- **Reverse Proxy:** Caddy (auto HTTPS)
+
+| Component | Version | Purpose |
+|-----------|---------|---------|
+| Turbo | 2.0.0 | Monorepo build |
+| pnpm | 9.0.0 | Package manager |
+| Node.js | >=20.0.0 | Runtime |
+| PostgreSQL | 16 | Database |
+| Valkey | latest | Cache (Redis-compatible) |
+| Caddy | latest | Reverse proxy (auto HTTPS) |
 
 ---
 
@@ -44,371 +63,514 @@ PreDrive is a cloud storage application similar to Google Drive, built as part o
 ```
 PreDrive/
 ├── apps/
-│   ├── api/                 # Backend API server (Hono)
+│   ├── api/                      # Backend API (Hono)
 │   │   └── src/
-│   │       ├── index.ts     # Main entry point
+│   │       ├── index.ts          # Entry point, route mounting
+│   │       ├── config/
+│   │       │   └── constants.ts  # Rate limits, file limits
 │   │       ├── middleware/
-│   │       │   └── auth.ts  # JWT/Basic auth middleware
-│   │       └── routes/
-│   │           ├── nodes.ts        # File/folder CRUD
-│   │           ├── shares.ts       # Share link management
-│   │           ├── permissions.ts  # ACL management
-│   │           ├── verification.ts # File integrity checks
-│   │           ├── integrations.ts # External integrations
-│   │           └── provision.ts    # Internal provisioning API
+│   │       │   ├── auth.ts       # JWT/Basic auth
+│   │       │   └── security-headers.ts
+│   │       ├── routes/
+│   │       │   ├── auth.ts       # Login, register
+│   │       │   ├── nodes.ts      # File/folder CRUD
+│   │       │   ├── shares.ts     # Share links
+│   │       │   ├── permissions.ts # ACL management
+│   │       │   ├── activity.ts   # Audit logs
+│   │       │   ├── integrations.ts # PreMail integration
+│   │       │   ├── verification.ts # Email verification
+│   │       │   └── provision.ts  # Internal provisioning
+│   │       └── utils/
+│   │           └── sanitize.ts   # Input sanitization
 │   │
-│   └── web/                 # Frontend React app
+│   └── web/                      # Frontend (React)
 │       └── src/
-│           ├── App.tsx      # Main app component
-│           ├── api/         # API client functions
-│           ├── components/  # React components
-│           ├── hooks/       # Custom React hooks
-│           ├── store/       # Zustand state store
-│           └── lib/         # Utility functions
+│           ├── App.tsx
+│           ├── api/              # API client
+│           │   ├── client.ts     # HTTP client with auth
+│           │   ├── nodes.ts      # File operations
+│           │   ├── shares.ts     # Share management
+│           │   └── activity.ts   # Activity logs
+│           ├── components/       # React components
+│           ├── hooks/            # Custom hooks
+│           ├── store/
+│           │   └── index.ts      # Zustand state
+│           └── lib/              # Utilities
 │
 ├── packages/
-│   ├── db/                  # Database package
+│   ├── db/                       # Database layer
 │   │   ├── src/
-│   │   │   ├── schema.ts    # Drizzle schema definitions
-│   │   │   ├── client.ts    # Database client
-│   │   │   └── migrate.ts   # Migration runner
-│   │   └── drizzle/         # SQL migrations
+│   │   │   ├── schema.ts         # Drizzle schema
+│   │   │   ├── client.ts         # DB connection
+│   │   │   └── migrate.ts        # Migration runner
+│   │   └── drizzle/              # SQL migrations
 │   │
-│   ├── shared/              # Shared types and utilities
+│   ├── shared/                   # Shared types
 │   │   └── src/
-│   │       ├── types.ts     # TypeScript types
-│   │       ├── errors.ts    # Error definitions
-│   │       └── validators.ts # Zod validators
+│   │       ├── types.ts          # TypeScript interfaces
+│   │       ├── errors.ts         # Error definitions
+│   │       └── validators.ts     # Zod schemas
 │   │
-│   ├── storage/             # S3 storage abstraction
+│   ├── storage/                  # S3 abstraction
 │   │   └── src/
-│   │       ├── s3-provider.ts # S3 implementation
-│   │       └── types.ts       # Storage interfaces
+│   │       ├── s3-provider.ts    # S3 implementation
+│   │       └── types.ts          # Storage interfaces
 │   │
-│   └── webdav/              # WebDAV protocol implementation
+│   └── webdav/                   # WebDAV protocol
 │       └── src/
-│           ├── router.ts    # WebDAV router
-│           ├── handlers/    # HTTP method handlers
-│           └── xml-utils.ts # XML parsing utilities
+│           ├── router.ts         # WebDAV router
+│           ├── path-resolver.ts  # Path to node conversion
+│           ├── lock-manager.ts   # Lock handling
+│           ├── xml-utils.ts      # XML generation
+│           └── handlers/         # HTTP method handlers
 │
 ├── deploy/
-│   ├── Dockerfile           # Production Docker image
-│   └── docker-compose.prod.yml # Production compose file
+│   ├── Dockerfile                # Production image
+│   ├── docker-compose.prod.yml   # Production compose
+│   └── Caddyfile                 # Reverse proxy config
 │
-└── docker/
-    └── docker-compose.yml   # Development compose file
+├── docker/
+│   └── docker-compose.yml        # Development compose
+│
+├── docs/                         # Documentation
+├── turbo.json                    # Build orchestration
+├── pnpm-workspace.yaml           # Workspace config
+└── .env.example                  # Environment template
 ```
 
 ---
 
 ## Database Schema
 
-PreDrive's local database caches user information from PreSuite Hub and stores storage-specific data. See `INTEGRATION.md` for the complete SSO architecture.
+### User Tables
 
-### User Cache Tables (from PreSuite Hub)
-
+**orgs:**
+```sql
+id UUID PRIMARY KEY
+name VARCHAR(255)
+created_at TIMESTAMP
+updated_at TIMESTAMP
 ```
-orgs (cached from presuite database)
-├── id (uuid, PK) -- Same ID as presuite.orgs
-├── name (varchar)
-├── storage_quota (bigint, default 5GB)
-├── created_at, updated_at (timestamp)
-└── Trigger: trg_orgs_updated_at
 
-users (cached from presuite database)
-├── id (uuid, PK) -- Same ID as presuite.users
-├── org_id (uuid, FK → orgs, CASCADE)
-├── email (varchar, unique)
-├── name (varchar)
-├── created_at, updated_at (timestamp)
-└── Trigger: trg_users_updated_at
--- NOTE: No password_hash - authentication is handled by PreSuite Hub
-
-groups (permission management)
-├── id (uuid, PK)
-├── org_id (uuid, FK → orgs, CASCADE)
-├── name (varchar)
-├── description (text, nullable)
-├── created_at, updated_at (timestamp)
-├── Constraint: UNIQUE(org_id, name)
-└── Trigger: trg_groups_updated_at
-
-group_members (many-to-many)
-├── group_id (uuid, FK → groups, CASCADE)
-├── user_id (uuid, FK → users, CASCADE)
-├── added_at (timestamp)
-└── PK: (group_id, user_id)
+**users:**
+```sql
+id UUID PRIMARY KEY
+org_id UUID REFERENCES orgs(id)
+email VARCHAR(255) UNIQUE
+name VARCHAR(255)
+password_hash VARCHAR(255)
+wallet_address VARCHAR(42)        -- Web3 support
+is_web3 BOOLEAN DEFAULT false     -- Web3 account flag
+created_at TIMESTAMP
+updated_at TIMESTAMP
 ```
 
 ### File Storage Tables
 
+**nodes (files and folders):**
+```sql
+id UUID PRIMARY KEY
+org_id UUID REFERENCES orgs(id) ON DELETE CASCADE
+type VARCHAR(10)                  -- 'file' | 'folder'
+parent_id UUID REFERENCES nodes(id) ON DELETE CASCADE
+name VARCHAR(255)
+starred BOOLEAN DEFAULT false
+deleted_at TIMESTAMP              -- Soft delete
+created_at TIMESTAMP
+updated_at TIMESTAMP
+
+CONSTRAINT chk_not_self_parent CHECK (parent_id != id)
 ```
-nodes (files and folders in tree structure)
-├── id (uuid, PK)
-├── org_id (uuid, FK → orgs, CASCADE)
-├── type ('folder' | 'file')
-├── parent_id (uuid, self-ref, CASCADE, nullable for root)
-├── name (varchar)
-├── starred (boolean)
-├── deleted_at (timestamp, soft delete)
-├── created_at, updated_at (timestamp)
-├── Constraint: chk_not_self_parent (parent_id != id)
-└── Trigger: trg_nodes_updated_at
 
-files (metadata for file nodes)
-├── node_id (uuid, PK, FK → nodes, CASCADE)
-├── current_version (int, default 1)
-├── mime (varchar)
-├── size (bigint, default 0)
-├── checksum (varchar, sha256)
-├── created_at (timestamp)
-├── Constraint: chk_version_positive (current_version >= 1)
-└── Constraint: chk_size_non_negative (size >= 0)
+**files (file metadata):**
+```sql
+node_id UUID PRIMARY KEY REFERENCES nodes(id) ON DELETE CASCADE
+current_version INTEGER DEFAULT 1
+mime VARCHAR(255)
+size BIGINT DEFAULT 0
+checksum VARCHAR(64)              -- SHA-256
+created_at TIMESTAMP
 
-file_versions
-├── id (uuid, PK)
-├── node_id (uuid, FK → nodes, CASCADE)
-├── version (int)
-├── storage_key (varchar, S3 path)
-├── size, checksum (bigint, varchar)
-├── created_at (timestamp)
-├── Constraint: UNIQUE(node_id, version)
-├── Constraint: chk_version_num_positive (version >= 1)
-└── Constraint: chk_version_size_non_negative (size >= 0)
+CONSTRAINT chk_version_positive CHECK (current_version >= 1)
+CONSTRAINT chk_size_non_negative CHECK (size >= 0)
+```
+
+**file_versions:**
+```sql
+id UUID PRIMARY KEY
+node_id UUID REFERENCES nodes(id) ON DELETE CASCADE
+version INTEGER
+storage_key VARCHAR(512)          -- S3 object key
+size BIGINT
+checksum VARCHAR(64)
+created_at TIMESTAMP
+
+UNIQUE(node_id, version)
 ```
 
 ### Sharing & Permissions Tables
 
+**shares:**
+```sql
+id UUID PRIMARY KEY
+org_id UUID REFERENCES orgs(id) ON DELETE CASCADE
+node_id UUID REFERENCES nodes(id) ON DELETE CASCADE
+token VARCHAR(64) UNIQUE          -- 32 bytes, base64url
+expires_at TIMESTAMP
+password_hash VARCHAR(255)
+scope VARCHAR(20)                 -- 'view' | 'download'
+org_only BOOLEAN DEFAULT false
+created_by UUID REFERENCES users(id) ON DELETE SET NULL
+created_at TIMESTAMP
 ```
-shares (public/org share links)
-├── id (uuid, PK)
-├── org_id (uuid, FK → orgs, CASCADE)
-├── node_id (uuid, FK → nodes, CASCADE)
-├── token (varchar, unique)
-├── expires_at (timestamp, nullable)
-├── password_hash (varchar, nullable)
-├── scope ('view' | 'download')
-├── org_only (boolean)
-├── created_by (uuid, FK → users, SET NULL)
-└── created_at (timestamp)
 
-permissions (ACL)
-├── id (uuid, PK)
-├── org_id (uuid, FK → orgs, CASCADE)
-├── node_id (uuid, FK → nodes, CASCADE)
-├── principal_type ('user' | 'group')
-├── principal_id (uuid)
-├── role ('owner' | 'editor' | 'viewer')
-├── inherited (boolean)
-├── created_at (timestamp)
-└── Constraint: UNIQUE(node_id, principal_type, principal_id)
+**permissions:**
+```sql
+id UUID PRIMARY KEY
+org_id UUID REFERENCES orgs(id) ON DELETE CASCADE
+node_id UUID REFERENCES nodes(id) ON DELETE CASCADE
+principal_type VARCHAR(10)        -- 'user' | 'group'
+principal_id UUID
+role VARCHAR(20)                  -- 'owner' | 'editor' | 'viewer'
+inherited BOOLEAN DEFAULT false
+created_at TIMESTAMP
+
+UNIQUE(node_id, principal_type, principal_id)
 ```
 
 ### WebDAV & Upload Tables
 
-```
-locks (WebDAV locking)
-├── id (uuid, PK)
-├── org_id (uuid, FK → orgs, CASCADE)
-├── node_id (uuid, FK → nodes, CASCADE)
-├── token (varchar, unique)
-├── owner (varchar)
-├── depth (varchar, default 'infinity')
-├── timeout (int, default 3600)
-├── expires_at (timestamp)
-└── created_at (timestamp)
-
-upload_sessions (multipart uploads)
-├── id (uuid, PK)
-├── org_id (uuid, FK → orgs, CASCADE)
-├── user_id (uuid, FK → users, CASCADE)
-├── parent_id (uuid, FK → nodes, CASCADE, nullable)
-├── file_name (varchar)
-├── storage_key (varchar)
-├── multipart_id (varchar, nullable)
-├── status ('pending' | 'uploading' | 'completed' | 'failed' | 'expired')
-├── mime (varchar)
-├── size (bigint, nullable)
-├── expires_at (timestamp)
-├── created_at, updated_at (timestamp)
-├── Constraint: chk_upload_size_non_negative
-└── Trigger: trg_upload_sessions_updated_at
+**locks:**
+```sql
+id UUID PRIMARY KEY
+org_id UUID REFERENCES orgs(id) ON DELETE CASCADE
+node_id UUID REFERENCES nodes(id) ON DELETE CASCADE
+token VARCHAR(255) UNIQUE
+owner VARCHAR(255)
+depth VARCHAR(20) DEFAULT 'infinity'
+timeout INTEGER DEFAULT 300       -- 5 minutes
+expires_at TIMESTAMP
+created_at TIMESTAMP
 ```
 
-### Audit & Logging
-
+**upload_sessions:**
+```sql
+id UUID PRIMARY KEY
+org_id UUID REFERENCES orgs(id) ON DELETE CASCADE
+user_id UUID REFERENCES users(id) ON DELETE CASCADE
+parent_id UUID REFERENCES nodes(id) ON DELETE CASCADE
+file_name VARCHAR(255)
+storage_key VARCHAR(512)
+multipart_id VARCHAR(255)
+status VARCHAR(20)                -- 'pending' | 'uploading' | 'completed' | 'failed' | 'expired'
+mime VARCHAR(255)
+size BIGINT
+expires_at TIMESTAMP
+created_at TIMESTAMP
+updated_at TIMESTAMP
 ```
-audit_log
-├── id (uuid, PK)
-├── org_id (uuid, FK → orgs, CASCADE)
-├── actor_id (uuid, FK → users, SET NULL)
-├── node_id (uuid, FK → nodes, SET NULL)
-├── action (varchar)
-├── meta (jsonb, default '{}')
-├── ip (varchar(45))
-├── user_agent (text, nullable)
-└── created_at (timestamp)
+
+### Audit Table
+
+**audit_log:**
+```sql
+id UUID PRIMARY KEY
+org_id UUID REFERENCES orgs(id) ON DELETE CASCADE
+actor_id UUID REFERENCES users(id) ON DELETE SET NULL
+node_id UUID REFERENCES nodes(id) ON DELETE SET NULL
+action VARCHAR(50)
+meta JSONB DEFAULT '{}'
+ip VARCHAR(45)
+user_agent TEXT
+created_at TIMESTAMP
 ```
-
-### Indexes
-
-| Table | Index | Type |
-|-------|-------|------|
-| nodes | `idx_nodes_org_id` | B-tree |
-| nodes | `idx_nodes_parent_id` | B-tree |
-| nodes | `idx_nodes_deleted_at` | B-tree |
-| nodes | `idx_nodes_org_parent_active` | Partial (WHERE deleted_at IS NULL) |
-| nodes | `idx_nodes_name` | B-tree |
-| files | `idx_files_mime` | B-tree |
-| file_versions | `idx_file_versions_node_id` | B-tree |
-| shares | `idx_shares_token` | B-tree |
-| shares | `idx_shares_node_id` | B-tree |
-| shares | `idx_shares_org_id` | B-tree |
-| shares | `idx_shares_expires` | Partial (WHERE expires_at IS NOT NULL) |
-| permissions | `idx_permissions_node_id` | B-tree |
-| permissions | `idx_permissions_principal` | B-tree (principal_type, principal_id) |
-| permissions | `idx_permissions_org_id` | B-tree |
-| groups | `idx_groups_org_id` | B-tree |
-| group_members | `idx_group_members_user_id` | B-tree |
-| locks | `idx_locks_node_id` | B-tree |
-| locks | `idx_locks_expires` | B-tree |
-| upload_sessions | `idx_upload_sessions_user_id` | B-tree |
-| upload_sessions | `idx_upload_sessions_status` | B-tree |
-| upload_sessions | `idx_upload_sessions_expires` | B-tree |
-| audit_log | `idx_audit_log_org_id` | B-tree |
-| audit_log | `idx_audit_log_actor_id` | B-tree |
-| audit_log | `idx_audit_log_node_id` | B-tree |
-| audit_log | `idx_audit_log_action` | B-tree |
-| audit_log | `idx_audit_log_created_at` | B-tree |
 
 ---
 
 ## API Endpoints
 
 ### Authentication
-- All `/api/*` routes require `Authorization: Bearer <JWT>` or `Basic <base64>`
-- WebDAV at `/dav/*` uses Basic auth
 
-### Public Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Email/password login |
+| POST | `/api/auth/register` | Create account |
+| GET | `/api/me` | Get current user |
+
+### Nodes (Files & Folders)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/nodes` | List nodes (query: parentId, starred, deleted) |
+| POST | `/api/nodes/folders` | Create folder |
+| GET | `/api/nodes/recent` | List recent files |
+| GET | `/api/nodes/starred` | List starred files |
+| GET | `/api/nodes/trash` | List deleted files |
+| GET | `/api/nodes/storage/usage` | Get storage quota usage |
+| GET | `/api/nodes/network/health` | S3 connectivity check |
+| PATCH | `/api/nodes/:id` | Rename or move node |
+| DELETE | `/api/nodes/:id` | Soft delete (move to trash) |
+| DELETE | `/api/nodes/:id/permanent` | Permanent delete |
+| POST | `/api/nodes/:id/restore` | Restore from trash |
+| POST | `/api/nodes/:id/star` | Toggle star status |
+
+### File Upload/Download
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/nodes/files/upload/start` | Get presigned upload URL |
+| POST | `/api/nodes/files/upload/complete` | Finalize upload |
+| GET | `/api/nodes/files/:id/download` | Get presigned download URL |
+
+### Shares
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/shares` | List user's shares |
+| POST | `/api/shares` | Create share link |
+| GET | `/api/shares/:token` | Access shared file (public) |
+| DELETE | `/api/shares/:id` | Revoke share |
+
+### Permissions
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/nodes/:id/permissions` | List node permissions |
+| POST | `/api/nodes/:id/permissions` | Add permission |
+| PATCH | `/api/nodes/:id/permissions/:permId` | Update permission |
+| DELETE | `/api/nodes/:id/permissions/:permId` | Remove permission |
+
+### Activity
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/activity` | Get audit log |
+
+### Integrations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/integrations/premail/attach` | Attach file to PreMail |
+
+### Internal
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/internal/provision` | Provision user (requires INTERNAL_API_KEY) |
+| GET | `/health` | Health check |
+| GET | `/dev/token` | Dev token (non-production only) |
+
+---
+
+## WebDAV Implementation
+
+**Endpoint:** `/dav/*`
+
+**Supported Methods:**
+
+| Method | Status | Description |
+|--------|--------|-------------|
+| OPTIONS | ✅ | Returns capabilities |
+| PROPFIND | ✅ | List files/properties (depth 0, 1, infinity) |
+| GET | ✅ | Download file |
+| HEAD | ✅ | File metadata |
+| PUT | ✅ | Upload file |
+| MKCOL | ✅ | Create folder |
+| DELETE | ✅ | Remove file/folder |
+| MOVE | ✅ | Move/rename |
+| COPY | ✅ | Copy file/folder |
+| LOCK | ✅ | Acquire lock (300s default timeout) |
+| UNLOCK | ✅ | Release lock |
+| PROPPATCH | ⚠️ | Returns 403 (not implemented) |
+
+**Authentication:**
+- Basic auth: `email:password` or `email:jwt_token`
+- Dev password: Set `WEBDAV_DEV_PASSWORD` env var
+
+**LibreOffice/PreOffice Integration:**
 ```
-GET  /health                    # Health check
-GET  /api/shares/:token         # Access shared file (public)
-GET  /dev/token                 # Get dev token (non-production)
-```
-
-### Protected Endpoints
-```
-GET  /api/me                    # Current user info
-
-# Nodes (files/folders)
-GET    /api/nodes               # List nodes (query: parentId, starred, deleted)
-POST   /api/nodes/folder        # Create folder
-POST   /api/nodes/upload        # Initiate upload
-PUT    /api/nodes/:id/upload    # Upload file content
-PATCH  /api/nodes/:id           # Update node (rename, star, move)
-DELETE /api/nodes/:id           # Soft delete / permanent delete
-POST   /api/nodes/:id/restore   # Restore from trash
-GET    /api/nodes/:id/download  # Download file
-
-# Storage
-GET    /api/storage/usage       # Storage usage stats
-
-# Shares
-GET    /api/shares              # List user's shares
-POST   /api/shares              # Create share link
-DELETE /api/shares/:id          # Delete share
-
-# Verification
-GET    /api/verification/status # Last verification status
-POST   /api/verification/verify # Trigger integrity check
-```
-
-### WebDAV
-```
-/dav/*  # Full WebDAV Class 2 implementation
-        # Supports: PROPFIND, PROPPATCH, MKCOL, GET, PUT, DELETE,
-        #           COPY, MOVE, LOCK, UNLOCK
+dav://predrive.eu/dav/path/to/file.odt
 ```
 
 ---
 
 ## Authentication System
 
-PreDrive uses **PreSuite Hub** (`presuite.eu`) as the central identity provider. JWT tokens issued by the Hub are validated locally using a shared secret.
-
 ### JWT Configuration
-```typescript
-const JWT_SECRET = process.env.JWT_SECRET;  // MUST match PreSuite Hub
-const JWT_ISSUER = 'presuite';              // Always "presuite"
-```
+
+| Setting | Value |
+|---------|-------|
+| Algorithm | HS256 |
+| Issuer | `presuite` |
+| Expiration | 7 days |
+| Secret | Must match PreSuite Hub |
 
 ### JWT Payload
+
 ```typescript
 interface JWTPayload {
   sub: string;      // User ID (UUID)
-  org_id: string;   // Organization ID (UUID)
-  email: string;    // User email
-  name?: string;    // User display name
-  iss: string;      // 'presuite'
-  iat: number;      // Issued at
-  exp: number;      // Expiration (7 days)
+  org_id: string;   // Organization ID
+  email: string;
+  name?: string;
+  iss: 'presuite';
+  iat: number;
+  exp: number;
 }
 ```
 
-### Auth Flow
-1. **SSO Navigation:** User clicks PreDrive link from any PreSuite service, redirected to `https://predrive.eu?token=JWT`
-2. **Token Verification:** PreDrive verifies JWT signature using shared `JWT_SECRET`
-3. **Auto-Provisioning:** If user doesn't exist locally, creates user and org from JWT claims (see `INTEGRATION.md`)
-4. **Session:** Token stored in localStorage, used for API calls
+### Auth Methods
 
-### Basic Auth (WebDAV)
-- Accepts `email:password` where password can be:
-  - Bcrypt-hashed password from database
-  - `FIXED_PASSWORD` env var (for all users)
-  - JWT token (backwards compatibility)
+1. **Bearer Token:** `Authorization: Bearer <JWT>`
+2. **Basic Auth:** `Authorization: Basic <base64(email:password)>`
+3. **URL Token:** `?token=<JWT>` (SSO redirect from PreSuite Hub)
+
+### Password Requirements
+
+- Length: 8-128 characters
+- Must contain: uppercase, lowercase, number, special character
+- Hashing: bcryptjs with 10 salt rounds
 
 ---
 
 ## Storage System
 
-### S3 Provider Configuration
+### S3 Provider
+
+PreDrive uses S3-compatible storage (Storj in production, MinIO for development).
+
+**Configuration:**
 ```typescript
 interface StorageConfig {
-  endpoint: string;      // S3 endpoint URL
-  publicEndpoint?: string; // For presigned URLs
+  endpoint: string;           // S3 endpoint URL
   region: string;
   accessKeyId: string;
   secretAccessKey: string;
   bucket: string;
-  forcePathStyle?: boolean;
+  forcePathStyle?: boolean;   // Required for MinIO/Storj
+  publicEndpoint?: string;    // For presigned URLs
 }
 ```
 
-### Environment Variables
-```bash
-S3_ENDPOINT=https://gateway.eu1.storjshare.io
-S3_ACCESS_KEY_ID=...
-S3_SECRET_ACCESS_KEY=...
-S3_BUCKET=predrive
-S3_REGION=eu1
-```
-
-### Storage Key Format
+**Storage Key Format:**
 ```
 {orgId}/{fileVersionId}
 ```
 
+### Upload Flow
+
+1. **Start Upload:** `POST /api/nodes/files/upload/start`
+   - Returns presigned URL + session ID
+2. **Upload to S3:** Direct browser upload via presigned URL
+3. **Complete Upload:** `POST /api/nodes/files/upload/complete`
+   - Verifies upload, creates file record
+
 ### Features
-- Single-part upload for small files
-- Multipart upload for large files (>5MB)
+
 - Presigned URLs for direct browser upload/download
+- Multipart upload for files >5MB
 - SHA-256 checksums for integrity
+- Version deduplication via S3 copy
+
+---
+
+## Security Configuration
+
+### Rate Limits
+
+| Endpoint | Limit |
+|----------|-------|
+| Auth | 5 attempts/15 min |
+| Registration | 3 attempts/hour |
+| API | 100 requests/min |
+| Share access | 30/min per IP |
+| Upload | 20/min |
+| Download | 60/min |
+
+### File Limits
+
+| Limit | Value |
+|-------|-------|
+| Max file size | 5 GB |
+| Max storage quota | 15 GB per org |
+| Multipart threshold | 5 MB |
+| Max filename length | 255 chars |
+| Max path depth | 50 levels |
+| Max search query | 100 chars |
+
+### Security Settings
+
+| Setting | Value |
+|---------|-------|
+| Share token size | 32 bytes (256 bits) |
+| Bcrypt salt rounds | 10 |
+| Presigned URL expiry (download) | 5 minutes |
+| Presigned URL expiry (upload) | 1 hour |
+| Upload session expiry | 24 hours |
+| Lock timeout | 300 seconds |
+
+### Security Headers
+
+```javascript
+{
+  'Content-Security-Policy': "default-src 'self'",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block'
+}
+```
+
+---
+
+## Environment Variables
+
+```bash
+# API Server
+PORT=4000
+NODE_ENV=development
+BASE_URL=http://localhost:4000
+CORS_ORIGIN=http://localhost:5170
+
+# Database (PostgreSQL)
+DATABASE_URL=postgres://predrive:predrive@localhost:5433/predrive
+
+# S3 Storage
+S3_ENDPOINT=http://localhost:9002
+S3_REGION=us-east-1
+S3_BUCKET=predrive
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_FORCE_PATH_STYLE=true
+S3_PUBLIC_ENDPOINT=                        # Optional: for presigned URLs
+
+# Cache (Valkey/Redis)
+REDIS_URL=redis://localhost:6381
+
+# JWT Authentication
+JWT_SECRET=predrive-dev-secret-change-in-production
+JWT_ISSUER=presuite
+
+# Download Tokens (PreMail integration)
+DOWNLOAD_TOKEN_SECRET=predrive-download-token-secret
+
+# Internal API
+INTERNAL_API_KEY=                          # For /internal/* endpoints
+
+# WebDAV Development
+WEBDAV_DEV_PASSWORD=                       # Optional: fixed password for WebDAV
+
+# Optional: Typesense Search
+# TYPESENSE_API_KEY=predrive-typesense-key
+# TYPESENSE_HOST=localhost
+# TYPESENSE_PORT=8108
+```
 
 ---
 
 ## Frontend Architecture
 
 ### State Management (Zustand)
+
 ```typescript
 interface UIState {
   // Navigation
@@ -420,6 +582,7 @@ interface UIState {
   // Selection
   selectedNodeId: string | null;
   selectedNodeIds: Set<string>;
+  lastSelectedNodeId: string | null;  // For range selection
 
   // Modals
   createFolderModalOpen: boolean;
@@ -428,91 +591,83 @@ interface UIState {
   previewFile: PreviewFile | null;
   upgradeModalOpen: boolean;
 
-  // Search & Theme
+  // Search
   searchQuery: string;
-  darkMode: boolean;
+  searchOpen: boolean;
+
+  // Theme
+  darkMode: boolean;  // Persisted to localStorage
 }
 ```
 
 ### Key Components
-- `Sidebar.tsx` - Navigation, storage indicator, network health
-- `FileList.tsx` / `FileCard.tsx` - File display
-- `FileDetails.tsx` - Selected file info panel
-- `FilePreview.tsx` - Image/PDF/video preview
-- `DropZone.tsx` - Drag-and-drop upload
-- `SharesList.tsx` - Manage shared links
 
-### Hooks
-- `useAuth()` - Authentication state and login/logout
-- `useNodes()` - File/folder CRUD operations
-- `useShares()` - Share link management
-- `useUpload()` - File upload with progress
-- `useVerification()` - Integrity verification status
+| Component | Purpose |
+|-----------|---------|
+| `Sidebar.tsx` | Navigation, storage indicator |
+| `FileList.tsx` | Grid/list view |
+| `FileCard.tsx` | Grid item |
+| `FileRow.tsx` | List item |
+| `FilePreview.tsx` | Preview modal |
+| `UploadButton.tsx` | Upload UI |
+| `ContextMenu.tsx` | Right-click menu |
+| `CreateFolderModal.tsx` | Create folder |
+| `DeleteConfirmModal.tsx` | Delete confirmation |
+| `RenameModal.tsx` | Rename dialog |
+| `SharesList.tsx` | Manage shares |
+| `ActivityFeed.tsx` | Activity log |
+| `Breadcrumb.tsx` | Path navigation |
+| `DropZone.tsx` | Drag-and-drop |
+| `UpgradeModal.tsx` | Storage upgrade |
 
 ---
 
 ## Deployment
 
-### Production Environment (76.13.1.110)
+### Production Environment
 
-#### Directory Structure
-```
-/opt/predrive/
-├── .env                 # Production environment
-├── apps/
-├── packages/
-└── deploy/
-    └── docker-compose.prod.yml
-```
+**Server:** 76.13.1.110
+**Directory:** `/opt/predrive`
 
-#### Docker Compose Services
+### Docker Compose Services
+
 ```yaml
 services:
-  api:        # PreDrive API (port 4000)
-  postgres:   # PostgreSQL 16 (port 5432)
-  valkey:     # Valkey/Redis (port 6379)
+  api:
+    # PreDrive API
+    port: 4000
+
+  postgres:
+    # PostgreSQL 16
+    port: 5432
+
+  valkey:
+    # Redis-compatible cache
+    port: 6379
 ```
 
-#### Caddy Configuration
-```
-/etc/caddy/Caddyfile
+### Caddy Configuration
 
+```
 predrive.eu {
     reverse_proxy localhost:4000
 }
 ```
 
-### Environment Variables
-```bash
-# Database
-DATABASE_URL=postgres://predrive:PASSWORD@postgres:5432/predrive
-POSTGRES_PASSWORD=...
-
-# Auth (MUST match PreMail)
-JWT_SECRET=7089fa42b9b38cf6e7d881a18a2534c4c6ff5e04e3ce9250ed7f5b57118acbeb
-JWT_ISSUER=presuite
-
-# Storage (Storj)
-S3_ENDPOINT=https://gateway.eu1.storjshare.io
-S3_ACCESS_KEY_ID=...
-S3_SECRET_ACCESS_KEY=...
-S3_BUCKET=predrive
-S3_REGION=eu1
-
-# App
-NODE_ENV=production
-PORT=4000
-CORS_ORIGIN=https://predrive.eu
-```
-
 ### Deployment Commands
+
 ```bash
-# Build and sync
+# Build locally
 pnpm build
-rsync -avz --delete --exclude='.env' --exclude='node_modules' --exclude='.git' \
+
+# Sync to server
+rsync -avz --delete \
+  --exclude='.env' \
+  --exclude='node_modules' \
+  --exclude='.git' \
   . root@76.13.1.110:/opt/predrive/
 
-# On server
+# On server: rebuild and restart
 cd /opt/predrive
 docker compose -f deploy/docker-compose.prod.yml build --no-cache api
 docker compose -f deploy/docker-compose.prod.yml up -d --force-recreate
@@ -520,108 +675,10 @@ docker compose -f deploy/docker-compose.prod.yml up -d --force-recreate
 
 ---
 
-## SSO Integration with PreMail
-
-### PreMail Configuration (76.13.1.117)
-
-#### ecosystem.config.cjs
-```javascript
-{
-  name: "premail-api",
-  env: {
-    JWT_SECRET: "7089fa42b9b38cf6e7d881a18a2534c4c6ff5e04e3ce9250ed7f5b57118acbeb",
-    JWT_ISSUER: "presuite",
-    PREDRIVE_ORG_ID: "00000000-0000-0000-0000-000000000001"
-  }
-}
-```
-
-#### PreMail Sidebar Link
-In `/opt/premail/apps/web/src/layouts/AppLayout.tsx`:
-```tsx
-<a href={`https://predrive.eu?token=${auth.token}`}>
-  <HardDrive /> PreDrive
-</a>
-```
-
-### SSO Flow
-1. User logs into PreMail
-2. Clicks "PreDrive" in sidebar
-3. Redirects to `https://predrive.eu?token=<JWT>`
-4. PreDrive frontend extracts token from URL
-5. Calls `/api/me` to validate and get user info
-6. Auto-provisions user if not exists
-7. Stores token in localStorage
-8. Cleans URL (removes token param)
-
----
-
-## Common Operations
-
-### Database Migrations
-```bash
-# Generate migration from schema changes
-pnpm db:generate
-
-# Run migrations
-pnpm db:migrate
-
-# Seed demo data
-pnpm db:seed
-```
-
-### Manual Database Access
-```bash
-ssh root@76.13.1.110
-cd /opt/predrive
-docker compose -f deploy/docker-compose.prod.yml exec -T postgres \
-  psql -U predrive -d predrive -c "SELECT * FROM users;"
-```
-
-### View Logs
-```bash
-docker compose -f deploy/docker-compose.prod.yml logs api --tail=50 -f
-```
-
-### Restart Services
-```bash
-docker compose -f deploy/docker-compose.prod.yml restart api
-# OR full recreate
-docker compose -f deploy/docker-compose.prod.yml up -d --force-recreate
-```
-
----
-
-## Troubleshooting
-
-### SSO Token Invalid
-1. Check JWT_SECRET matches on both servers
-2. Verify PreMail PM2 env: `pm2 env 0 | grep JWT`
-3. Check PreMail ecosystem.config.cjs has correct secret
-4. Restart PreMail: `pm2 delete all && pm2 start ecosystem.config.cjs`
-
-### Database Connection Failed
-1. Check POSTGRES_PASSWORD in .env
-2. Verify password matches volume: may need to reset
-   ```sql
-   ALTER USER predrive PASSWORD 'your_password';
-   ```
-
-### Storage Errors
-1. Verify S3 credentials and bucket exist
-2. Check Storj gateway accessibility
-3. Test with: `curl -I https://gateway.eu1.storjshare.io`
-
-### Container Won't Start
-1. Check for port conflicts: `netstat -tlnp | grep 4000`
-2. Kill stale docker processes if needed
-3. `docker compose down && docker compose up -d`
-
----
-
 ## Development
 
 ### Local Setup
+
 ```bash
 # Install dependencies
 pnpm install
@@ -629,71 +686,135 @@ pnpm install
 # Start services (postgres, valkey, minio)
 pnpm docker:up
 
-# Run migrations and seed
+# Run migrations
 pnpm db:migrate
+
+# Seed demo data
 pnpm db:seed
 
 # Start dev server
 pnpm dev
 ```
 
-### Dev URLs
-- Web: http://localhost:5173
-- API: http://localhost:4000/api
-- WebDAV: http://localhost:4000/dav
-- Dev Token: http://localhost:4000/dev/token
+### Development URLs
+
+| Service | URL |
+|---------|-----|
+| Web | http://localhost:5170 |
+| API | http://localhost:4000/api |
+| WebDAV | http://localhost:4000/dav |
+| Dev Token | http://localhost:4000/dev/token |
+| MinIO Console | http://localhost:9001 |
+
+### Database Commands
+
+```bash
+# Generate migration
+pnpm db:generate
+
+# Run migrations
+pnpm db:migrate
+
+# Seed data
+pnpm db:seed
+
+# Access database
+docker compose exec postgres psql -U predrive -d predrive
+```
 
 ### Testing
+
 ```bash
 pnpm test
 ```
 
 ---
 
-## Key Files Reference
+## SSO Integration
 
-| File | Purpose |
-|------|---------|
-| `apps/api/src/index.ts` | Main API entry, route mounting |
-| `apps/api/src/middleware/auth.ts` | JWT verification, auto-provisioning |
-| `apps/api/src/routes/nodes.ts` | File/folder CRUD operations |
-| `apps/web/src/hooks/useAuth.ts` | SSO token handling |
-| `apps/web/src/store/index.ts` | UI state management |
-| `packages/db/src/schema.ts` | Database schema definitions |
-| `packages/storage/src/s3-provider.ts` | S3 storage implementation |
-| `packages/webdav/src/router.ts` | WebDAV protocol router |
-| `deploy/docker-compose.prod.yml` | Production Docker config |
-| `deploy/Dockerfile` | Production image build |
+### Token Pass-through from PreSuite Hub
+
+1. User clicks PreDrive link from PreSuite Hub or PreMail
+2. Redirected to `https://predrive.eu?token=<JWT>`
+3. Frontend extracts token from URL
+4. Validates via `/api/me`
+5. Stores token in localStorage
+6. Cleans URL (removes token parameter)
+
+### PreMail Sidebar Link
+
+```tsx
+// In PreMail AppLayout.tsx
+<a href={`https://predrive.eu?token=${auth.token}`}>
+  <HardDrive /> PreDrive
+</a>
+```
 
 ---
 
-## Security Notes
+## Troubleshooting
 
-- JWT secret must be kept synchronized between PreDrive and PreMail
-- Never commit `.env` files or expose secrets in logs
-- Production uses HTTPS via Caddy auto-TLS
-- File checksums (SHA-256) stored for integrity verification
-- Soft-delete with 30-day trash retention
-- Share links can have passwords and expiration dates
+### JWT Token Invalid
+
+1. Verify `JWT_SECRET` matches PreSuite Hub
+2. Check token expiration
+3. Verify issuer is "presuite"
+
+### Database Connection Failed
+
+```bash
+# Check PostgreSQL is running
+docker compose logs postgres
+
+# Reset password if needed
+docker compose exec postgres psql -U postgres -c "ALTER USER predrive PASSWORD 'newpassword';"
+```
+
+### Storage Errors
+
+1. Verify S3 credentials in `.env`
+2. Check bucket exists
+3. Test endpoint: `curl -I $S3_ENDPOINT`
+
+### WebDAV Issues
+
+1. Check Basic auth credentials
+2. Verify `WEBDAV_DEV_PASSWORD` if using fixed password
+3. Check lock conflicts in database
 
 ---
 
 ## Current Status (January 2026)
 
 ### Working
-- File/folder CRUD operations
-- WebDAV access
-- Share link functionality
-- SSO integration with PreSuite Hub
-- SSO Token Pass-through (from PreSuite Hub)
-- CORS configured for presuite.eu
-- **PreSuite Hub Widget Integration:** The PreDrive widget on presuite.eu is working correctly. Users can see their recent files and storage usage in real-time.
+
+- [x] File/folder CRUD operations
+- [x] Presigned upload/download
+- [x] WebDAV Class 2 (LOCK/UNLOCK)
+- [x] Share links with passwords/expiration
+- [x] Permission management (ACL)
+- [x] SSO with PreSuite Hub
+- [x] PreMail attachment integration
+- [x] Audit logging
+- [x] Dark mode
+- [x] Web3 wallet support (infrastructure)
 
 ### Known Limitations
-- WebDAV COPY handler returns 501 (not fully implemented)
-- Shift+Click range selection in file list not implemented
-- Real-time collaboration not implemented
+
+- WebDAV PROPPATCH returns 403 (not implemented)
+- Max file size: 5GB (browser upload limitation)
+- No real-time collaboration
+- Shift+Click range selection partially implemented
 
 ---
 
-*Last Updated: January 16, 2026*
+## Related Documentation
+
+- [API-REFERENCE.md](API-REFERENCE.md) - Complete API documentation
+- [PRESUITE.md](PRESUITE.md) - PreSuite Hub (identity provider)
+- [PREMAIL.md](PREMAIL.md) - PreMail email service
+- [PREOFFICE.md](PREOFFICE.md) - PreOffice document editing
+
+---
+
+*Last updated: January 17, 2026*
