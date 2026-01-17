@@ -109,8 +109,8 @@ ssh root@76.13.2.220 "cd /opt/preoffice && git pull origin main && cd presearch/
 cd ~/Documents/Documents-MacBook/presearch/PreSocial
 git add -A && git commit -m "Your message" && git push origin main
 
-# Server: Deploy (Bun runtime)
-ssh root@76.13.2.221 "cd /opt/presocial && git pull origin main && bun install && pm2 restart presocial"
+# Server: Deploy
+ssh root@76.13.2.221 "cd /opt/presocial && git pull origin main && npm install && pm2 restart presocial-api"
 ```
 
 ---
@@ -285,7 +285,7 @@ ssh root@76.13.1.117 "pm2 logs --lines 50"
 ssh root@76.13.2.220 "cd /opt/preoffice/presearch/online && docker compose logs --tail 50"
 
 # PreSocial
-ssh root@76.13.2.221 "pm2 logs presocial --lines 50"
+ssh root@76.13.2.221 "pm2 logs presocial-api --lines 50"
 ```
 
 ### Restart Services
@@ -304,7 +304,7 @@ ssh root@76.13.1.117 "pm2 restart all"
 ssh root@76.13.2.220 "cd /opt/preoffice/presearch/online && docker compose restart"
 
 # PreSocial
-ssh root@76.13.2.221 "pm2 restart presocial"
+ssh root@76.13.2.221 "pm2 restart presocial-api"
 ```
 
 ---
