@@ -2,7 +2,7 @@
 
 How all PreSuite services integrate and communicate with each other.
 
-> **Last Updated:** January 16, 2026
+> **Last Updated:** January 17, 2026
 
 ---
 
@@ -11,9 +11,11 @@ How all PreSuite services integrate and communicate with each other.
 | Integration | Status | Notes |
 |-------------|--------|-------|
 | PreSuite Hub → PreDrive Widget | ✅ Working | Real-time file sync on presuite.eu |
-| PreSuite Hub → PreMail Widget | 🔴 Not Working | CORS configured, but PreMail API returns errors |
+| PreSuite Hub → PreMail Widget | ✅ Working | Labels/tags, email list, compose |
+| PreSuite Hub → PreSocial | ✅ Working | SSO token pass-through |
 | SSO Token Pass-through | ✅ Working | Token appended to cross-service links |
-| Cross-Origin CORS | ✅ Configured | presuite.eu allowed on both services |
+| Web3 Wallet Login | ✅ Working | MetaMask signature verification |
+| Cross-Origin CORS | ✅ Configured | presuite.eu allowed on all services |
 
 ---
 
@@ -55,18 +57,18 @@ PreSuite uses a **centralized Single Sign-On (SSO)** architecture where PreSuite
                                 │
                     JWT Token (HS256)
                                 │
-        ┌───────────────────────┼───────────────────────┐
-        │                       │                       │
-        ▼                       ▼                       ▼
-┌───────────────┐       ┌───────────────┐       ┌───────────────┐
-│    PreMail    │       │   PreDrive    │       │   PreOffice   │
-│premail.site   │       │ predrive.eu   │       │preoffice.site │
-│               │       │               │       │               │
-│ JWT Verify    │       │ JWT Verify    │       │ JWT Verify    │
-│ Auto-Provision│       │ Auto-Provision│       │ WOPI Token    │
-│               │       │               │       │               │
-│ DB: premail   │       │ DB: predrive  │       │ (Stateless)   │
-└───────────────┘       └───────────────┘       └───────────────┘
+        ┌──────────────┬───────────┼───────────┬──────────────┐
+        │              │           │           │              │
+        ▼              ▼           ▼           ▼              ▼
+┌───────────────┐ ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
+│    PreMail    │ │   PreDrive    │ │   PreOffice   │ │   PreSocial   │
+│premail.site   │ │ predrive.eu   │ │preoffice.site │ │presocial.     │
+│               │ │               │ │               │ │presuite.eu    │
+│ JWT Verify    │ │ JWT Verify    │ │ JWT Verify    │ │ JWT Verify    │
+│ Auto-Provision│ │ Auto-Provision│ │ WOPI Token    │ │ Auto-Provision│
+│               │ │               │ │               │ │               │
+│ DB: premail   │ │ DB: predrive  │ │ (Stateless)   │ │ File: JSON    │
+└───────────────┘ └───────────────┘ └───────────────┘ └───────────────┘
 ```
 
 ### Key Principles
@@ -160,6 +162,57 @@ User on PreMail → clicks "PreDrive" → https://predrive.eu?token=<JWT>
                                     User is logged in
 ```
 
+### Web3 Wallet Authentication Flow
+
+Users can authenticate using MetaMask or other Ethereum wallets:
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   User Browser  │     │    MetaMask     │     │  PreSuite Hub   │
+└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
+         │                       │                       │
+         │  1. Click "Connect    │                       │
+         │     Wallet"           │                       │
+         │──────────────────────▶│                       │
+         │                       │                       │
+         │  2. Request accounts  │                       │
+         │◀──────────────────────│                       │
+         │                       │                       │
+         │  3. User approves     │                       │
+         │     connection        │                       │
+         │──────────────────────▶│                       │
+         │                       │                       │
+         │  4. Return wallet     │                       │
+         │     address           │                       │
+         │◀──────────────────────│                       │
+         │                       │                       │
+         │  5. POST /api/auth/web3/nonce                 │
+         │  {walletAddress}                              │
+         │──────────────────────────────────────────────▶│
+         │                       │                       │
+         │  6. Return challenge  │                       │
+         │     nonce             │                       │
+         │◀──────────────────────────────────────────────│
+         │                       │                       │
+         │  7. Sign message      │                       │
+         │  {nonce}              │                       │
+         │──────────────────────▶│                       │
+         │                       │                       │
+         │  8. Return signature  │                       │
+         │◀──────────────────────│                       │
+         │                       │                       │
+         │  9. POST /api/auth/web3/verify                │
+         │  {walletAddress, signature, nonce}            │
+         │──────────────────────────────────────────────▶│
+         │                       │                       │
+         │                       │                       │ 10. Verify signature
+         │                       │                       │ 11. Create/find user
+         │                       │                       │ 12. Issue JWT token
+         │                       │                       │
+         │  13. {token, user}    │                       │
+         │◀──────────────────────────────────────────────│
+```
+
 ### OAuth 2.0 Flow (For Third-Party Integrations)
 
 ```
@@ -204,12 +257,16 @@ interface PreSuiteJWT {
   sub: string;      // User ID (UUID) - PRIMARY IDENTIFIER
   iss: "presuite";  // Issuer - always "presuite"
   iat: number;      // Issued at (Unix timestamp)
-  exp: number;      // Expiration (Unix timestamp)
+  exp: number;      // Expiration (7 days from iat)
 
   // Custom Claims
   org_id: string;   // Organization ID (UUID)
   email: string;    // User email address
   name?: string;    // Display name (optional)
+
+  // Web3 Claims (optional - present for wallet logins)
+  wallet_address?: string;  // Ethereum wallet address
+  is_web3?: boolean;        // True if authenticated via wallet
 }
 ```
 
@@ -229,6 +286,8 @@ interface PreSuiteJWT {
   "org_id": "660e8400-e29b-41d4-a716-446655440001",
   "email": "user@premail.site",
   "name": "John Doe",
+  "wallet_address": "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD3E",
+  "is_web3": true,
   "iss": "presuite",
   "iat": 1737043200,
   "exp": 1737648000
@@ -279,7 +338,19 @@ function validateToken(token: string): PreSuiteJWT {
 │  └───────────────────────────────────────┘                          │
 │                                                                      │
 │  ┌────────────────┐  ┌───────────────┐  ┌──────────────────────┐    │
-│  │ email_accounts │  │ email_folders │  │ email_signatures     │    │
+│  │ email_accounts │  │ labels        │  │ email_signatures     │    │
+│  └────────────────┘  └───────────────┘  └──────────────────────┘    │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                   PRESOCIAL DATA (File-based JSON)                   │
+│                                                                      │
+│  ┌───────────────────────────────────────┐                          │
+│  │  users (CACHE from presuite JWT)      │  ← Auto-synced from JWT  │
+│  └───────────────────────────────────────┘                          │
+│                                                                      │
+│  ┌────────────────┐  ┌───────────────┐  ┌──────────────────────┐    │
+│  │ communities    │  │ posts         │  │ comments             │    │
 │  └────────────────┘  └───────────────┘  └──────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────┘
 
@@ -482,6 +553,25 @@ async function initializeUserResources(user: User) {
     provider: 'stalwart',
     status: 'connected'
   });
+}
+```
+
+**PreSocial:**
+```typescript
+// File-based auto-provisioning (data/users.json)
+async function initializeUserResources(user: User) {
+  const usersFile = 'data/users.json';
+  const users = JSON.parse(await Bun.file(usersFile).text());
+
+  if (!users.find(u => u.id === user.id)) {
+    users.push({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      createdAt: new Date().toISOString()
+    });
+    await Bun.write(usersFile, JSON.stringify(users, null, 2));
+  }
 }
 ```
 

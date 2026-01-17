@@ -2,14 +2,21 @@
 
 This document tracks the implementation status and versions of all PreSuite services.
 
-## Current Version: 2.0.0
+## Current Version: 2.1.0
 
-**Release Date:** January 15, 2026
-**Major Change:** Centralized Identity Provider at PreSuite Hub
+**Release Date:** January 17, 2026
+**Major Changes:** Web3 Wallet Authentication, PreSocial Integration
 
 ---
 
 ## Architecture Version History
+
+### v2.1.0 (January 17, 2026) - Web3 & PreSocial
+- **Web3 Wallet Authentication** - MetaMask login support
+- **PreSocial Service** - Community discussions (Bun + Hono)
+- JWT tokens include wallet_address and is_web3 claims
+- File-based JSON storage for PreSocial
+- PreMail widget fully functional
 
 ### v2.0.0 (January 2026) - Centralized Auth
 - **PreSuite Hub** becomes the central identity provider
@@ -79,6 +86,19 @@ This document tracks the implementation status and versions of all PreSuite serv
 - [x] AUTH_API_URL configured
 - [x] Tokens from Hub are now valid
 
+### PreSocial (presocial.presuite.eu)
+| Component | Version | Status |
+|-----------|---------|--------|
+| Auth | 2.1.0 | ✅ Live |
+| Communities | 1.0.0 | ✅ Live |
+| Posts/Comments | 1.0.0 | ✅ Live |
+
+**Implementation Completed:**
+- [x] Bun + Hono backend
+- [x] JWT verification from Hub
+- [x] File-based JSON storage
+- [x] SSO token pass-through
+
 ---
 
 ## Implementation Progress
@@ -114,7 +134,7 @@ This document tracks the implementation status and versions of all PreSuite serv
 All services now use:
 
 ```bash
-JWT_SECRET=7089fa42b9b38cf6e7d881a18a2534c4c6ff5e04e3ce9250ed7f5b57118acbeb
+JWT_SECRET=<256-bit-secret>  # Same across all services (see .env files)
 JWT_ISSUER=presuite
 AUTH_API_URL=https://presuite.eu/api/auth
 ```
@@ -133,6 +153,18 @@ If v2.0.0 fails:
 ---
 
 ## Change Log
+
+### 2026-01-17 (v2.1.0 - Web3 & PreSocial)
+- Added Web3 wallet authentication (MetaMask)
+- Added wallet_address and is_web3 JWT claims
+- PreSocial service integrated (Bun + Hono)
+- PreMail widget fully functional
+- Comprehensive documentation update
+
+### 2026-01-16 (v2.0.2 - PreMail Widget Fix)
+- Fixed PreMail widget IMAP timeout issues
+- Implemented labels/tags system in PreMail
+- Updated Hub dashboard widgets
 
 ### 2026-01-15 (v2.0.1 - Frontend Auth Pages)
 - Added Login page (`/login`) to PreSuite Hub frontend
@@ -159,4 +191,4 @@ If v2.0.0 fails:
 
 ---
 
-*Last Updated: January 15, 2026*
+*Last Updated: January 17, 2026*
