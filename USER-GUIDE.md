@@ -1,7 +1,7 @@
 # PreSuite User Guide
 
-> **Version:** 1.0
-> **Last Updated:** January 15, 2026
+> **Version:** 1.1
+> **Last Updated:** January 17, 2026
 
 ---
 
@@ -31,6 +31,7 @@ PreSuite is a privacy-focused productivity suite that includes:
 | **PreMail** | Email client with threading & search | https://premail.site |
 | **PreDrive** | Cloud file storage & sharing | https://predrive.eu |
 | **PreOffice** | Document, spreadsheet & presentation editor | https://preoffice.site |
+| **PreSocial** | Community discussions & forums | https://presocial.presuite.eu |
 
 ### 1.2 Creating an Account
 
@@ -44,7 +45,7 @@ PreSuite is a privacy-focused productivity suite that includes:
 
 ### 1.3 Signing In
 
-You can sign in to any PreSuite application in two ways:
+You can sign in to any PreSuite application in three ways:
 
 **Option A: Direct Login**
 1. Go to the application (e.g., https://premail.site)
@@ -57,6 +58,13 @@ You can sign in to any PreSuite application in two ways:
 3. You'll be redirected to PreSuite Hub
 4. Sign in once
 5. You're now signed in to all PreSuite apps
+
+**Option C: Web3 Wallet Login**
+1. Go to https://presuite.eu
+2. Click **"Connect Wallet"**
+3. MetaMask (or compatible wallet) will prompt for connection
+4. Sign the authentication message
+5. Your account is automatically created with a `@web3.premail.site` email address
 
 ---
 
@@ -587,18 +595,18 @@ Single Sign-On allows you to sign in once and access all PreSuite applications:
                   │    Hub      │
                   └──────┬──────┘
                          │
-         ┌───────────────┼───────────────┐
-         │               │               │
-         ▼               ▼               ▼
-    ┌─────────┐    ┌─────────┐    ┌─────────┐
-    │ PreMail │    │PreDrive │    │PreOffice│
-    └─────────┘    └─────────┘    └─────────┘
-         ▲               ▲               ▲
-         │               │               │
-         └───────────────┴───────────────┘
-                         │
-              Access all apps without
-              signing in again
+    ┌────────────┬───────┼───────┬────────────┐
+    │            │       │       │            │
+    ▼            ▼       ▼       ▼            ▼
+┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐
+│ PreMail │ │PreDrive │ │PreOffice│ │PreSocial│
+└─────────┘ └─────────┘ └─────────┘ └─────────┘
+    ▲            ▲       ▲       ▲
+    │            │       │       │
+    └────────────┴───────┴───────┘
+                 │
+      Access all apps without
+       signing in again
 ```
 
 ### 6.2 Using SSO
@@ -610,8 +618,8 @@ Single Sign-On allows you to sign in once and access all PreSuite applications:
 
 ### 6.3 Session Management
 
-- Sessions last for 24 hours
-- After 24 hours, you'll need to sign in again
+- Sessions last for 7 days
+- After 7 days, you'll need to sign in again
 - For security, sign out when using public computers
 
 **To Sign Out:**

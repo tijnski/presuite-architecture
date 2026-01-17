@@ -47,6 +47,7 @@ Local Mac → git push → GitHub → ssh + git pull → Production Server
 | PreDrive | 76.13.1.110 | srv1270547 | `/opt/predrive` | tijnski/PreDrive |
 | PreMail | 76.13.1.117 | srv1270590 | `/opt/premail` | tijnski/premail |
 | PreOffice | 76.13.2.220 | srv1273269 | `/opt/preoffice` | tijnski/preoffice |
+| PreSocial | 76.13.2.221 | srv1273270 | `/opt/presocial` | tijnski/presocial |
 
 ---
 
@@ -87,7 +88,7 @@ cd ~/Documents/Documents-MacBook/presearch/premail
 git add -A && git commit -m "Your message" && git push origin main
 
 # Server: Deploy
-ssh root@76.13.1.117 "cd /opt/premail && git pull origin main && npm install && npm run build && pm2 restart all"
+ssh root@76.13.1.117 "cd /opt/premail && git pull origin main && pnpm install && pnpm build && pm2 restart all"
 ```
 
 ### PreOffice (preoffice.site)
@@ -98,8 +99,18 @@ cd ~/Documents/Documents-MacBook/presearch/preoffice
 git add -A && git commit -m "Your message" && git push origin main
 
 # Server: Deploy
-ssh root@76.13.2.220 "cd /opt/preoffice && git pull origin main"
-# Then rebuild as needed (Docker/npm based on setup)
+ssh root@76.13.2.220 "cd /opt/preoffice && git pull origin main && cd presearch/online && docker compose up -d --build"
+```
+
+### PreSocial (presocial.presuite.eu)
+
+```bash
+# Local: Push changes
+cd ~/Documents/Documents-MacBook/presearch/PreSocial
+git add -A && git commit -m "Your message" && git push origin main
+
+# Server: Deploy (Bun runtime)
+ssh root@76.13.2.221 "cd /opt/presocial && git pull origin main && bun install && pm2 restart presocial"
 ```
 
 ---
@@ -198,7 +209,7 @@ docker compose logs -f        # View logs
 All servers are accessible via SSH as root:
 
 ```bash
-ssh root@76.13.2.221    # PreSuite
+ssh root@76.13.2.221    # PreSuite + PreSocial
 ssh root@76.13.1.110    # PreDrive
 ssh root@76.13.1.117    # PreMail
 ssh root@76.13.2.220    # PreOffice
@@ -222,9 +233,10 @@ Each server has an SSH key configured for GitHub push/pull:
 ```
 ~/Documents/Documents-MacBook/presearch/
 ├── presuite/       # Main hub (presuite.eu)
-├── predrive/       # File storage (predrive.eu)
+├── PreDrive/       # File storage (predrive.eu)
 ├── premail/        # Email client (premail.site)
 ├── preoffice/      # Document editing (preoffice.site)
+├── PreSocial/      # Community platform (presocial.presuite.eu)
 └── ARC/            # Architecture docs & configs
 ```
 
@@ -241,7 +253,7 @@ cd ~/Documents/Documents-MacBook/presearch/presuite && git log -1 --format="%H %
 ssh root@76.13.2.221 "cd /var/www/presuite && git log -1 --format='%H %s'"
 
 echo "=== PreDrive ===" && \
-cd ~/Documents/Documents-MacBook/presearch/predrive && git log -1 --format="%H %s" && \
+cd ~/Documents/Documents-MacBook/presearch/PreDrive && git log -1 --format="%H %s" && \
 ssh root@76.13.1.110 "cd /opt/predrive && git log -1 --format='%H %s'"
 
 echo "=== PreMail ===" && \
@@ -251,6 +263,10 @@ ssh root@76.13.1.117 "cd /opt/premail && git log -1 --format='%H %s'"
 echo "=== PreOffice ===" && \
 cd ~/Documents/Documents-MacBook/presearch/preoffice && git log -1 --format="%H %s" && \
 ssh root@76.13.2.220 "cd /opt/preoffice && git log -1 --format='%H %s'"
+
+echo "=== PreSocial ===" && \
+cd ~/Documents/Documents-MacBook/presearch/PreSocial && git log -1 --format="%H %s" && \
+ssh root@76.13.2.221 "cd /opt/presocial && git log -1 --format='%H %s'"
 ```
 
 ### View Server Logs
@@ -267,6 +283,9 @@ ssh root@76.13.1.117 "pm2 logs --lines 50"
 
 # PreOffice
 ssh root@76.13.2.220 "cd /opt/preoffice/presearch/online && docker compose logs --tail 50"
+
+# PreSocial
+ssh root@76.13.2.221 "pm2 logs presocial --lines 50"
 ```
 
 ### Restart Services
@@ -283,6 +302,9 @@ ssh root@76.13.1.117 "pm2 restart all"
 
 # PreOffice
 ssh root@76.13.2.220 "cd /opt/preoffice/presearch/online && docker compose restart"
+
+# PreSocial
+ssh root@76.13.2.221 "pm2 restart presocial"
 ```
 
 ---
@@ -360,8 +382,9 @@ Environment variables are stored in `.env` files on each server. Never commit th
 - [PREDRIVE.md](./PREDRIVE.md) - PreDrive details
 - [PREMAIL.md](./PREMAIL.md) - PreMail details
 - [PREOFFICE.md](./PREOFFICE.md) - PreOffice details
+- [PRESOCIAL.md](./PRESOCIAL.md) - PreSocial details
 - [IMPLEMENTATION-STATUS.md](./IMPLEMENTATION-STATUS.md) - Task tracking and status
 
 ---
 
-*Last Updated: January 15, 2026*
+*Last Updated: January 17, 2026*
