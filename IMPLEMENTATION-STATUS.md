@@ -1,6 +1,6 @@
 # PreSuite Implementation Status
 
-> **Last Updated:** January 16, 2026
+> **Last Updated:** January 17, 2026
 > **Overall Progress:** ~85% Complete
 
 ---
@@ -11,9 +11,9 @@
 |----------|-----------|-----------|--------|
 | Core Infrastructure | 12/12 | 0 | ✅ 100% |
 | OAuth SSO | 4/4 | 0 | ✅ 100% |
-| PreSuite Hub | 10/11 | 1 | 🟡 91% |
-| PreMail | 8/12 | 4 | 🟡 67% |
-| PreDrive | 6/8 | 2 | 🟡 75% |
+| PreSuite Hub | 11/11 | 0 | ✅ 100% |
+| PreMail | 9/12 | 3 | 🟡 75% |
+| PreDrive | 8/8 | 0 | ✅ 100% |
 | PreOffice | 3/6 | 3 | 🟡 50% |
 | Monitoring | 5/5 | 0 | ✅ 100% |
 | Testing | 2/5 | 3 | 🔴 40% |
@@ -35,7 +35,7 @@
 |----|------|--------|
 | PSH-001 | PRE Balance Integration | ✅ Done |
 | PSH-002 | PreDrive Widget (real-time file sync) | ✅ Done |
-| PSH-003 | PreMail Widget (real-time email sync) | 🔴 Blocked (PreMail API issue) |
+| PSH-003 | PreMail Widget (real-time email sync) | ✅ Done |
 | PSH-004 | Real Storage Tracking | ✅ Done |
 | PSH-005 | Venice API Key → Environment Variables | ✅ Done |
 | PSH-010 | Settings Panel (theme, notifications, account) | ✅ Done |
@@ -52,6 +52,7 @@
 | PM-003 | Real-time Badge Counts | ✅ Done |
 | PM-010 | Push Notifications | ✅ Done |
 | PM-011 | External IMAP Accounts | ✅ Done |
+| PM-012 | Labels/Tags System (Gmail-style) | ✅ Done |
 | - | PreCalendar Integration | ✅ Done |
 | - | Webhook Status Updates | ✅ Done |
 
@@ -111,18 +112,19 @@
 ### Medium Priority
 
 #### PreDrive
-| Task | Location | Description |
-|------|----------|-------------|
-| WebDAV Copy Handler | `packages/webdav/src/handlers/copy.ts:67` | Returns 501, needs full implementation |
-| File Range Selection | `apps/web/src/components/FileRow.tsx:45` | Shift+Click range selection |
+| Task | Location | Status |
+|------|----------|--------|
+| WebDAV Copy Handler | `packages/webdav/src/handlers/copy.ts` | ✅ Done (full implementation exists) |
+| File Range Selection | `apps/web/src/components/FileRow.tsx:47` | ✅ Done (Shift+Click working) |
 
 #### SSO Enhancements
-| Task | Description |
-|------|-------------|
-| Refresh Token Support | Automatic token renewal |
-| Session Sync | Logout from one service logs out all |
-| PKCE | Enhanced security for public clients |
-| MFA | Multi-factor authentication option |
+| Task | Description | Status |
+|------|-------------|--------|
+| Refresh Token Support | Automatic token renewal | ✅ Done (Jan 17) |
+| Web3 Email Provisioning | Auto-create {wallet}@web3.premail.site for Web3 users | ✅ Done (Jan 17) |
+| Session Sync | Logout from one service logs out all | Pending |
+| PKCE | Enhanced security for public clients | Pending |
+| MFA | Multi-factor authentication option | Pending |
 
 ### Low Priority / Future Enhancements
 
@@ -138,17 +140,17 @@
 | PreWallet | ✅ Done | Presearch Node API & Etherscan |
 
 #### PreMail Features
-- [ ] Full-text email search
-- [ ] Labels/Tags system
+- [x] Full-text email search ✅ (Typesense-based with autocomplete & filters, deployed Jan 17)
+- [x] Labels/Tags system ✅ (Gmail-style with colored labels, deployed Jan 17)
 - [ ] Filters & Rules
-- [ ] Rich Text Compose editor
+- [x] Rich Text Compose editor ✅ (TipTap-based, deployed Jan 17)
 - [ ] Contact Management/Address book
 - [ ] Storj bucket for email attachments (see [config/STORJ-SETUP.md](config/STORJ-SETUP.md))
 
 #### PreDrive Features
 - [ ] Real-time Collaboration
 - [ ] Comments system
-- [ ] Activity Feed
+- [x] Activity Feed ✅ (deployed Jan 17)
 - [ ] Advanced Sharing (granular permissions)
 - [ ] Offline Mode
 - [ ] Mobile App
@@ -195,6 +197,7 @@
 | App Modals | `presuite/src/components/AppModal.jsx` |
 | OAuth Server | `presuite/server.js` |
 | PreMail Webhooks | `premail/apps/api/src/routes/webhooks.ts` |
+| PreMail Labels API | `premail/apps/api/src/routes/labels.ts` |
 | PreMail DB Schema | `premail/packages/db/src/schema/index.ts` |
 | PreCalendar API | `premail/apps/api/src/routes/calendar.ts` |
 | PreDrive WebDAV Copy | `PreDrive/packages/webdav/src/handlers/copy.ts` |
@@ -204,8 +207,8 @@
 
 ## Recommended Next Steps
 
-1. **Immediate:** Deploy PreCalendar changes to production
-2. **This Week:** Test Postal server migration for PreMail
-3. **Next Week:** Implement WebDAV copy handler in PreDrive
+1. **Immediate:** Test Postal server migration for PreMail
+2. **This Week:** Implement Session Sync (logout from one service logs out all)
+3. **This Week:** PKCE support for OAuth
 4. **Ongoing:** Add integration tests
 5. **Ongoing:** Security audit
