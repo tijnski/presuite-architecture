@@ -128,8 +128,8 @@ const extensions = [
 ];
 ```
 
-### Theme Colors (from PreMail index.css)
-- Primary: `#127FFF` (presearch blue)
+### Theme Colors (Presearch Brand)
+- Primary: `#0190FF` (Presearch Azure)
 - Dark bg: `#1e1e1e`
 - Dark surface: `#262626`
 - Light bg: `#f5f5f5`
