@@ -1,7 +1,7 @@
 # PreSuite Documentation Index
 
 > **Navigation hub for all PreSuite architecture documentation**
-> Last Updated: January 16, 2026
+> Last Updated: January 17, 2026
 
 ---
 
@@ -68,7 +68,7 @@
 
 | File | Purpose |
 |------|---------|
-| [API-REFERENCE.md](API-REFERENCE.md) | Complete API documentation (auth, PreDrive, PreMail, PreOffice) |
+| [API-REFERENCE.md](API-REFERENCE.md) | Complete API documentation (auth, PreDrive, PreMail, PreOffice, PreSocial) |
 
 ---
 
@@ -96,7 +96,7 @@
 
 | File | Purpose | Status |
 |------|---------|--------|
-| [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) | Task tracker and remaining work | ~85% complete |
+| [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) | Task tracker and remaining work | ~90% complete |
 
 ---
 
