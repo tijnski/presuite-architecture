@@ -128,7 +128,7 @@ ARC/
 | PreDrive | Hono | PostgreSQL | Docker, Nginx |
 | PreMail | Hono | PostgreSQL | PM2, Stalwart |
 | PreOffice | Express (WOPI) | - | Docker, Collabora |
-| PreSocial | Bun + Hono | File-based (JSON) | PM2, Lemmy API |
+| PreSocial | Node.js + Hono (tsx) | File-based (JSON) | PM2, Lemmy API |
 
 **Common:** React 18+, TypeScript, Vite, Tailwind CSS, JWT (HS256)
 

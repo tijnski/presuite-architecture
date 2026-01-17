@@ -32,13 +32,13 @@ PreSocial is a **standalone social layer** for the PreSuite/Presearch ecosystem 
 
 | Component | Technology | Notes |
 |-----------|------------|-------|
-| **Runtime** | **Bun** | Primary runtime (NOT Node.js) |
+| **Runtime** | **Node.js + tsx** | Production runtime via PM2 |
 | Framework | Hono | Lightweight web framework |
 | Cache | In-memory LRU + Redis (optional) | Falls back to in-memory if Redis unavailable |
 | **Storage** | File-based JSON | Persistent votes/bookmarks in `/data` |
 | Auth | JWT (local or remote) | PreSuite Hub integration |
 
-**Note:** While the code imports `@hono/node-server` for compatibility, Bun is the primary runtime as shown in `package.json` scripts.
+**Note:** Development scripts in `package.json` use Bun, but production runs via `npx tsx` with PM2 for stability.
 
 ### External Services
 
@@ -54,7 +54,7 @@ PreSocial is a **standalone social layer** for the PreSuite/Presearch ecosystem 
 ```
 PreSocial/
 ├── apps/
-│   ├── api/                    # Backend API (Bun + Hono)
+│   ├── api/                    # Backend API (Node.js + Hono)
 │   │   ├── src/
 │   │   │   ├── api/
 │   │   │   │   ├── index.ts           # Hono app entry
@@ -99,7 +99,7 @@ PreSocial/
 │       │       └── web3Auth.js        # Web3 wallet auth
 │       └── package.json
 │
-├── package.json                # Root workspace (Bun scripts)
+├── package.json                # Root workspace (dev: Bun, prod: npm)
 ├── tsconfig.json
 └── .env.example
 ```
@@ -354,55 +354,59 @@ REDIS_URL=redis://localhost:6379
 | Port | 3002 (API) |
 | Domain | presocial.presuite.eu |
 
-### Deploy Commands (Bun)
+### Deploy Commands
 
 ```bash
-# Full deployment
-ssh root@76.13.2.221 "cd /opt/presocial && git pull && cd apps/web && npm run build && cd ../.. && bun run start"
+# Full deployment (production uses npm + PM2)
+ssh root@76.13.2.221 "cd /opt/presocial && git pull && npm install && pm2 restart presocial-api"
 
-# Development
+# Development (uses Bun)
 cd /opt/presocial
 bun run dev        # Run API + Web concurrently
 bun run dev:api    # API only (with --watch)
 bun run dev:web    # Web only
 
-# Build
+# Build (uses Bun)
 bun run build      # Build API + Web
 bun run build:api  # API only (outputs to dist/)
 bun run build:web  # Web only
 
-# Production
-bun run start      # Run built API
+# Production (via PM2 ecosystem.config.cjs)
+pm2 start ecosystem.config.cjs   # Uses npx tsx src/index.ts
+pm2 restart presocial-api
 ```
 
-### Systemd Service (Recommended for Production)
+### PM2 Configuration (Production)
 
-```ini
-# /etc/systemd/system/presocial.service
-[Unit]
-Description=PreSocial API
-After=network.target
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/opt/presocial
-ExecStart=/root/.bun/bin/bun run start
-Restart=on-failure
-Environment=NODE_ENV=production
-Environment=PORT=3002
-
-[Install]
-WantedBy=multi-user.target
+```javascript
+// ecosystem.config.cjs
+module.exports = {
+  apps: [{
+    name: 'presocial-api',
+    cwd: '/opt/presocial/apps/api',
+    script: 'npx',
+    args: 'tsx src/index.ts',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3002,
+    },
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '500M',
+  }],
+};
 ```
 
 ```bash
-# Enable and start
-systemctl enable presocial
-systemctl start presocial
+# Start with PM2
+pm2 start ecosystem.config.cjs
 
 # View logs
-journalctl -u presocial -f
+pm2 logs presocial-api
+
+# Restart
+pm2 restart presocial-api
 ```
 
 ### Environment Variables
@@ -597,4 +601,4 @@ class LemmyService {
 
 *Last updated: January 17, 2026*
 *Status: Production - Live at https://presocial.presuite.eu*
-*Runtime: Bun (not Node.js)*
+*Runtime: Node.js + tsx (PM2) | Development: Bun*

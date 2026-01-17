@@ -64,7 +64,7 @@ SERVICES (all authenticate via PreSuite Hub):
 │   ├── Editor: Collabora Online (CODE)
 │   └── Integration: PreDrive file storage
 └── PreSocial (presocial.presuite.eu)
-    ├── Backend: Bun + Hono
+    ├── Backend: Node.js + Hono (tsx)
     ├── Frontend: Lemmy integration
     └── Features: Communities, posts, comments
 ```
@@ -253,7 +253,7 @@ curl https://preoffice.site/health
 **Location:** `ssh root@76.13.2.221` → `/opt/presocial`
 
 **Stack:**
-- Runtime: Bun (not Node.js)
+- Runtime: Node.js + tsx (PM2)
 - Backend: Hono
 - Frontend: Lemmy integration
 - Storage: File-based persistence (JSON)
@@ -283,10 +283,10 @@ data/                       # Persistent storage
 **Commands:**
 ```bash
 # Deploy
-cd /opt/presocial && git pull && bun install && pm2 restart presocial
+cd /opt/presocial && git pull && npm install && pm2 restart presocial-api
 
 # Logs
-pm2 logs presocial
+pm2 logs presocial-api
 
 # Health check
 curl https://presocial.presuite.eu/health
@@ -436,7 +436,7 @@ ssh root@76.13.1.117 "cd /opt/premail && git pull && pnpm build && pm2 restart p
 ssh root@76.13.2.220 "cd /opt/preoffice && git pull && cd presearch/online && docker compose up -d --build"
 
 # PreSocial
-ssh root@76.13.2.221 "cd /opt/presocial && git pull && bun install && pm2 restart presocial"
+ssh root@76.13.2.221 "cd /opt/presocial && git pull && npm install && pm2 restart presocial-api"
 ```
 
 ### Check Service Health
@@ -465,7 +465,7 @@ ssh root@76.13.1.117 "pm2 logs premail-api --lines 50"
 ssh root@76.13.2.220 "cd /opt/preoffice/presearch/online && docker compose logs --tail 50"
 
 # PreSocial
-ssh root@76.13.2.221 "pm2 logs presocial --lines 50"
+ssh root@76.13.2.221 "pm2 logs presocial-api --lines 50"
 ```
 
 ### Create Git Branch on All Services

@@ -34,7 +34,7 @@ This directory contains detailed architecture diagrams and documentation for the
 | Layer | Technology |
 |-------|------------|
 | Frontend | React, Vite, TypeScript, TailwindCSS |
-| Backend | Bun, Hono, TypeScript |
+| Backend | Hono, TypeScript (Node.js/Express) |
 | Database | PostgreSQL 16, Drizzle ORM |
 | Search | Typesense |
 | Storage | Storj (S3-compatible) |

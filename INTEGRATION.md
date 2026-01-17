@@ -559,9 +559,13 @@ async function initializeUserResources(user: User) {
 **PreSocial:**
 ```typescript
 // File-based auto-provisioning (data/users.json)
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+
 async function initializeUserResources(user: User) {
   const usersFile = 'data/users.json';
-  const users = JSON.parse(await Bun.file(usersFile).text());
+  const users = existsSync(usersFile)
+    ? JSON.parse(readFileSync(usersFile, 'utf-8'))
+    : [];
 
   if (!users.find(u => u.id === user.id)) {
     users.push({
@@ -570,7 +574,7 @@ async function initializeUserResources(user: User) {
       name: user.name,
       createdAt: new Date().toISOString()
     });
-    await Bun.write(usersFile, JSON.stringify(users, null, 2));
+    writeFileSync(usersFile, JSON.stringify(users, null, 2));
   }
 }
 ```

@@ -13,7 +13,7 @@ This document tracks the implementation status and versions of all PreSuite serv
 
 ### v2.1.0 (January 17, 2026) - Web3 & PreSocial
 - **Web3 Wallet Authentication** - MetaMask login support
-- **PreSocial Service** - Community discussions (Bun + Hono)
+- **PreSocial Service** - Community discussions (Node.js + Hono)
 - JWT tokens include wallet_address and is_web3 claims
 - File-based JSON storage for PreSocial
 - PreMail widget fully functional
@@ -94,7 +94,7 @@ This document tracks the implementation status and versions of all PreSuite serv
 | Posts/Comments | 1.0.0 | ✅ Live |
 
 **Implementation Completed:**
-- [x] Bun + Hono backend
+- [x] Node.js + Hono backend (tsx)
 - [x] JWT verification from Hub
 - [x] File-based JSON storage
 - [x] SSO token pass-through
@@ -157,7 +157,7 @@ If v2.0.0 fails:
 ### 2026-01-17 (v2.1.0 - Web3 & PreSocial)
 - Added Web3 wallet authentication (MetaMask)
 - Added wallet_address and is_web3 JWT claims
-- PreSocial service integrated (Bun + Hono)
+- PreSocial service integrated (Node.js + Hono)
 - PreMail widget fully functional
 - Comprehensive documentation update
 
