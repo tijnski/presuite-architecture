@@ -1,7 +1,7 @@
 # PreSuite Documentation Index
 
 > **Navigation hub for all PreSuite architecture documentation**
-> Last Updated: January 17, 2026
+> Last Updated: January 19, 2026
 
 ---
 
@@ -57,10 +57,14 @@
 - [OAUTH-SSO.md](architecture/OAUTH-SSO.md) - OAuth 2.0 flow and token structure
 - [PREMAIL.md](architecture/PREMAIL.md) - Email service architecture
 - [PREDRIVE.md](architecture/PREDRIVE.md) - Cloud storage architecture
+- [PREDRIVE-ENCRYPTION.md](architecture/PREDRIVE-ENCRYPTION.md) - BYOK encryption architecture
 - [PREOFFICE.md](architecture/PREOFFICE.md) - Document editing (WOPI/Collabora)
 - [INFRASTRUCTURE.md](architecture/INFRASTRUCTURE.md) - Server layout and Docker
 - [DATA-FLOWS.md](architecture/DATA-FLOWS.md) - Email and collaboration flows
 - [SECURITY.md](architecture/SECURITY.md) - Security layers and measures
+
+**User Guides:**
+- [PREDRIVE-ENCRYPTION-QUICKSTART.md](PREDRIVE-ENCRYPTION-QUICKSTART.md) - End-user encryption guide
 
 ---
 
@@ -165,13 +169,14 @@
 |----------|-------|-------------|
 | Core docs | 6 | README, CLAUDE, INDEX, USER-GUIDE, VERSION, THIRD-PARTY-LICENSES |
 | Service docs | 5 | PRESUITE, PREDRIVE, PREMAIL, PREOFFICE, PRESOCIAL |
-| Architecture | 9 | architecture/ directory |
+| Architecture | 10 | architecture/ directory (includes PREDRIVE-ENCRYPTION) |
+| User guides | 1 | PREDRIVE-ENCRYPTION-QUICKSTART |
 | Integration | 2 | API-REFERENCE, INTEGRATION |
 | UI docs | 2 | UIimplement, UIPatterns-PresearchWeb |
 | Operations | 4 | DEPLOYMENT, DEPLOYMENT-SUMMARY, MONITORING, TESTING |
 | Config | 2 | config/STORJ-SETUP.md, config/POSTAL-SETUP.md |
 | Other | 3 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS, DEBUG-PREMAIL-WIDGET |
-| **Total Markdown** | **34** | |
+| **Total Markdown** | **36** | |
 
 ---
 

@@ -77,6 +77,7 @@ PreDrive/
 │   │       │   ├── shares.ts     # Share links
 │   │       │   ├── permissions.ts # ACL management
 │   │       │   ├── activity.ts   # Audit logs
+│   │       │   ├── encryption.ts # BYOK encryption keys
 │   │       │   ├── integrations.ts # PreMail integration
 │   │       │   ├── verification.ts # Email verification
 │   │       │   └── provision.ts  # Internal provisioning
@@ -95,7 +96,13 @@ PreDrive/
 │           ├── hooks/            # Custom hooks
 │           ├── store/
 │           │   └── index.ts      # Zustand state
-│           └── lib/              # Utilities
+│           └── lib/
+│               ├── crypto/       # Client-side encryption
+│               │   ├── keys.ts   # Key derivation (PBKDF2, HKDF)
+│               │   ├── encrypt.ts # AES-256-GCM encryption
+│               │   ├── decrypt.ts # Decryption + verification
+│               │   └── utils.ts  # Base64, SHA-256 helpers
+│               └── web3Auth.ts   # MetaMask integration
 │
 ├── packages/
 │   ├── db/                       # Database layer
@@ -346,6 +353,19 @@ created_at TIMESTAMP
 |--------|----------|-------------|
 | GET | `/api/activity` | Get audit log |
 
+### Encryption (BYOK)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/encryption/keys` | List user's encryption keys |
+| POST | `/api/encryption/keys` | Create encryption key (passphrase or Web3) |
+| GET | `/api/encryption/keys/default` | Get user's default encryption key |
+| GET | `/api/encryption/keys/:id` | Get specific key metadata |
+| PATCH | `/api/encryption/keys/:id` | Update key (name, default status) |
+| DELETE | `/api/encryption/keys/:id` | Delete encryption key |
+| POST | `/api/encryption/keys/:id/verify` | Verify passphrase/signature |
+| GET | `/api/encryption/files/:nodeId` | Get file's encryption details |
+
 ### Integrations
 
 | Method | Endpoint | Description |
@@ -471,6 +491,12 @@ interface StorageConfig {
 - Multipart upload for files >5MB
 - SHA-256 checksums for integrity
 - Version deduplication via S3 copy
+- **BYOK Encryption** - Client-side file encryption with user-controlled keys
+  - Passphrase-based keys (PBKDF2-SHA256, 310K iterations)
+  - Web3 wallet-based keys (HKDF from MetaMask signature)
+  - Zero-knowledge: server never sees plaintext or raw keys
+  - See [PREDRIVE-ENCRYPTION-QUICKSTART.md](PREDRIVE-ENCRYPTION-QUICKSTART.md) for user guide
+  - See [architecture/PREDRIVE-ENCRYPTION.md](architecture/PREDRIVE-ENCRYPTION.md) for technical details
 
 ---
 

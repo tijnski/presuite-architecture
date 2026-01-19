@@ -1,7 +1,7 @@
-# PreDrive BYOK (Bring Your Own Key) Encryption Architecture
+# PreDrive BYOK Encryption Architecture
 
 > **Last Updated:** January 19, 2026
-> **Status:** Implemented and deployed
+> **Status:** Implemented and deployed to production
 
 ---
 
@@ -11,15 +11,15 @@ PreDrive implements client-side, zero-knowledge encryption for files. Users cont
 
 ### Key Principles
 
-1. **Zero-Knowledge**: Server never sees plaintext files or raw encryption keys
-2. **Client-Side Encryption**: All encryption/decryption happens in the browser
-3. **BYOK (Bring Your Own Key)**: Users create and control their own keys
-4. **Two-Tier Key Hierarchy**: KEK (Key Encryption Key) wraps per-file DEKs (Data Encryption Keys)
-5. **Multiple Key Types**: Supports passphrase-based and Web3 wallet-based keys
+1. **Zero-Knowledge** - Server never sees plaintext files or raw encryption keys
+2. **Client-Side Encryption** - All encryption/decryption happens in the browser
+3. **BYOK (Bring Your Own Key)** - Users create and control their own keys
+4. **Two-Tier Key Hierarchy** - KEK (Key Encryption Key) wraps per-file DEKs (Data Encryption Keys)
+5. **Multiple Key Types** - Supports passphrase-based and Web3 wallet-based keys
 
 ---
 
-## Architecture
+## Architecture Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -34,7 +34,7 @@ PreDrive implements client-side, zero-knowledge encryption for files. Users cont
 │                                         ▼                        │
 │                            ┌─────────────────────────────────┐  │
 │                            │     KEK (Key Encryption Key)    │  │
-│                            │        AES-256 (in memory)      │  │
+│                            │      AES-256-KW (in memory)     │  │
 │                            └────────────┬────────────────────┘  │
 │                                         │                        │
 │            ┌────────────────────────────┼─────────────────────┐ │
@@ -80,17 +80,23 @@ PreDrive implements client-side, zero-knowledge encryption for files. Users cont
 Uses PBKDF2-SHA256 with 310,000 iterations (OWASP recommended minimum).
 
 ```typescript
-// Key derivation
+// Key derivation (apps/web/src/lib/crypto/keys.ts)
 const key = await deriveKeyFromPassphrase(passphrase, {
   salt: generateSalt(),        // 32 bytes random
   iterations: 310000           // OWASP recommended
 });
+
+// Returns:
+// - key: CryptoKey (AES-KW for wrapping/unwrapping)
+// - salt: Uint8Array
+// - verificationHash: string (for passphrase verification)
+// - iterations: number
 ```
 
 **Stored on server:**
-- `salt`: 32-byte random salt (base64)
-- `iterations`: 310000
-- `verificationHash`: SHA-256 hash for passphrase verification
+- `salt` - 32-byte random salt (base64)
+- `iterations` - 310,000
+- `verification_hash` - SHA-256 hash for passphrase verification
 
 **NOT stored:**
 - Passphrase
@@ -118,8 +124,8 @@ const key = await deriveKeyFromWeb3Signature(walletAddress, signature);
 ```
 
 **Stored on server:**
-- `walletAddress`: Ethereum address (0x...)
-- `verificationHash`: SHA-256 of signature (for verification)
+- `wallet_address` - Ethereum address (0x...)
+- `verification_hash` - SHA-256 of signature (for verification)
 
 **NOT stored:**
 - Signature
@@ -177,11 +183,11 @@ await completeUpload({
 ```
 1. User requests file download
 2. Server returns download URL + encryption metadata
-3. Client prompts for passphrase OR wallet signature
+3. Client shows DecryptModal, prompts for passphrase OR wallet signature
 4. Client re-derives KEK from passphrase/signature
 5. Client downloads encrypted blob from Storj
-6. Client unwraps DEK using KEK
-7. Client decrypts file using DEK + nonce
+6. Client unwraps DEK using KEK (AES-KW)
+7. Client decrypts file using DEK + nonce (AES-GCM)
 8. Client verifies checksum
 9. Client triggers browser download
 ```
@@ -189,19 +195,26 @@ await completeUpload({
 ### Code Flow
 
 ```typescript
-// apps/web/src/hooks/useDownload.ts - downloadEncrypted()
+// apps/web/src/hooks/useDownload.ts
 
-// 1. Fetch encrypted file
-const encryptedData = await fetch(downloadUrl).then(r => r.arrayBuffer());
+// 1. Prepare download - checks if file is encrypted
+const downloadInfo = await getDownloadUrl(nodeId);
 
-// 2. Decrypt (unwraps DEK, decrypts with AES-GCM, verifies checksum)
-await decryptAndDownload(encryptedData, {
-  wrappedDek: base64ToBytes(encryption.wrappedDek),
-  nonce: base64ToBytes(encryption.nonce),
-  originalName: fileName,
-  originalMime: encryption.originalMime,
-  originalChecksum: encryption.originalChecksum,
-}, kek);
+if (downloadInfo.isEncrypted) {
+  // 2. Fetch key info and show DecryptModal
+  const keyResponse = await getEncryptionKey(downloadInfo.encryption.keyId);
+  setDownloadState({ ... }); // Triggers DecryptModal render
+}
+
+// 3. After user provides passphrase/signature:
+await downloadEncrypted(downloadInfo, kek, fileName);
+
+// apps/web/src/lib/crypto/decrypt.ts - decryptAndDownload()
+// - Fetches encrypted blob
+// - Unwraps DEK with KEK
+// - Decrypts with AES-GCM
+// - Verifies checksum
+// - Triggers browser download
 ```
 
 ---
@@ -210,34 +223,65 @@ await decryptAndDownload(encryptedData, {
 
 ### `encryption_keys` Table
 
+Stores user's master key metadata (KEK parameters).
+
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | UUID | Primary key |
-| `org_id` | UUID | Organization ID (FK) |
-| `user_id` | UUID | User ID (FK) |
-| `key_type` | ENUM | `'passphrase'` or `'web3'` |
-| `key_name` | VARCHAR | User-defined name |
+| `user_id` | UUID | User ID (FK to users) |
+| `org_id` | UUID | Organization ID (FK to orgs) |
+| `key_type` | VARCHAR(20) | `'passphrase'` or `'web3'` |
+| `key_name` | VARCHAR(255) | User-defined name |
 | `salt` | TEXT | PBKDF2 salt (base64, passphrase only) |
 | `iterations` | INT | PBKDF2 iterations (passphrase only) |
-| `wallet_address` | VARCHAR | Ethereum address (Web3 only) |
-| `verification_hash` | VARCHAR | For key verification |
+| `wallet_address` | VARCHAR(42) | Ethereum address (Web3 only) |
+| `verification_hash` | VARCHAR(64) | For key verification |
 | `is_default` | BOOLEAN | Default key for this user |
 | `created_at` | TIMESTAMP | Creation timestamp |
+| `last_used_at` | TIMESTAMP | Last usage timestamp |
+
+**Indexes:**
+- `encryption_keys_user_idx` on `user_id`
+- `encryption_keys_org_idx` on `org_id`
+- `encryption_keys_wallet_idx` on `wallet_address`
+- `encryption_keys_user_wallet_idx` (unique) on `(user_id, key_type, wallet_address)`
 
 ### `file_encryption` Table
 
+Stores per-file encryption metadata.
+
 | Column | Type | Description |
 |--------|------|-------------|
-| `id` | UUID | Primary key |
-| `node_id` | UUID | File node ID (FK) |
-| `key_id` | UUID | Encryption key ID (FK) |
+| `node_id` | UUID | Primary key (FK to nodes, CASCADE delete) |
+| `key_id` | UUID | Encryption key ID (FK to encryption_keys) |
 | `wrapped_dek` | TEXT | DEK wrapped with KEK (base64) |
-| `algorithm` | VARCHAR | `'AES-256-GCM'` |
-| `nonce` | TEXT | Encryption nonce (base64) |
-| `original_size` | BIGINT | Original file size |
-| `original_checksum` | VARCHAR | SHA-256 of original |
-| `encrypted_checksum` | VARCHAR | SHA-256 of encrypted |
+| `algorithm` | VARCHAR(20) | `'AES-256-GCM'` |
+| `nonce` | TEXT | Encryption nonce (base64, 12 bytes) |
+| `original_size` | BIGINT | Original file size in bytes |
+| `original_checksum` | VARCHAR(64) | SHA-256 of original file |
+| `original_mime` | VARCHAR(255) | Original MIME type |
+| `encrypted_size` | BIGINT | Encrypted file size in bytes |
+| `encrypted_checksum` | VARCHAR(64) | SHA-256 of encrypted file |
 | `created_at` | TIMESTAMP | Encryption timestamp |
+
+**Indexes:**
+- `file_encryption_key_idx` on `key_id`
+
+### `files` Table (Modified)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `is_encrypted` | BOOLEAN | Whether file is encrypted (default: false) |
+
+### `upload_sessions` Table (Modified)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `is_encrypted` | BOOLEAN | Whether upload is encrypted |
+| `encryption_key_id` | UUID | Key to use for encryption |
+| `original_size` | BIGINT | Original file size before encryption |
+| `original_checksum` | VARCHAR(64) | Original file checksum |
+| `original_mime` | VARCHAR(255) | Original MIME type |
 
 ---
 
@@ -247,11 +291,13 @@ await decryptAndDownload(encryptedData, {
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/keys` | List user's encryption keys |
-| `POST` | `/api/keys` | Create new encryption key |
-| `GET` | `/api/keys/default` | Get default encryption key |
-| `POST` | `/api/keys/:id/default` | Set key as default |
-| `DELETE` | `/api/keys/:id` | Delete encryption key |
+| `GET` | `/api/encryption/keys` | List user's encryption keys |
+| `POST` | `/api/encryption/keys` | Create new encryption key |
+| `GET` | `/api/encryption/keys/default` | Get user's default encryption key |
+| `GET` | `/api/encryption/keys/:id` | Get specific key metadata |
+| `PATCH` | `/api/encryption/keys/:id` | Update key (name, default status) |
+| `DELETE` | `/api/encryption/keys/:id` | Delete encryption key |
+| `POST` | `/api/encryption/keys/:id/verify` | Verify key passphrase/signature |
 
 ### File Operations
 
@@ -260,6 +306,52 @@ await decryptAndDownload(encryptedData, {
 | `POST` | `/api/nodes/files/upload/start` | Start upload (includes encryption metadata) |
 | `POST` | `/api/nodes/files/upload/complete` | Complete upload (includes wrapped DEK) |
 | `GET` | `/api/nodes/files/:id/download` | Get download URL + encryption info |
+| `GET` | `/api/encryption/files/:nodeId` | Get file's encryption details |
+
+### Request/Response Examples
+
+**Create Passphrase Key:**
+```json
+POST /api/encryption/keys
+{
+  "keyType": "passphrase",
+  "keyName": "My Encryption Key",
+  "salt": "base64-encoded-32-bytes",
+  "iterations": 310000,
+  "verificationHash": "64-char-hex-string",
+  "setAsDefault": true
+}
+```
+
+**Create Web3 Key:**
+```json
+POST /api/encryption/keys
+{
+  "keyType": "web3",
+  "keyName": "MetaMask Key",
+  "walletAddress": "0x1234...abcd",
+  "verificationHash": "64-char-hex-string",
+  "setAsDefault": true
+}
+```
+
+**Download Response (Encrypted File):**
+```json
+GET /api/nodes/files/:id/download
+{
+  "downloadUrl": "https://storj.io/presigned-url...",
+  "isEncrypted": true,
+  "encryption": {
+    "keyId": "uuid-of-encryption-key",
+    "wrappedDek": "base64-encoded-wrapped-dek",
+    "algorithm": "AES-256-GCM",
+    "nonce": "base64-encoded-12-byte-nonce",
+    "originalSize": 1234567,
+    "originalChecksum": "sha256-hex",
+    "originalMime": "image/png"
+  }
+}
+```
 
 ---
 
@@ -267,12 +359,12 @@ await decryptAndDownload(encryptedData, {
 
 ### Strengths
 
-1. **Zero-Knowledge**: Server cannot decrypt files
-2. **Per-File Keys**: Compromising one DEK doesn't expose other files
-3. **Key Wrapping**: DEKs encrypted with AES-KW (no IV reuse issues)
-4. **Strong KDF**: PBKDF2 with 310K iterations or HKDF for Web3
-5. **Integrity**: SHA-256 checksums for both original and encrypted data
-6. **Web3 Option**: No passphrase to remember for wallet users
+1. **Zero-Knowledge** - Server cannot decrypt files
+2. **Per-File Keys** - Compromising one DEK doesn't expose other files
+3. **Key Wrapping** - DEKs encrypted with AES-KW (no IV reuse issues)
+4. **Strong KDF** - PBKDF2 with 310K iterations or HKDF for Web3
+5. **Integrity** - SHA-256 checksums for both original and encrypted data
+6. **Web3 Option** - No passphrase to remember for wallet users
 
 ### Attack Vectors Mitigated
 
@@ -283,12 +375,13 @@ await decryptAndDownload(encryptedData, {
 | Weak passphrase | Strength meter + PBKDF2 with high iterations |
 | Replay attack | Unique nonce per file encryption |
 | File tampering | Checksum verification on decrypt |
+| Key reuse | Each file gets unique random DEK |
 
 ### User Responsibilities
 
-- **Keep passphrase secure**: Lost passphrase = lost files (no recovery)
-- **Protect wallet**: Web3 key tied to wallet security
-- **Backup keys**: Consider exporting key metadata for recovery
+- **Keep passphrase secure** - Lost passphrase = lost files (no recovery)
+- **Protect wallet** - Web3 key tied to wallet security
+- **Test decryption** - Verify you can decrypt before uploading sensitive files
 
 ---
 
@@ -304,14 +397,45 @@ await decryptAndDownload(encryptedData, {
 
 | File | Path | Purpose |
 |------|------|---------|
-| `keys.ts` | `apps/web/src/lib/crypto/keys.ts` | Key derivation (PBKDF2, HKDF) |
+| `keys.ts` | `apps/web/src/lib/crypto/keys.ts` | Key derivation (PBKDF2, HKDF, AES-KW) |
 | `encrypt.ts` | `apps/web/src/lib/crypto/encrypt.ts` | File encryption (AES-256-GCM) |
 | `decrypt.ts` | `apps/web/src/lib/crypto/decrypt.ts` | File decryption + verification |
 | `utils.ts` | `apps/web/src/lib/crypto/utils.ts` | Base64, hex, SHA-256 utilities |
 
 ---
 
-## Usage
+## Deployment
+
+### Database Migration
+
+The encryption feature requires these database tables:
+- `encryption_keys`
+- `file_encryption`
+- Additional columns on `files` and `upload_sessions`
+
+**Migration file:** `packages/db/drizzle/0003_byok_encryption.sql`
+
+**To apply manually:**
+```bash
+ssh root@76.13.1.110 "docker exec predrive-postgres-1 psql -U predrive -f /path/to/0003_byok_encryption.sql"
+```
+
+Or run the migration SQL directly (see migration file for full SQL).
+
+### Verification
+
+```bash
+# Check tables exist
+docker exec predrive-postgres-1 psql -U predrive -c "\dt" | grep encryption
+
+# Should show:
+# public | encryption_keys  | table | predrive
+# public | file_encryption  | table | predrive
+```
+
+---
+
+## Usage Guide
 
 ### Creating a Passphrase Key
 
@@ -335,33 +459,41 @@ await decryptAndDownload(encryptedData, {
 
 1. Click Upload button
 2. Select file
-3. Toggle "Encrypt file" checkbox
+3. Ensure "Encrypt file" checkbox is ON (default when key exists)
 4. For passphrase key: Enter passphrase
 5. For Web3 key: Sign when prompted
 6. Click "Upload Encrypted" or "Sign & Upload"
 
 ### Downloading Encrypted File
 
-1. Click download on encrypted file
-2. Decrypt modal appears
+1. Click download on encrypted file (shows lock icon)
+2. Decrypt modal appears automatically
 3. For passphrase key: Enter passphrase
 4. For Web3 key: Click "Sign & Decrypt"
 5. File downloads after decryption
 
 ---
 
-## Why Files in Storj Appear Unencrypted
+## Troubleshooting
 
-Files in Storj will only be encrypted if:
+### Decrypt modal doesn't appear
 
-1. User has created an encryption key
-2. User enabled "Encrypt file" toggle during upload
-3. For passphrase keys: User entered correct passphrase
-4. For Web3 keys: User signed with correct wallet
+**Cause:** The `file_encryption` table was missing in production, so encryption metadata wasn't stored.
 
-**Files uploaded without encryption enabled will be stored unencrypted in Storj.** Encryption is opt-in per file, not automatic.
+**Fix:** Run the database migration to create `encryption_keys` and `file_encryption` tables.
 
-To ensure files are encrypted:
-- Create an encryption key (Settings > Encryption)
-- Set it as default
-- Always enable the "Encrypt file" toggle when uploading sensitive files
+### "key.algorithm does not match that of operation"
+
+**Cause:** KEK was derived with wrong algorithm (AES-GCM instead of AES-KW).
+
+**Fix:** KEK must use `AES-KW` algorithm for `wrapKey`/`unwrapKey` operations:
+```typescript
+{ name: 'AES-KW', length: 256 }  // Correct
+{ name: 'AES-GCM', length: 256 } // Wrong
+```
+
+### Files in Storj appear unencrypted
+
+**Cause:** Encryption is opt-in. Files uploaded without the "Encrypt file" toggle are stored unencrypted.
+
+**Fix:** Always enable the "Encrypt file" toggle when uploading sensitive files. Create an encryption key first if you haven't already.
