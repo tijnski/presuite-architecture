@@ -540,7 +540,7 @@ When applying to a new PreSuite app:
 | App | Status | Notes |
 |-----|--------|-------|
 | PreSuite Hub | Applied | Full implementation |
-| PreMail | Pending | Apply to web app |
+| PreMail | Applied | CSS vars, tailwind config, AppLayout updated |
 | PreDrive | Pending | Apply to web app |
 | PreOffice | Pending | Landing page only |
 | PreSocial | Pending | Lemmy integration |
