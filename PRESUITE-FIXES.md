@@ -310,4 +310,71 @@ ssh root@76.13.2.221 "cd /var/www/presuite && git pull && npm install && npm run
 
 ---
 
+## UI/UX Improvements (January 19, 2026)
+
+### 1. Presearch Design System Applied
+
+Applied the official Presearch Design System to match presearch.com styling:
+
+**Colors Updated:**
+- Primary blue: `#127FFF` (Presearch brand)
+- Toggle active: `#2D8EFF`
+- Toggle inactive: `#6B7280`
+- Background base: `#202020`
+- Background card: `#2E2E2E`
+- Background panel: `#212224`
+
+**Components Updated:**
+- Toggle switches: 48x24px with 16px knob (matching Presearch specs)
+- Pill-style buttons with `border-radius: 9999px`
+- Updated text colors and spacing
+
+### 2. Settings Panel Redesign
+
+Complete redesign of Settings.jsx to match Presearch settings panel:
+
+**New Layout:**
+- Right-side slide-out panel (400px wide)
+- Dark background (#212224)
+- Sections with proper spacing
+
+**Sections:**
+1. **Account** - User info, linked wallets
+2. **General** - Default app, link behavior
+3. **Notifications** - Email, push, activity alerts
+4. **PreGPT** - AI model preferences, response length
+5. **Appearance** - Theme toggle (Dark/Light pill buttons), text size
+6. **Resources** - Help, Privacy, Terms links
+
+**Components Added:**
+- Toggle switch (48x24px as per Presearch spec)
+- Theme toggle (pill button style)
+- Dropdown buttons
+- Text size selector
+- External link items
+
+### 3. Header Simplification
+
+Consolidated all header buttons into single profile icon:
+
+**Before:**
+- Theme toggle button
+- Help button
+- Settings button
+- Notifications button (with badge)
+- Profile icon
+- Logout button
+
+**After:**
+- Single profile icon (user initials)
+- Clicking opens Settings panel directly
+
+**Benefits:**
+- Cleaner header UI
+- All settings accessible from one place
+- Matches modern app design patterns
+
+---
+
 *Document created: January 19, 2026*
+*Last updated: January 19, 2026*
