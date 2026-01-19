@@ -799,17 +799,22 @@ docker compose exec postgres psql -U postgres -c "ALTER USER predrive PASSWORD '
 - [x] Dark mode
 - [x] Web3 wallet support (infrastructure)
 
+- [x] BYOK client-side encryption
+- [x] Web3 wallet encryption keys
+- [x] Real-time collaboration (WebSocket)
+
 ### Known Limitations
 
 - WebDAV PROPPATCH returns 403 (not implemented)
 - Max file size: 5GB (browser upload limitation)
-- No real-time collaboration
 - Shift+Click range selection partially implemented
 
 ---
 
 ## Related Documentation
 
+- [architecture/PREDRIVE-ENCRYPTION.md](architecture/PREDRIVE-ENCRYPTION.md) - BYOK encryption architecture
+- [PREDRIVE-ENCRYPTION-QUICKSTART.md](PREDRIVE-ENCRYPTION-QUICKSTART.md) - User guide for encryption
 - [API-REFERENCE.md](API-REFERENCE.md) - Complete API documentation
 - [PRESUITE.md](PRESUITE.md) - PreSuite Hub (identity provider)
 - [PREMAIL.md](PREMAIL.md) - PreMail email service
