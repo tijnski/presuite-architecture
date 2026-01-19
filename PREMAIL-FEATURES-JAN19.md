@@ -2,7 +2,10 @@
 
 ## Summary
 
-Implemented 6 major features for PreMail email client, all deployed and running at https://premail.site.
+Implemented 7 major features for PreMail email client, all deployed and running at https://premail.site.
+
+**Build:** `index-DGDhZjJY.js` (1,398.68 kB)
+**Deployed:** January 19, 2026
 
 ---
 
@@ -105,6 +108,20 @@ Implemented 6 major features for PreMail email client, all deployed and running 
 
 ---
 
+### 7. Settings Navigation Fix
+**Status:** ✅ Complete
+
+- Header Settings button now navigates directly to `/settings`
+- Sidebar Settings button navigates directly instead of opening dropdown
+- Removed confusing user menu dropdown
+- Added separate Sign out button in sidebar
+- Cleaner, more intuitive UX
+
+**Files Modified:**
+- `apps/web/src/layouts/AppLayout.tsx` - Fixed Settings button onClick handlers, removed `userMenuOpen` state, added direct navigation
+
+---
+
 ## Technical Details
 
 ### API Endpoints Added
@@ -146,9 +163,46 @@ getAttachment(folder, messageId, attachmentId): Promise<{ content: Buffer; conte
 ## Deployment
 
 All changes deployed to production:
-- Server: `76.13.1.117`
-- URL: https://premail.site
-- Services: `premail-api`, `premail-web` (PM2)
+- **Server:** `76.13.1.117`
+- **URL:** https://premail.site
+- **Services:** `premail-api`, `premail-web` (PM2)
+
+### Deployment Process
+
+```bash
+# 1. Build locally
+cd /Users/tijnhoorneman/Documents/Documents-MacBook/presearch/premail
+pnpm build
+
+# 2. Sync source files to server
+rsync -avz --exclude 'node_modules' --exclude '.git' \
+  apps/ root@76.13.1.117:/opt/premail/apps/
+rsync -avz --exclude 'node_modules' --exclude '.git' \
+  packages/ root@76.13.1.117:/opt/premail/packages/
+
+# 3. Sync dist files
+rsync -avz apps/web/dist/ root@76.13.1.117:/opt/premail/apps/web/dist/
+rsync -avz apps/api/dist/ root@76.13.1.117:/opt/premail/apps/api/dist/
+
+# 4. Restart services
+ssh root@76.13.1.117 "pm2 restart premail-api premail-web"
+```
+
+### Build Output
+
+```
+dist/assets/index-FAEqAKzs.css    101.66 kB
+dist/assets/index-DGDhZjJY.js   1,398.68 kB
+✓ built in 15.46s
+```
+
+### Git Commit
+
+```
+commit: PreMail features: signatures, templates, vacation, settings nav fix
+branch: main
+repo: premail
+```
 
 ---
 
@@ -157,3 +211,15 @@ All changes deployed to production:
 - Vacation auto-reply UI is complete but actual auto-reply requires Stalwart SIEVE script configuration
 - All settings stored in localStorage for simplicity (could be migrated to server-side storage)
 - Attachment preview uses authenticated fetch with blob URLs for security
+
+---
+
+## Future Improvements
+
+- [ ] Server-side SIEVE script for vacation auto-reply
+- [ ] Migrate settings from localStorage to server-side storage (user preferences API)
+- [ ] Rich text (HTML) signature editor
+- [ ] Template categories/folders
+- [ ] Import/export templates
+- [ ] Attachment drag-and-drop in compose
+- [ ] Contact address book (beyond sent emails)
