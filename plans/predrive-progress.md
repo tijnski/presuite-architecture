@@ -49,15 +49,39 @@ WebSocket-based real-time updates for folder synchronization across browser wind
 
 ---
 
-## Planned Features
+### BYOK Encryption - Phase 1 Complete ✅
+**Date:** January 19, 2026
 
-### Bring Your Own Encryption Key (BYOK)
-**Status:** Planning
-**Priority:** High
+Implemented client-side encryption foundation using Web Crypto API.
 
-Client-side encryption allowing users to encrypt files with their own keys before upload.
+**New Files (`apps/web/src/lib/crypto/`):**
+- `utils.ts` - Cryptographic utilities (SHA-256, random bytes, hex/base64 conversion)
+- `keys.ts` - Key derivation from passphrase (PBKDF2) and Web3 wallet (HKDF)
+- `encrypt.ts` - File encryption with AES-256-GCM
+- `decrypt.ts` - File decryption with checksum verification
+- `types.ts` - TypeScript interfaces for encryption
+- `index.ts` - Public API with documentation
+
+**Security Features:**
+- ✅ AES-256-GCM authenticated encryption
+- ✅ PBKDF2-SHA256 key derivation (310,000 iterations)
+- ✅ Web3 wallet key derivation via HKDF
+- ✅ Per-file DEKs wrapped with user KEK (AES-KW)
+- ✅ Passphrase strength checker
+- ✅ Checksum verification on decrypt
+
+**Remaining Phases:**
+- Phase 2: Database schema & API endpoints
+- Phase 3: Key management UI
+- Phase 4: Upload integration
+- Phase 5: Download/preview integration
+- Phase 6: Polish (streaming, sharing encrypted files)
 
 See: [BYOK Implementation Plan](./predrive-byok-plan.md)
+
+---
+
+## Planned Features
 
 ---
 
