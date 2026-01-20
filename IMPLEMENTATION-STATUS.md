@@ -622,10 +622,10 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 - [x] Email Aliases ✅ (Jan 20 - per-account aliases with stats)
 
 #### PreDrive Features
-- [ ] Real-time Collaboration
-- [ ] Comments system
+- [x] Real-time Collaboration ✅ (Jan 20 - presence, cursors, locking)
+- [x] Comments system ✅ (Jan 20 - threads, reactions, mentions)
 - [x] Activity Feed ✅
-- [ ] Advanced Sharing (granular permissions)
+- [x] Advanced Sharing ✅ (Jan 20 - granular permissions, invitations, access logs)
 - [ ] Offline Mode
 - [ ] Mobile App
 
