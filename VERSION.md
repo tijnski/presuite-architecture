@@ -2,14 +2,24 @@
 
 This document tracks the implementation status and versions of all PreSuite services.
 
-## Current Version: 2.1.1
+## Current Version: 2.2.0
 
 **Release Date:** January 20, 2026
-**Major Changes:** Documentation Restructure, Design System Consolidation
+**Major Changes:** PreDrive Web3 Encryption v2
 
 ---
 
 ## Architecture Version History
+
+### v2.2.0 (January 20, 2026) - PreDrive Web3 Encryption v2
+- **EIP-712 typed data signing** - Human-readable wallet signing requests
+- **Signature normalization (EIP-2)** - Low-s form enforcement for cross-wallet compatibility
+- **Random per-KEK salts** - 32-byte random salt per encryption key
+- **Chain ID binding** - Domain separation prevents cross-chain replay
+- **Determinism verification** - Validates wallet produces consistent signatures
+- **Backward compatibility** - Existing v1 keys continue to work
+- Database migration: Added `chain_id`, `key_salt`, `key_version` columns
+- See [architecture/PREDRIVE-ENCRYPTION-V2.md](architecture/PREDRIVE-ENCRYPTION-V2.md)
 
 ### v2.1.1 (January 20, 2026) - Documentation Restructure
 - **Consolidated Design System** - 5 design files merged into DESIGN-SYSTEM.md
@@ -74,11 +84,13 @@ This document tracks the implementation status and versions of all PreSuite serv
 | Auth | 2.0.0 | ✅ Live |
 | Storage API | 1.0.0 | ✅ Live |
 | WebDAV | 1.0.0 | ✅ Live |
+| Encryption | 2.0.0 | ✅ Live |
 
 **Implementation Completed:**
 - [x] Auth routes added (/api/auth/*)
 - [x] Routes forward to PreSuite Hub
 - [x] JWT verification using shared secret
+- [x] Web3 Encryption v2 (EIP-712, signature normalization, random salts)
 
 ### PreOffice (preoffice.site)
 | Component | Version | Status |
@@ -159,6 +171,17 @@ If v2.0.0 fails:
 ---
 
 ## Change Log
+
+### 2026-01-20 (v2.2.0 - PreDrive Web3 Encryption v2)
+- Implemented EIP-712 typed data signing for wallet-based encryption keys
+- Added signature normalization (EIP-2 low-s form)
+- Added random 32-byte per-KEK salts for defense-in-depth
+- Added chain ID domain separation
+- Added determinism verification step
+- Database migration: `chain_id`, `key_salt`, `key_version` columns
+- UI updates: version selector, chain display, version badges
+- Full backward compatibility with v1 keys
+- Deployed and tested on predrive.eu
 
 ### 2026-01-20 (v2.1.1 - Documentation Restructure)
 - Consolidated 5 design system files into single DESIGN-SYSTEM.md

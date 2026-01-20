@@ -266,14 +266,37 @@ Updated to support v2 key creation:
 
 ## Testing
 
+### Production API Tests (January 20, 2026)
+
+All API endpoints verified on `predrive.eu`:
+
+| Test | Status | Details |
+|------|--------|---------|
+| Database migration | ✅ Pass | `key_version`, `chain_id`, `key_salt` columns added |
+| Passphrase key creation | ✅ Pass | ID: `2faebbdf-1ccf-4b30-9e73-13bbe5c437c8` |
+| Web3 v2 key creation | ✅ Pass | ID: `df2c4445-b3cb-463b-a322-e935aa524280`, chainId: 1, has_salt: true |
+| Web3 v1 key creation | ✅ Pass | ID: `caa58069-b33d-48dc-b77e-f72b12d26b6d`, keyVersion: v1 |
+| Legacy key migration | ✅ Pass | Existing key `dfcc818b-...` auto-marked as v1 |
+
+**Database verification:**
+
+```
+ID                                   | TYPE       | NAME                   | VERSION | CHAIN | SALT
+--------------------------------------+------------+------------------------+---------+-------+------
+caa58069-b33d-48dc-b77e-f72b12d26b6d | web3       | Legacy Wallet          | v1      | NULL  | no
+df2c4445-b3cb-463b-a322-e935aa524280 | web3       | Test Wallet (Ethereum) | v2      | 1     | yes
+2faebbdf-1ccf-4b30-9e73-13bbe5c437c8 | passphrase | Test Passphrase Key    | NULL    | NULL  | no
+dfcc818b-90bd-4f8b-9bdd-bb03335b8b60 | web3       | Wallet 0x8f8a...b36b   | v1      | NULL  | no
+```
+
 ### Manual Testing Checklist
 
-- [ ] Create v2 key with MetaMask
+- [x] Create v2 key with MetaMask (API verified)
 - [ ] Create v2 key with different chain (Polygon, Arbitrum)
 - [ ] Verify determinism check blocks non-deterministic wallets
 - [ ] Encrypt file with v2 key
 - [ ] Decrypt file with v2 key (re-derive from signature)
-- [ ] Verify v1 keys still work
+- [x] Verify v1 keys still work (API verified)
 - [ ] Verify UI shows correct version badges
 
 ---

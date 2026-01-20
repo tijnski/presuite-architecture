@@ -58,6 +58,7 @@
 - [PREMAIL.md](architecture/PREMAIL.md) - Email service architecture
 - [PREDRIVE.md](architecture/PREDRIVE.md) - Cloud storage architecture
 - [PREDRIVE-ENCRYPTION.md](architecture/PREDRIVE-ENCRYPTION.md) - BYOK encryption architecture
+- [PREDRIVE-ENCRYPTION-V2.md](architecture/PREDRIVE-ENCRYPTION-V2.md) - Web3 Encryption v2 (EIP-712)
 - [PREOFFICE.md](architecture/PREOFFICE.md) - Document editing (WOPI/Collabora)
 - [INFRASTRUCTURE.md](architecture/INFRASTRUCTURE.md) - Server layout and Docker
 - [DATA-FLOWS.md](architecture/DATA-FLOWS.md) - Email and collaboration flows
@@ -169,7 +170,7 @@
 |----------|-------|-------------|
 | Core docs | 6 | README, CLAUDE, INDEX, USER-GUIDE, VERSION, THIRD-PARTY-LICENSES |
 | Service docs | 5 | PRESUITE, PREDRIVE, PREMAIL, PREOFFICE, PRESOCIAL |
-| Architecture | 10 | architecture/ directory (includes PREDRIVE-ENCRYPTION) |
+| Architecture | 11 | architecture/ directory (includes PREDRIVE-ENCRYPTION v1 & v2) |
 | User guides | 1 | PREDRIVE-ENCRYPTION-QUICKSTART |
 | Integration | 2 | API-REFERENCE, INTEGRATION |
 | UI docs | 1 | DESIGN-SYSTEM |

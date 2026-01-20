@@ -826,7 +826,8 @@ docker compose exec postgres psql -U postgres -c "ALTER USER predrive PASSWORD '
 - [x] Web3 wallet support (infrastructure)
 
 - [x] BYOK client-side encryption
-- [x] Web3 wallet encryption keys
+- [x] Web3 wallet encryption keys (v1 legacy + v2 enhanced)
+- [x] Web3 Encryption v2 (EIP-712, signature normalization, random salts)
 - [x] Real-time collaboration (WebSocket)
 
 ### Known Limitations
@@ -840,6 +841,7 @@ docker compose exec postgres psql -U postgres -c "ALTER USER predrive PASSWORD '
 ## Related Documentation
 
 - [architecture/PREDRIVE-ENCRYPTION.md](architecture/PREDRIVE-ENCRYPTION.md) - BYOK encryption architecture
+- [architecture/PREDRIVE-ENCRYPTION-V2.md](architecture/PREDRIVE-ENCRYPTION-V2.md) - Web3 Encryption v2 (EIP-712, signature normalization)
 - [PREDRIVE-ENCRYPTION-QUICKSTART.md](PREDRIVE-ENCRYPTION-QUICKSTART.md) - User guide for encryption
 - [API-REFERENCE.md](API-REFERENCE.md) - Complete API documentation
 - [PRESUITE.md](PRESUITE.md) - PreSuite Hub (identity provider)
@@ -848,4 +850,4 @@ docker compose exec postgres psql -U postgres -c "ALTER USER predrive PASSWORD '
 
 ---
 
-*Last updated: January 17, 2026*
+*Last updated: January 20, 2026*
