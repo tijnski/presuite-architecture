@@ -69,6 +69,29 @@ All changes deployed to production:
 
 ---
 
+## Unread Email Preview Widget
+
+### Feature
+Added a new widget to the dashboard that shows the latest unread emails, giving users a quick preview without opening PreMail.
+
+### Changes
+- Added `getUnreadEmails()` function to `preMailService.js`
+- Changed bottom section from 2-column to 3-column layout
+- New widget displays:
+  - Sender avatar (first letter of name)
+  - Sender name
+  - Subject line (truncated)
+  - Time received
+  - Badge showing total unread count
+  - Empty state when no unread emails
+
+### Layout (3 columns)
+1. **Recent Files** - Latest PreDrive files
+2. **Unread Emails** - Latest 3 unread emails (NEW)
+3. **Storage + PRE Balance** - Usage stats
+
+---
+
 ## Git Commits
 
 1. `df7eda7` - Remove 'All systems verified' UI element from launchpad
@@ -77,3 +100,4 @@ All changes deployed to production:
 4. `3d23264` - Make search bar same width as app grid
 5. `3c6bc76` - Fix search bar to span all 10 grid columns
 6. `8666f5a` - Remove max-w-xl constraint from SearchBar component
+7. `10b642a` - Add unread email preview widget to dashboard
