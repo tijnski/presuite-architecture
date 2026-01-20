@@ -124,19 +124,26 @@ Full dashboard customization allowing users to personalize their PreSuite Hub ex
 
 | Feature | Description | Status |
 |---------|-------------|--------|
-| Pinnable Apps | Reorder apps with up/down buttons | ✅ Complete |
+| Drag-and-Drop Reordering | Drag apps by grip handle to reorder | ✅ Complete |
 | App Visibility | Show/hide apps from dashboard | ✅ Complete |
 | Widget Toggles | Toggle Recent Files and Unread Emails widgets | ✅ Complete |
 | Custom Shortcuts | Add up to 5 shortcuts (folder, label, document, URL) | ✅ Complete |
 | Persistence | Settings saved to localStorage | ✅ Complete |
 | Dynamic Grid | Grid adjusts based on visible app count | ✅ Complete |
+| Real-time Updates | Dashboard updates instantly without closing settings | ✅ Complete |
 
 ### Files Modified
 
 | File | Changes |
 |------|---------|
-| `Settings.jsx` | Added Dashboard section with DashboardAppsManager and ShortcutsManager components |
-| `PreSuiteLaunchpad.jsx` | Applied app ordering, widget visibility, and shortcuts rendering |
+| `Settings.jsx` | Dashboard section with drag-and-drop DashboardAppsManager, ShortcutsManager, onSettingsChange callback |
+| `PreSuiteLaunchpad.jsx` | Real-time settings sync via handleSettingsChange, app ordering, widget visibility, shortcuts rendering |
+
+### UX Improvements (Jan 20 Update)
+- **Drag-and-drop**: HTML5 drag API replaces up/down buttons for intuitive reordering
+- **Visual feedback**: Drop target highlights in blue, dragged item shows reduced opacity
+- **Real-time sync**: All dashboard changes reflect immediately while settings panel is open
+- **No refresh needed**: Widget toggles, app visibility, and shortcuts update the dashboard live
 
 ### Data Structure
 
