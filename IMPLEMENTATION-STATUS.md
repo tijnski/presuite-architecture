@@ -115,6 +115,53 @@
 
 ---
 
+## Session Sync (Completed Jan 20, 2026)
+
+### Overview
+Cross-tab and cross-service logout synchronization. When a user logs out from any service, they are logged out from all services.
+
+### Components Implemented
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| BroadcastChannel | `presuite/src/services/authService.js` | Same-origin cross-tab logout sync |
+| Storage Event | All services | Cross-origin logout detection |
+| `/api/auth/check-session` | `presuite/server.js` | Session revocation check endpoint |
+| Periodic Session Check | PreMail, PreDrive | Every 30 seconds validates session |
+
+### How It Works
+
+1. **Same-origin (PreSuite Hub tabs)**: Uses `BroadcastChannel` API to instantly notify other tabs
+2. **Cross-origin detection**: All services listen for `storage` events on `presuite_token` key
+3. **Session validation**: Services periodically call `/api/auth/check-session` to verify:
+   - JWT signature is valid
+   - Session exists in database (not revoked)
+   - User account is not disabled
+
+### API Endpoint
+
+```
+GET /api/auth/check-session
+Authorization: Bearer {token}
+
+Response:
+{ valid: true, user: {...} }
+or
+{ valid: false, reason: "session_revoked" | "user_disabled" | "invalid_token" }
+```
+
+### Files Modified
+
+| Service | File | Changes |
+|---------|------|---------|
+| PreSuite Hub | `server.js` | Added `/api/auth/check-session` endpoint |
+| PreSuite Hub | `authService.js` | Added BroadcastChannel, storage listener, `initSessionSync()` |
+| PreSuite Hub | `PreSuiteLaunchpad.jsx` | Initialize session sync on mount |
+| PreMail | `store/auth.ts` | Added periodic check, storage listener, `initSessionSync()` |
+| PreDrive | `hooks/useAuth.ts` | Added periodic check, storage listener |
+
+---
+
 ## Dashboard Customization (Completed Jan 20, 2026)
 
 ### Overview
@@ -303,7 +350,7 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 | Web3 SSO Full Flow | MetaMask signature-based login | ✅ Done (Jan 17) |
 | web3.premail.site Domain | DNS + Stalwart configuration | ✅ Done (Jan 17) |
 | PreDrive Web3 Claims | `wallet_address`, `is_web3` in auth context | ✅ Done (Jan 17) |
-| Session Sync | Logout from one service logs out all | Pending |
+| Session Sync | Logout from one service logs out all | ✅ Done (Jan 20) |
 | PKCE | Enhanced security for public clients | Pending |
 | MFA | Multi-factor authentication option | Pending |
 
