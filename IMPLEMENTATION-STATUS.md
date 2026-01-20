@@ -461,6 +461,7 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 | web3.premail.site Domain | DNS + Stalwart configuration | ✅ Done (Jan 17) |
 | PreDrive Web3 Claims | `wallet_address`, `is_web3` in auth context | ✅ Done (Jan 17) |
 | Session Sync | Logout from one service logs out all | ✅ Done (Jan 20) |
+| Redis Auth Code Storage | Persist OAuth codes across restarts | ✅ Done (Jan 20) |
 | PKCE | Enhanced security for public clients | Pending |
 | MFA | Multi-factor authentication option | Pending |
 
