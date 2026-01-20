@@ -1,7 +1,7 @@
 # PreSuite Documentation Index
 
 > **Navigation hub for all PreSuite architecture documentation**
-> Last Updated: January 19, 2026
+> Last Updated: January 20, 2026
 
 ---
 
@@ -80,8 +80,9 @@
 
 | File | Purpose |
 |------|---------|
-| [UIimplement.md](UIimplement.md) | Master design system, colors, typography, components |
-| [UIPatterns-PresearchWeb.md](UIPatterns-PresearchWeb.md) | Presearch web UI patterns (dark glass theme) |
+| [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) | Unified design system (colors, typography, components) |
+
+*Legacy design files archived in `archive/design-system-legacy/`*
 
 ---
 
@@ -149,8 +150,7 @@
 4. Service doc for your area (e.g., [PREDRIVE.md](PREDRIVE.md))
 
 ### For UI/Frontend Work
-1. [UIimplement.md](UIimplement.md) - Design system
-2. [UIPatterns-PresearchWeb.md](UIPatterns-PresearchWeb.md) - Component patterns
+1. [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) - Unified design system
 
 ### For Backend/API Work
 1. [API-REFERENCE.md](API-REFERENCE.md) - All endpoints and authentication
@@ -172,11 +172,13 @@
 | Architecture | 10 | architecture/ directory (includes PREDRIVE-ENCRYPTION) |
 | User guides | 1 | PREDRIVE-ENCRYPTION-QUICKSTART |
 | Integration | 2 | API-REFERENCE, INTEGRATION |
-| UI docs | 2 | UIimplement, UIPatterns-PresearchWeb |
+| UI docs | 1 | DESIGN-SYSTEM |
 | Operations | 4 | DEPLOYMENT, DEPLOYMENT-SUMMARY, MONITORING, TESTING |
 | Config | 2 | config/STORJ-SETUP.md, config/POSTAL-SETUP.md |
-| Other | 3 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS, DEBUG-PREMAIL-WIDGET |
-| **Total Markdown** | **36** | |
+| Plans | 5+ | plans/ directory (progress tracking) |
+| Changelogs | 1+ | changelogs/ directory |
+| Other | 3 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS |
+| **Active Total** | **~40** | Excluding archived files |
 
 ---
 

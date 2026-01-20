@@ -102,8 +102,7 @@ presuite/
 |---------|-------|
 | Algorithm | HS256 |
 | Issuer | `presuite` |
-| Access Token Expiry | 15 minutes |
-| Refresh Token Expiry | 30 days |
+| Token Expiry | 7 days |
 
 ### Password Requirements
 

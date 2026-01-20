@@ -75,8 +75,7 @@ ARC/
 │   └── INTEGRATION.md          # Cross-service integration
 │
 ├── UI/UX
-│   ├── UIimplement.md          # Design system
-│   └── UIPatterns-PresearchWeb.md  # Dark Glass theme
+│   └── DESIGN-SYSTEM.md        # Unified design system
 │
 ├── Operations
 │   ├── DEPLOYMENT.md           # Deployment guide
@@ -84,12 +83,15 @@ ARC/
 │   ├── MONITORING-INFRASTRUCTURE.md
 │   └── TESTING-INFRASTRUCTURE.md
 │
-├── IMPLEMENTATION-STATUS.md    # Task tracking (~90% complete)
+├── IMPLEMENTATION-STATUS.md    # Task tracking (~92% complete)
 │
 ├── config/                     # Environment templates
 ├── scripts/                    # Deployment & operations
 ├── monitoring/                 # Logging, metrics, alerting
-└── e2e-tests/                  # Playwright E2E tests
+├── e2e-tests/                  # Playwright E2E tests
+├── plans/                      # Active implementation plans
+├── changelogs/                 # Service changelogs
+└── archive/                    # Archived/historical docs
 ```
 
 ---

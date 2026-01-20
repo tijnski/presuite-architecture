@@ -78,7 +78,7 @@ Create a new user account.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `email` | string | Yes | Email or username (username becomes user@premail.site) |
-| `password` | string | Yes | Minimum 8 characters |
+| `password` | string | Yes | Minimum 12 characters |
 | `name` | string | Yes | Display name |
 | `source` | string | No | Originating service: `presuite`, `premail`, `predrive`, `preoffice` |
 

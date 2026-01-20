@@ -33,8 +33,7 @@ premail/
 │   ├── db/           # Drizzle ORM + PostgreSQL schema
 │   ├── shared/       # Shared utilities and validators
 │   ├── postal/       # Postal mail server client
-│   ├── search/       # Typesense search client
-│   └── email-engine/ # Legacy EmailEngine integration (deprecated)
+│   └── search/       # Typesense search client
 ├── docker/           # Docker Compose configuration
 └── .env              # Environment configuration
 ```
@@ -505,10 +504,6 @@ REDIS_URL=redis://localhost:6379
 # =============================================================================
 # EMAIL SERVICES
 # =============================================================================
-
-# EmailEngine API (legacy)
-EMAIL_ENGINE_URL=http://localhost:3000
-EMAIL_ENGINE_ACCESS_TOKEN=your-token
 
 # Stalwart Mail Server (IMAP reading)
 STALWART_HOST=mail.premail.site

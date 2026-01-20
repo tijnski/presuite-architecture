@@ -350,8 +350,8 @@ location = /oauth/callback {
 
 ### Token Security
 - JWT tokens signed with HS256
-- Tokens expire after 1 hour
-- Refresh tokens not yet implemented (future enhancement)
+- Tokens expire after 7 days (configurable via `JWT_EXPIRES_IN`)
+- Session sync for coordinated logout planned
 
 ### Client Secrets
 - Stored in environment variables in production

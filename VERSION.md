@@ -2,14 +2,20 @@
 
 This document tracks the implementation status and versions of all PreSuite services.
 
-## Current Version: 2.1.0
+## Current Version: 2.1.1
 
-**Release Date:** January 17, 2026
-**Major Changes:** Web3 Wallet Authentication, PreSocial Integration
+**Release Date:** January 20, 2026
+**Major Changes:** Documentation Restructure, Design System Consolidation
 
 ---
 
 ## Architecture Version History
+
+### v2.1.1 (January 20, 2026) - Documentation Restructure
+- **Consolidated Design System** - 5 design files merged into DESIGN-SYSTEM.md
+- **Archived legacy files** - Moved outdated files to archive/ directory
+- **Updated INDEX.md** - Improved navigation and file statistics
+- **Documentation cleanup** - Removed stale references and redundancies
 
 ### v2.1.0 (January 17, 2026) - Web3 & PreSocial
 - **Web3 Wallet Authentication** - MetaMask login support
@@ -154,6 +160,13 @@ If v2.0.0 fails:
 
 ## Change Log
 
+### 2026-01-20 (v2.1.1 - Documentation Restructure)
+- Consolidated 5 design system files into single DESIGN-SYSTEM.md
+- Archived legacy design files to archive/design-system-legacy/
+- Updated INDEX.md with new file structure
+- Cleaned up redundant documentation
+- Fixed stale file references
+
 ### 2026-01-17 (v2.1.0 - Web3 & PreSocial)
 - Added Web3 wallet authentication (MetaMask)
 - Added wallet_address and is_web3 JWT claims
@@ -191,4 +204,4 @@ If v2.0.0 fails:
 
 ---
 
-*Last Updated: January 17, 2026*
+*Last Updated: January 20, 2026*

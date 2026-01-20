@@ -447,7 +447,7 @@ interface JWTPayload {
 
 ### Password Requirements
 
-- Length: 8-128 characters
+- Length: 12-128 characters
 - Must contain: uppercase, lowercase, number, special character
 - Hashing: bcryptjs with 10 salt rounds
 

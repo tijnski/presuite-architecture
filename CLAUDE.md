@@ -407,14 +407,14 @@ AUTH_API_URL=https://presuite.eu/api/auth
 **Dark Background:** `#1E1E1E`
 **Dark Surface:** `#323232` (Mine Shaft)
 
-### presearch-web Colors (for reference)
-**Primary:** `#3591FC` / `#2D8EFF`
-**Dark Glass BG:** `rgba(13, 15, 18, 0.55)`
-**Toggle Active:** `#2266ff`
-**Dark-900:** `#191919`
-**Dark-800:** `#1e1e1e`
+### presearch-web Colors (from DESIGN-SYSTEM.md)
+**Primary Brand:** `#2D8EFF` (presearch-default)
+**Buttons/CTAs:** `#127FFF` (presearch-alternative)
+**UI Accents:** `#3591FC` (primary-500)
+**Dark Background:** `#191919`
+**Dark Surface:** `#2E2E2E`
 
-> Note: Use official Presearch colors (`#0190FF`) for PreSuite services. See `UIPatterns-PresearchWeb.md` for complete presearch-web patterns.
+> See [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) for complete design specifications.
 
 ---
 
@@ -514,8 +514,7 @@ ARC/
 │   └── SECURITY.md             # Security layers
 │
 ├── UI/UX
-│   ├── UIimplement.md          # Design system
-│   └── UIPatterns-PresearchWeb.md  # Dark Glass theme
+│   └── DESIGN-SYSTEM.md        # Unified design system
 │
 ├── Operations
 │   ├── DEPLOYMENT.md           # Deployment guide
@@ -524,14 +523,19 @@ ARC/
 │   └── TESTING-INFRASTRUCTURE.md
 │
 ├── Status
-│   ├── IMPLEMENTATION-STATUS.md  # Task tracking (~90%)
+│   ├── IMPLEMENTATION-STATUS.md  # Task tracking (~92%)
 │   └── VERSION.md              # Version history
 │
-└── Infrastructure
-    ├── config/                 # env.template, sso.config.ts
-    ├── scripts/                # deploy, health, sync
-    ├── monitoring/             # logging, metrics, alerting
-    └── e2e-tests/              # Playwright tests
+├── Infrastructure
+│   ├── config/                 # env.template, sso.config.ts
+│   ├── scripts/                # deploy, health, sync
+│   ├── monitoring/             # logging, metrics, alerting
+│   └── e2e-tests/              # Playwright tests
+│
+└── archive/                    # Archived/historical docs
+    ├── design-system-legacy/   # Old design files
+    ├── completed-plans/        # Completed implementation plans
+    └── progress-history/       # Historical progress tracking
 ```
 
 ---
@@ -600,7 +604,6 @@ ssh root@<server> "openssl s_client -connect <domain>:443 -servername <domain>"
 |----------|---------|
 | **[INDEX.md](INDEX.md)** | Navigation hub - start here |
 | [API-REFERENCE.md](API-REFERENCE.md) | Complete API documentation |
-| [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) | Task tracking (~90% complete) |
+| [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) | Task tracking (~92% complete) |
 | [architecture/](architecture/README.md) | System architecture diagrams |
-| [UIimplement.md](UIimplement.md) | Design system |
-| [UIPatterns-PresearchWeb.md](UIPatterns-PresearchWeb.md) | Dark Glass theme patterns |
+| [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) | Unified design system |
