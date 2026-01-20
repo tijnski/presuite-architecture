@@ -15,7 +15,7 @@
 | PreMail | 14/14 | 0 | ✅ 100% |
 | PreDrive | 8/8 | 0 | ✅ 100% |
 | PreOffice | 5/6 | 1 | 🟡 83% |
-| PreSocial | 7/8 | 1 | 🟡 88% |
+| PreSocial | 8/8 | 0 | ✅ 100% |
 | Monitoring | 5/5 | 0 | ✅ 100% |
 | Testing | 2/5 | 3 | 🔴 40% |
 
@@ -78,12 +78,13 @@
 | ID | Task | Status |
 |----|------|--------|
 | PS-001 | Lemmy Integration | ✅ Done |
-| PS-002 | Persistent Storage (votes, bookmarks) | ✅ Done |
+| PS-002 | Persistent Storage (votes, bookmarks, profiles) | ✅ Done |
 | PS-003 | Community Listing | ✅ Done |
 | PS-004 | Post Viewing | ✅ Done |
 | PS-005 | Comment System | ✅ Done |
 | PS-006 | Web3 Wallet Authentication | ✅ Done |
 | PS-007 | Voting System | ✅ Done |
+| PS-008 | User Profiles Page | ✅ Done (Jan 20) |
 
 ### Cross-Service
 | ID | Task | Status |
@@ -387,6 +388,56 @@ CREATE TABLE email_verification_tokens (
 
 ---
 
+## PreSocial User Profiles (Completed Jan 20, 2026)
+
+### Overview
+User profile pages for PreSocial allowing users to view profile info, activity stats, and edit their bio.
+
+### Features Implemented
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Profile Page | View user profile at `/user/:userId` | ✅ Complete |
+| Bio Editing | Edit bio with 500 char limit (own profile only) | ✅ Complete |
+| Activity Stats | Display votes count and bookmarks count | ✅ Complete |
+| Profile Links | Links in header settings panel and mobile menu | ✅ Complete |
+| File Storage | File-based JSON storage following existing pattern | ✅ Complete |
+
+### API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/social/user/:userId` | Optional | Get profile + stats, returns `isOwnProfile` flag |
+| PATCH | `/api/social/user/profile` | Required | Update own profile (bio, avatarUrl) |
+
+### Data Storage
+
+**File:** `data/profiles.json`
+
+```json
+{
+  "user-uuid": {
+    "bio": "User bio text",
+    "avatarUrl": "https://...",
+    "updatedAt": "2026-01-20T..."
+  }
+}
+```
+
+### Files Modified/Created
+
+**Backend:**
+- `apps/api/src/services/storage.ts` - Added `UserProfile`, `UserStats` interfaces and profile functions
+- `apps/api/src/api/routes/social.ts` - Added GET/PATCH profile endpoints
+
+**Frontend:**
+- `apps/web/src/pages/ProfilePage.jsx` - New profile page component
+- `apps/web/src/App.jsx` - Added `/user/:userId` route
+- `apps/web/src/services/preSocialService.js` - Added `getUserProfile()`, `updateProfile()`
+- `apps/web/src/components/Header.jsx` - Added "View Profile" links
+
+---
+
 ## Web3 SSO Implementation (Completed Jan 17, 2026)
 
 ### Overview
@@ -566,7 +617,7 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 - [ ] Enhanced Print Preview
 
 #### PreSocial Features
-- [ ] User profiles page
+- [x] User profiles page ✅ (Jan 20 - bio editing, activity stats)
 - [x] Comment posting ✅
 - [x] Post voting ✅
 - [x] Bookmarking ✅
@@ -624,8 +675,9 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 | PreDrive WebDAV | `PreDrive/packages/webdav/src/` |
 | PreOffice WOPI | `preoffice/presearch/online/wopi-server/src/index.js` |
 | PreOffice AI | `preoffice/presearch/online/wopi-server/src/index.js` (AI routes) |
-| PreSocial API | `PreSocial/src/routes/*.ts` |
-| PreSocial Storage | `PreSocial/src/services/storage.ts` |
+| PreSocial API | `PreSocial/apps/api/src/api/routes/social.ts` |
+| PreSocial Storage | `PreSocial/apps/api/src/services/storage.ts` |
+| PreSocial Profile Page | `PreSocial/apps/web/src/pages/ProfilePage.jsx` |
 
 ---
 
@@ -635,7 +687,7 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 2. **Medium:** Add integration tests for cross-service flows
 3. **Medium:** Implement RSA signature verification for Postal webhooks
 4. **Medium:** PreOffice cloud upload to PreDrive
-5. **Low:** PreSocial user profiles page
+5. **Low:** PreSocial community creation & moderation tools
 6. **Future:** Real-time collaboration features
 
 ---
