@@ -6,7 +6,9 @@ PreOffice is a web-based document editing service powered by Collabora Online (L
 
 **Production URL:** https://preoffice.site
 **Server:** `ssh root@76.13.2.220` → `/opt/preoffice`
-**GitHub Repository:** https://github.com/tijnski/preoffice
+**GitHub Repositories:**
+- Web: https://github.com/tijnski/preoffice-web (deployed to server)
+- Desktop: https://github.com/tijnski/preoffice-desktop (LibreOffice-based)
 
 ---
 
@@ -617,4 +619,4 @@ docker compose restart nginx
 
 ---
 
-*Last updated: January 17, 2026*
+*Last updated: January 20, 2026*

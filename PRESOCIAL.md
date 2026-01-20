@@ -592,13 +592,13 @@ class LemmyService {
 ## Related Documents
 
 - [PreSuite Architecture](PRESUITE.md)
-- [UI Patterns](UIPatterns-PresearchWeb.md)
+- [Design System](DESIGN-SYSTEM.md)
 - [Integration Guide](INTEGRATION.md)
 - [API Reference](API-REFERENCE.md)
 - [Lemmy API Docs](https://join-lemmy.org/api/)
 
 ---
 
-*Last updated: January 17, 2026*
+*Last updated: January 20, 2026*
 *Status: Production - Live at https://presocial.presuite.eu*
 *Runtime: Node.js + tsx (PM2) | Development: Bun*

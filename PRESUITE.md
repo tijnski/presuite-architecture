@@ -648,4 +648,4 @@ border: 1px solid rgba(255, 255, 255, 0.1);
 
 ---
 
-*Last updated: January 17, 2026*
+*Last updated: January 20, 2026*

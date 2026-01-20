@@ -176,10 +176,10 @@
 | UI docs | 1 | DESIGN-SYSTEM |
 | Operations | 4 | DEPLOYMENT, DEPLOYMENT-SUMMARY, MONITORING, TESTING |
 | Config | 2 | config/STORJ-SETUP.md, config/POSTAL-SETUP.md |
-| Plans | 5+ | plans/ directory (progress tracking) |
-| Changelogs | 1+ | changelogs/ directory |
+| Plans | 2 | plans/ directory (active implementation plans) |
+| Changelogs | 5 | changelogs/ directory |
 | Other | 3 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS |
-| **Active Total** | **~40** | Excluding archived files |
+| **Active Total** | **~38** | Excluding archived files |
 
 ---
 

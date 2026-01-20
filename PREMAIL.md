@@ -717,12 +717,14 @@ const folderMap = {
 - **Push notifications**
 - **Attachment handling**
 - **PreDrive file integration**
+- **Email filters with visual rule builder**
+- **Contact management with groups and autocomplete**
+- **Email aliases per account**
+- **Email threading (Gmail-style)**
 
 ### Known Limitations
 - No real-time sync (pull-based)
-- No contact management/address book
 - Single @premail.site account per user (external IMAP accounts supported)
-- No email threading view (planned)
 
 ---
 
@@ -765,3 +767,7 @@ curl http://localhost:8108/health
 - [API-REFERENCE.md](API-REFERENCE.md) - Complete API documentation
 - [architecture/PREMAIL.md](architecture/PREMAIL.md) - Architecture details
 - [POSTAL_MIGRATION_PROGRESS.md](../premail/POSTAL_MIGRATION_PROGRESS.md) - Postal setup notes
+
+---
+
+*Last updated: January 20, 2026*
