@@ -45,6 +45,7 @@
 | PSH-013 | SSO Token Pass-through | ✅ Done |
 | PSH-014 | CORS for Cross-Origin Widget Requests | ✅ Done |
 | PSH-015 | Dashboard Customization (pinnable apps, widgets, shortcuts) | ✅ Done (Jan 20) |
+| PSH-016 | Email Verification (token-based, resend, banner) | ✅ Done (Jan 20) |
 
 ### PreMail (premail.site)
 | ID | Task | Status |
@@ -327,6 +328,61 @@ dashboard: {
 | label | PreMail label | Opens PreMail modal |
 | document | Document file | Opens PreDocs modal |
 | url | External URL | Opens in new tab |
+
+---
+
+## Email Verification (Completed Jan 20, 2026)
+
+### Overview
+Token-based email verification for new user registrations. New users receive a verification email after registration. Unverified users can log in but see a warning banner with restricted features until verified. Existing users are grandfathered in as verified.
+
+### Components Implemented
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| Migration | `migrations/002_email_verification.sql` | Creates `email_verification_tokens` table |
+| Email Service | `utils/email.js` | Nodemailer transport via Stalwart SMTP |
+| Rate Limiter | `middleware/rate-limiter.js` | `verificationLimiter` (1 req/min) |
+| API Endpoints | `server.js` | verify-email, resend-verification |
+| Frontend Banner | `PreSuiteLaunchpad.jsx` | Warning banner with resend button |
+
+### API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/auth/verify-email` | None | Process verification link from email |
+| POST | `/api/auth/resend-verification` | Bearer | Resend verification email (rate limited) |
+
+### Database Schema
+
+```sql
+CREATE TABLE email_verification_tokens (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(255) UNIQUE NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,  -- 24 hours from creation
+  verified_at TIMESTAMPTZ,          -- NULL until used
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### Verification Flow
+
+1. **Registration:** Token generated, hashed (SHA-256), stored in DB, email sent
+2. **Verification:** Token from URL hashed, matched against DB, user marked verified
+3. **Resend:** Old tokens deleted, new token generated, email sent (rate limited)
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `package.json` | Added nodemailer dependency |
+| `config/constants.js` | EMAIL_VERIFICATION_EXPIRY_MS, SMTP config, BASE_URL |
+| `middleware/rate-limiter.js` | Added verificationLimiter export |
+| `server.js` | Updated register, added verify-email & resend endpoints |
+| `src/services/authService.js` | Added resendVerification() function |
+| `src/components/PreSuiteLaunchpad.jsx` | Added verification banner |
+| `.env.example` | Added SMTP configuration variables |
 
 ---
 

@@ -102,6 +102,92 @@ Removed the following widgets from the dashboard:
 
 ---
 
+## Email Verification System
+
+### Feature
+New users must verify their email address after registration. Existing users are grandfathered in as verified. Unverified users can log in but see a warning banner with limited functionality.
+
+### How It Works
+
+```
+Registration Flow:
+1. User submits registration form
+2. User created with email_verified = false
+3. Verification token generated (32 bytes, hashed with SHA-256)
+4. Email sent with verification link via Stalwart SMTP
+5. User redirected to dashboard with verification banner
+
+Verification Flow:
+1. User clicks link in email
+2. GET /api/auth/verify-email?token=xxx
+3. Token validated (hash match, not expired, not used)
+4. users.email_verified = TRUE
+5. Token marked as used
+6. Redirect to login with success message
+```
+
+### Backend Changes
+
+**New Files:**
+- `migrations/002_email_verification.sql` - Creates `email_verification_tokens` table
+- `utils/email.js` - Email service with nodemailer (Stalwart SMTP)
+
+**Modified Files:**
+- `package.json` - Added nodemailer dependency
+- `config/constants.js` - Email verification constants, SMTP config
+- `middleware/rate-limiter.js` - Added `verificationLimiter` (1 req/min)
+- `server.js` - Updated register, added verify-email & resend endpoints
+
+**New API Endpoints:**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/auth/verify-email` | Process verification link from email |
+| POST | `/api/auth/resend-verification` | Resend verification email (rate limited) |
+
+**Updated Endpoints:**
+- `GET /api/auth/verify` - Now includes `email_verified` status
+- `POST /api/auth/register` - Now returns `email_verified: false` and sends verification email
+
+### Frontend Changes
+
+**Modified Files:**
+- `src/services/authService.js` - Added `resendVerification()` function
+- `src/components/PreSuiteLaunchpad.jsx` - Added verification banner with resend button
+
+**Verification Banner:**
+- Yellow warning banner shown for unverified users
+- "Resend email" button with loading state
+- Success/error feedback messages
+- Disappears automatically when email is verified
+
+### Database Schema
+
+```sql
+CREATE TABLE email_verification_tokens (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(255) UNIQUE NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  verified_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### Configuration
+
+New environment variables in `.env.example`:
+```
+SMTP_HOST=mail.premail.site
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=noreply@premail.site
+SMTP_PASS=
+VERIFICATION_EMAIL_FROM=noreply@premail.site
+BASE_URL=https://presuite.eu
+```
+
+---
+
 ## Git Commits
 
 1. `df7eda7` - Remove 'All systems verified' UI element from launchpad
@@ -112,3 +198,4 @@ Removed the following widgets from the dashboard:
 6. `8666f5a` - Remove max-w-xl constraint from SearchBar component
 7. `10b642a` - Add unread email preview widget to dashboard
 8. `ff26c33` - Remove Storage and PRE Balance widgets from dashboard
+9. `c6832d5` - Add email verification for new user registrations
