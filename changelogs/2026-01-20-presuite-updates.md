@@ -85,10 +85,20 @@ Added a new widget to the dashboard that shows the latest unread emails, giving 
   - Badge showing total unread count
   - Empty state when no unread emails
 
-### Layout (3 columns)
+### Layout
+Changed from 3-column to 2-column layout after removing Storage and PRE Balance widgets.
+
+---
+
+## Widget Removal
+
+Removed the following widgets from the dashboard:
+- **Storage Widget** - Showed storage usage (e.g., "188.1 KB / 15 GB")
+- **PRE Balance Widget** - Showed static PRE token balance
+
+### Final Layout (2 columns)
 1. **Recent Files** - Latest PreDrive files
-2. **Unread Emails** - Latest 3 unread emails (NEW)
-3. **Storage + PRE Balance** - Usage stats
+2. **Unread Emails** - Latest 3 unread emails
 
 ---
 
@@ -101,3 +111,4 @@ Added a new widget to the dashboard that shows the latest unread emails, giving 
 5. `3c6bc76` - Fix search bar to span all 10 grid columns
 6. `8666f5a` - Remove max-w-xl constraint from SearchBar component
 7. `10b642a` - Add unread email preview widget to dashboard
+8. `ff26c33` - Remove Storage and PRE Balance widgets from dashboard
