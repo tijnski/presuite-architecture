@@ -1,4 +1,4 @@
-# PreDrive Updates - January 19, 2026
+# PreDrive Updates - January 19-20, 2026
 
 ## Summary
 
@@ -100,6 +100,20 @@ Storage indicator in sidebar now updates correctly:
 
 ---
 
+### 6. Removed VerificationBanner
+
+**Commit:** `60041a7`
+
+Removed the "6 files verified / Last integrity check: Just now" banner from the main app UI:
+
+- Removed `VerificationBanner` component from App.tsx
+- Removed unused imports (`ShieldCheck`, `useVerificationStatus`, `useTriggerVerification`)
+
+**Files modified:**
+- `apps/web/src/App.tsx` - Removed VerificationBanner component and related imports
+
+---
+
 ## Deployment
 
 All changes deployed to production at `https://predrive.eu`
@@ -122,3 +136,4 @@ All changes deployed to production at `https://predrive.eu`
 - [ ] Permanently delete from trash → verify storage updates
 - [ ] Verify no "Verified" badge on file cards
 - [ ] Verify no "Network Healthy" in sidebar
+- [ ] Verify no "6 files verified / Last integrity check" banner
