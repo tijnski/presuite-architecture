@@ -12,7 +12,11 @@
     "test:oauth": "playwright test tests/oauth",
     "test:presuite": "playwright test tests/presuite",
     "test:premail": "playwright test tests/premail",
-    "test:predrive": "playwright test tests/predrive"
+    "test:predrive": "playwright test tests/predrive",
+    "test:integration": "playwright test tests/integration",
+    "test:auth": "playwright test tests/integration/auth-flow.spec.ts",
+    "test:api": "playwright test tests/integration/cross-service-api.spec.ts",
+    "test:all-services": "playwright test tests/integration tests/oauth tests/presuite tests/premail tests/predrive"
   },
   "devDependencies": {
     "@playwright/test": "^1.41.0",
