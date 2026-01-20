@@ -1,7 +1,7 @@
-# PreMail, PreDrive & PreSocial UI Update - January 20, 2026
+# PreMail, PreDrive, PreSocial & PreOffice UI Update - January 20, 2026
 
 ## Summary
-Updated PreMail, PreDrive, and PreSocial to have consistent UI with PreSuite-style settings panels, centered search bars, and profile icons in the top-right corner.
+Updated PreMail, PreDrive, PreSocial, and PreOffice to have consistent UI with PreSuite-style settings panels and profile icons in the top-right corner.
 
 ---
 
@@ -147,10 +147,50 @@ Clicking the profile icon opens a PreSuite-style settings panel with:
 
 ---
 
+## PreOffice Changes
+
+### Commits
+- `3792030` - Add PreSuite-style settings panel with profile icon
+
+### UI Updates
+
+#### Header Layout
+- Profile icon added to top-right corner (visible when logged in)
+- Sign In button shown for logged-out users
+- Logo and nav links remain on left side
+
+#### Settings Panel (Slide-out from right)
+Clicking the profile icon opens a PreSuite-style settings panel with:
+
+1. **Header** - Back button, "Settings" title, Share button
+2. **Account Section**
+   - Avatar with user initials (blue background)
+   - User name and email
+   - Sign out button
+3. **Notifications**
+   - Email alerts toggle
+   - Desktop notifications toggle
+4. **Display**
+   - Auto-save documents toggle
+5. **Appearance**
+   - Theme toggle (Light/Dark pill buttons)
+6. **Resources**
+   - Help Center (external link)
+   - Privacy Policy (external link)
+   - Terms of Service (external link)
+7. **Footer**
+   - Social icons (Twitter, Discord, Telegram)
+   - Privacy, Terms, About links
+   - Version number
+
+### Files Modified
+- `presearch/online/branding/static/index.html`
+
+---
+
 ## Design Consistency
 
-All three services (PreMail, PreDrive, PreSocial) now share:
-- Centered search bar in header
+All four services (PreMail, PreDrive, PreSocial, PreOffice) now share:
 - Profile icon in top-right corner
 - PreSuite-style slide-out settings panel
 - Same color scheme (`#212224` panel background)
@@ -160,9 +200,10 @@ All three services (PreMail, PreDrive, PreSocial) now share:
 - Same external link styling
 
 ### Service-Specific Customizations
-- **PreMail**: Blue primary (`#127FFF`), email-specific settings (sound effects, show avatars)
-- **PreDrive**: Blue primary (`#127FFF`), Quick Actions for Encryption Keys
-- **PreSocial**: Gradient avatar (purple-blue), Community Guidelines link
+- **PreMail**: Blue primary (`#127FFF`), centered search bar, email-specific settings (sound effects, show avatars)
+- **PreDrive**: Blue primary (`#127FFF`), centered search bar, Quick Actions for Encryption Keys
+- **PreSocial**: Gradient avatar (purple-blue), centered search bar, Community Guidelines link
+- **PreOffice**: Blue primary (`#127FFF`), auto-save toggle, no search bar (landing page)
 
 ---
 
@@ -170,6 +211,7 @@ All three services (PreMail, PreDrive, PreSocial) now share:
 - PreMail: https://premail.site
 - PreDrive: https://predrive.eu
 - PreSocial: https://presocial.presuite.eu
+- PreOffice: https://preoffice.site
 
 ## Deployment
 All services were deployed via:
@@ -179,3 +221,4 @@ All services were deployed via:
   - PreMail: PM2 (`pm2 restart premail-api premail-web`)
   - PreDrive: Docker Compose (`docker compose up -d --build`)
   - PreSocial: PM2 (`pm2 restart presocial-api`)
+  - PreOffice: Docker Compose (`docker compose up -d --build`)
