@@ -172,6 +172,14 @@ If v2.0.0 fails:
 
 ## Change Log
 
+### 2026-01-20 (PreSuite Hub Redis Auth Codes)
+- Added Redis support for OAuth authorization code storage
+- Auth codes now persist across server restarts
+- Automatic 10-minute TTL via Redis SETEX
+- Graceful fallback to in-memory storage if Redis unavailable
+- Added ioredis dependency and REDIS_URL environment variable
+- Deployed Redis 7.0.15 on presuite.eu server
+
 ### 2026-01-20 (v2.2.0 - PreDrive Web3 Encryption v2)
 - Implemented EIP-712 typed data signing for wallet-based encryption keys
 - Added signature normalization (EIP-2 low-s form)
