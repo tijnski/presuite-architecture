@@ -386,6 +386,27 @@ CREATE TABLE email_verification_tokens (
 | `src/components/PreSuiteLaunchpad.jsx` | Added verification banner |
 | `.env.example` | Added SMTP configuration variables |
 
+### Deployment Notes
+
+**SMTP Configuration:**
+- Uses Stalwart admin credentials (regular users don't support PLAIN auth by default)
+- TLS certificate validation disabled for self-signed certs
+- Added `session.auth.mechanisms = ["plain", "login"]` to Stalwart config
+
+**Environment Variables (production):**
+```bash
+SMTP_USER=admin
+SMTP_PASS=<stalwart-admin-password>
+```
+
+### Testing Results (Jan 20, 2026)
+- ✅ Registration creates unverified user (`email_verified: false`)
+- ✅ Verification email sent on register via Stalwart SMTP
+- ✅ `/api/auth/verify` returns `email_verified` status
+- ✅ `/api/auth/resend-verification` works with rate limiting (1/min)
+- ✅ Tokens stored with SHA-256 hash, 24hr expiry
+- ✅ Deployed to production and tested
+
 ---
 
 ## PreSocial User Profiles (Completed Jan 20, 2026)

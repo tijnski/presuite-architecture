@@ -199,3 +199,64 @@ BASE_URL=https://presuite.eu
 7. `10b642a` - Add unread email preview widget to dashboard
 8. `ff26c33` - Remove Storage and PRE Balance widgets from dashboard
 9. `c6832d5` - Add email verification for new user registrations
+10. `5b3805f` - Fix SMTP: allow self-signed certificates for Stalwart
+
+---
+
+## Email Verification Deployment Notes
+
+### SMTP Configuration Fix
+
+During deployment, email sending initially failed due to:
+
+1. **Self-signed certificate rejection** - Stalwart uses self-signed TLS certificates
+2. **Authentication failure** - Stalwart only enables PLAIN/LOGIN auth for admin users by default
+
+### Fixes Applied
+
+**1. TLS Certificate (code fix):**
+```javascript
+// utils/email.js
+tls: {
+  rejectUnauthorized: false, // Allow Stalwart's self-signed certs
+}
+```
+
+**2. Stalwart Auth Mechanisms (server config):**
+```toml
+# /opt/stalwart/etc/config.toml
+session.auth.mechanisms = ["plain", "login"]
+```
+
+**3. SMTP Credentials (environment):**
+```bash
+# Use admin credentials (regular users don't have PLAIN auth)
+SMTP_USER=admin
+SMTP_PASS=adminpass123
+```
+
+### Testing Results
+
+| Test | Status |
+|------|--------|
+| Registration creates unverified user | ✅ Pass |
+| Verification email sent on register | ✅ Pass |
+| `/api/auth/verify` includes email_verified | ✅ Pass |
+| `/api/auth/resend-verification` works | ✅ Pass |
+| Rate limiting (1 req/min) | ✅ Pass |
+| Tokens stored with SHA-256 hash | ✅ Pass |
+| 24-hour token expiry | ✅ Pass |
+
+### Production Verification
+
+```bash
+# Test registration
+curl -X POST https://presuite.eu/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@premail.site","password":"TestPass123#","name":"Test"}'
+# Returns: email_verified: false, message about checking email
+
+# Check verification status
+curl https://presuite.eu/api/auth/verify -H "Authorization: Bearer <token>"
+# Returns: email_verified: false/true
+```
