@@ -11,7 +11,7 @@
 |----------|-----------|-----------|--------|
 | Core Infrastructure | 12/12 | 0 | ✅ 100% |
 | OAuth SSO | 4/4 | 0 | ✅ 100% |
-| PreSuite Hub | 11/11 | 0 | ✅ 100% |
+| PreSuite Hub | 12/12 | 0 | ✅ 100% |
 | PreMail | 10/12 | 2 | 🟡 83% |
 | PreDrive | 8/8 | 0 | ✅ 100% |
 | PreOffice | 5/6 | 1 | 🟡 83% |
@@ -44,6 +44,7 @@
 | PSH-012 | PreGPT Chat History | ✅ Done |
 | PSH-013 | SSO Token Pass-through | ✅ Done |
 | PSH-014 | CORS for Cross-Origin Widget Requests | ✅ Done |
+| PSH-015 | Dashboard Customization (pinnable apps, widgets, shortcuts) | ✅ Done (Jan 20) |
 
 ### PreMail (premail.site)
 | ID | Task | Status |
@@ -111,6 +112,56 @@
 | TD-006 | Registration form missing special character rule | ✅ Fixed |
 | TD-007 | Display name validation rejecting numbers | ✅ Fixed |
 | TD-008 | Frontend/backend password length mismatch (8 vs 12) | ✅ Fixed |
+
+---
+
+## Dashboard Customization (Completed Jan 20, 2026)
+
+### Overview
+Full dashboard customization allowing users to personalize their PreSuite Hub experience with pinnable apps, widget toggles, and custom shortcuts.
+
+### Features Implemented
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Pinnable Apps | Reorder apps with up/down buttons | ✅ Complete |
+| App Visibility | Show/hide apps from dashboard | ✅ Complete |
+| Widget Toggles | Toggle Recent Files and Unread Emails widgets | ✅ Complete |
+| Custom Shortcuts | Add up to 5 shortcuts (folder, label, document, URL) | ✅ Complete |
+| Persistence | Settings saved to localStorage | ✅ Complete |
+| Dynamic Grid | Grid adjusts based on visible app count | ✅ Complete |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `Settings.jsx` | Added Dashboard section with DashboardAppsManager and ShortcutsManager components |
+| `PreSuiteLaunchpad.jsx` | Applied app ordering, widget visibility, and shortcuts rendering |
+
+### Data Structure
+
+```javascript
+dashboard: {
+  appOrder: [],      // Array of app names in user's preferred order
+  hiddenApps: [],    // Array of hidden app names
+  widgets: {
+    recentFiles: true,
+    unreadEmails: true,
+  },
+  shortcuts: [       // Max 5 shortcuts
+    { id, name, type, path, icon }
+  ],
+}
+```
+
+### Shortcut Types
+
+| Type | Description | Action |
+|------|-------------|--------|
+| folder | PreDrive folder | Opens PreDrive modal |
+| label | PreMail label | Opens PreMail modal |
+| document | Document file | Opens PreDocs modal |
+| url | External URL | Opens in new tab |
 
 ---
 
@@ -328,6 +379,8 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 |------|----------|
 | PRE Balance Service | `presuite/src/services/preBalanceService.js` |
 | App Modals | `presuite/src/components/AppModal.jsx` |
+| Dashboard | `presuite/src/components/PreSuiteLaunchpad.jsx` |
+| Settings Panel | `presuite/src/components/Settings.jsx` |
 | OAuth Server | `presuite/server.js` |
 | Web3 Auth | `presuite/src/services/web3Auth.js` |
 | PreMail API Routes | `premail/apps/api/src/routes/*.ts` |
