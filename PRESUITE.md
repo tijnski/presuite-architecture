@@ -349,6 +349,7 @@ VENICE_API_KEY=<api-key>
 NODE_ENV=development|production
 PORT=3001
 LOG_LEVEL=info|debug|warn|error
+REDIS_URL=redis://localhost:6379   # Auth code storage (falls back to in-memory)
 ```
 
 ---
@@ -483,7 +484,7 @@ AI chat interface:
 - [ ] Email verification for new accounts
 - [ ] Password reset email sending (endpoint exists but no email)
 - [ ] TOTP/2FA support
-- [ ] Redis for auth codes (currently in-memory)
+- [x] Redis for auth codes (optional, with in-memory fallback)
 - [ ] Audit logging table
 - [ ] Full OIDC compliance (JWKS endpoint)
 

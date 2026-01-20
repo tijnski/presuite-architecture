@@ -1,7 +1,7 @@
 # PreSuite Implementation Status
 
 > **Last Updated:** January 20, 2026
-> **Overall Progress:** ~92% Complete
+> **Overall Progress:** ~95% Complete
 
 ---
 
@@ -12,7 +12,7 @@
 | Core Infrastructure | 12/12 | 0 | ✅ 100% |
 | OAuth SSO | 4/4 | 0 | ✅ 100% |
 | PreSuite Hub | 12/12 | 0 | ✅ 100% |
-| PreMail | 10/12 | 2 | 🟡 83% |
+| PreMail | 13/14 | 1 | ✅ 93% |
 | PreDrive | 8/8 | 0 | ✅ 100% |
 | PreOffice | 5/6 | 1 | 🟡 83% |
 | PreSocial | 7/8 | 1 | 🟡 88% |
@@ -57,6 +57,9 @@
 | PM-012 | Labels/Tags System (Gmail-style) | ✅ Done |
 | PM-013 | Full-text Search (Typesense) | ✅ Done |
 | PM-014 | Rich Text Compose (TipTap) | ✅ Done |
+| PM-015 | Filters & Rules (auto-sort, label, archive) | ✅ Done (Jan 20) |
+| PM-016 | Contact Management (address book + autocomplete) | ✅ Done (Jan 20) |
+| PM-017 | Email Aliases (multiple addresses per account) | ✅ Done (Jan 20) |
 | - | PreCalendar Integration | ✅ Done |
 | - | Webhook Status Updates | ✅ Done |
 
@@ -112,6 +115,113 @@
 | TD-006 | Registration form missing special character rule | ✅ Fixed |
 | TD-007 | Display name validation rejecting numbers | ✅ Fixed |
 | TD-008 | Frontend/backend password length mismatch (8 vs 12) | ✅ Fixed |
+
+---
+
+## PreMail Filters, Contacts & Aliases (Completed Jan 20, 2026)
+
+### Overview
+Full implementation of email filters, contact management, and email aliases for PreMail. These features enable users to automatically organize incoming emails, manage their address book with autocomplete, and use multiple email addresses per account.
+
+### Database Schema
+
+| Table | Purpose |
+|-------|---------|
+| `email_filters` | Filter rules with JSON conditions/actions |
+| `contacts` | Address book entries with company, phone, notes |
+| `contact_groups` | Contact organization by groups |
+| `contact_group_members` | Junction table for group membership |
+| `email_aliases` | Multiple email addresses per account |
+
+### API Endpoints
+
+#### Filters (`/api/v1/filters`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List all filters |
+| POST | `/` | Create filter |
+| GET | `/:id` | Get filter details |
+| PATCH | `/:id` | Update filter |
+| DELETE | `/:id` | Delete filter |
+| POST | `/:id/toggle` | Enable/disable filter |
+| POST | `/reorder` | Reorder filter priorities |
+| POST | `/:id/test` | Test filter against message |
+
+#### Contacts (`/api/v1/contacts`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List contacts (search, pagination) |
+| POST | `/` | Create contact |
+| GET | `/:id` | Get contact details |
+| PATCH | `/:id` | Update contact |
+| DELETE | `/:id` | Delete contact |
+| POST | `/:id/favorite` | Toggle favorite |
+| GET | `/autocomplete` | Search for compose |
+| POST | `/import` | Bulk import contacts |
+| GET | `/groups` | List contact groups |
+| POST | `/groups` | Create group |
+| DELETE | `/groups/:id` | Delete group |
+| POST | `/groups/:id/members` | Add contact to group |
+| DELETE | `/groups/:groupId/members/:contactId` | Remove from group |
+
+#### Aliases (`/api/v1/accounts/:accountId/aliases`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List aliases for account |
+| POST | `/` | Create alias |
+| PATCH | `/:aliasId` | Update alias |
+| DELETE | `/:aliasId` | Delete alias |
+| POST | `/:aliasId/toggle` | Enable/disable alias |
+| POST | `/:aliasId/default` | Set as default send address |
+
+### Filter Conditions & Actions
+
+**Conditions:**
+- `from`, `to`, `cc`, `subject`, `body`, `has_attachment`
+- Operators: `contains`, `not_contains`, `equals`, `not_equals`, `starts_with`, `ends_with`, `matches_regex`
+- Match type: `all` (AND) or `any` (OR)
+
+**Actions:**
+- `move_to_folder` - Move to specific folder
+- `apply_label` - Apply label(s)
+- `mark_as_read` - Mark as read
+- `mark_as_starred` - Star the email
+- `archive` - Archive immediately
+- `delete` - Move to trash
+- `forward_to` - Forward to another address
+
+### Frontend Components
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| FiltersPage | `pages/FiltersPage.tsx` | Visual rule builder UI |
+| ContactsPage | `pages/ContactsPage.tsx` | Contact management with groups |
+| ContactAutocomplete | `components/ContactAutocomplete.tsx` | Compose recipient autocomplete |
+| AliasesPage | `pages/AliasesPage.tsx` | Alias management per account |
+
+### Files Modified/Created
+
+**Backend:**
+- `packages/db/src/schema/index.ts` - Database tables and enums
+- `apps/api/src/routes/filters.ts` - Filter CRUD routes
+- `apps/api/src/routes/contacts.ts` - Contact CRUD routes
+- `apps/api/src/routes/aliases.ts` - Alias CRUD routes
+- `apps/api/src/services/filterEngine.ts` - Filter processing logic
+- `apps/api/src/app.ts` - Route registration
+
+**Frontend:**
+- `apps/web/src/lib/api.ts` - API client functions
+- `apps/web/src/pages/FiltersPage.tsx` - Filters UI
+- `apps/web/src/pages/ContactsPage.tsx` - Contacts UI
+- `apps/web/src/pages/AliasesPage.tsx` - Aliases UI
+- `apps/web/src/components/ContactAutocomplete.tsx` - Autocomplete
+- `apps/web/src/layouts/AppLayout.tsx` - Navigation links
+- `apps/web/src/App.tsx` - Route registration
+
+### Migration Status
+- ✅ Database schema created
+- ✅ Migrations applied to production (Jan 20)
+- ✅ All tables verified in PostgreSQL
 
 ---
 
@@ -370,9 +480,10 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 #### PreMail Features
 - [x] Full-text email search ✅ (Typesense-based with autocomplete & filters)
 - [x] Labels/Tags system ✅ (Gmail-style with colored labels)
-- [ ] Filters & Rules
+- [x] Filters & Rules ✅ (Jan 20 - visual rule builder, auto-apply)
 - [x] Rich Text Compose editor ✅ (TipTap-based)
-- [ ] Contact Management/Address book
+- [x] Contact Management/Address book ✅ (Jan 20 - groups, autocomplete)
+- [x] Email Aliases ✅ (Jan 20 - per-account aliases with stats)
 
 #### PreDrive Features
 - [ ] Real-time Collaboration
@@ -440,6 +551,10 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 | Web3 Auth | `presuite/src/services/web3Auth.js` |
 | PreMail API Routes | `premail/apps/api/src/routes/*.ts` |
 | PreMail DB Schema | `premail/packages/db/src/schema/index.ts` |
+| PreMail Filters | `premail/apps/api/src/routes/filters.ts` |
+| PreMail Contacts | `premail/apps/api/src/routes/contacts.ts` |
+| PreMail Aliases | `premail/apps/api/src/routes/aliases.ts` |
+| PreMail Filter Engine | `premail/apps/api/src/services/filterEngine.ts` |
 | PreCalendar API | `premail/apps/api/src/routes/calendar.ts` |
 | PreDrive API | `PreDrive/apps/api/src/index.ts` |
 | PreDrive WebDAV | `PreDrive/packages/webdav/src/` |
@@ -452,8 +567,8 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 
 ## Recommended Next Steps
 
-1. **Immediate:** Test Postal server migration for PreMail
-2. **This Week:** Implement Session Sync (logout from one service logs out all)
+1. **Immediate:** Deploy PreMail updates (filters, contacts, aliases) to production
+2. **Immediate:** Test Postal server migration for PreMail
 3. **This Week:** PKCE support for OAuth
 4. **Ongoing:** Add integration tests
 5. **Ongoing:** Security audit
