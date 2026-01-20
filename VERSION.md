@@ -2,14 +2,24 @@
 
 This document tracks the implementation status and versions of all PreSuite services.
 
-## Current Version: 2.2.0
+## Current Version: 2.3.0
 
 **Release Date:** January 20, 2026
-**Major Changes:** PreDrive Web3 Encryption v2
+**Major Changes:** PreMail Filters, Contacts & Aliases
 
 ---
 
 ## Architecture Version History
+
+### v2.3.0 (January 20, 2026) - PreMail Filters, Contacts & Aliases
+- **Email Filters** - Auto-sort, auto-label, auto-archive incoming emails
+- **Contact Management** - Address book with groups and autocomplete
+- **Email Aliases** - Multiple addresses per account with usage stats
+- New database tables: `email_filters`, `contacts`, `contact_groups`, `contact_group_members`, `email_aliases`
+- Visual filter builder UI with conditions and actions
+- Contact autocomplete in email compose
+- Per-account alias management with toggle and default selection
+- See [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) for full details
 
 ### v2.2.0 (January 20, 2026) - PreDrive Web3 Encryption v2
 - **EIP-712 typed data signing** - Human-readable wallet signing requests
@@ -72,11 +82,17 @@ This document tracks the implementation status and versions of all PreSuite serv
 | Auth | 2.0.0 | ✅ Live |
 | IMAP Client | 1.0.0 | ✅ Live |
 | SMTP Client | 1.0.0 | ✅ Live |
+| Filters | 1.0.0 | ✅ Live |
+| Contacts | 1.0.0 | ✅ Live |
+| Aliases | 1.0.0 | ✅ Live |
 
 **Implementation Completed:**
 - [x] Auth routes forward to PreSuite Hub
 - [x] Local user sync for IMAP access
 - [x] Ecosystem config updated with AUTH_API_URL
+- [x] Email filters with visual rule builder (v2.3.0)
+- [x] Contact management with groups and autocomplete (v2.3.0)
+- [x] Email aliases per account with stats tracking (v2.3.0)
 
 ### PreDrive (predrive.eu)
 | Component | Version | Status |
@@ -172,6 +188,26 @@ If v2.0.0 fails:
 
 ## Change Log
 
+### 2026-01-20 (v2.3.0 - PreMail Filters, Contacts & Aliases)
+- Implemented email filters with visual rule builder
+  - Conditions: from, to, cc, subject, body, has_attachment
+  - Operators: contains, equals, starts_with, ends_with, regex
+  - Actions: move, label, archive, delete, star, mark read, forward
+  - Match types: all (AND) or any (OR)
+- Implemented contact management with address book
+  - Contact CRUD with company, phone, notes, avatar
+  - Contact groups for organization
+  - Autocomplete in email compose
+  - Favorites and search
+- Implemented email aliases per account
+  - Multiple addresses per email account
+  - Usage stats (sent/received counts)
+  - Toggle enable/disable
+  - Set default send address
+- Database: 5 new tables with indexes and foreign keys
+- Frontend: 3 new pages with sidebar navigation
+- Deployed to premail.site and tested
+
 ### 2026-01-20 (PreSuite Hub Redis Auth Codes)
 - Added Redis support for OAuth authorization code storage
 - Auth codes now persist across server restarts
@@ -235,4 +271,4 @@ If v2.0.0 fails:
 
 ---
 
-*Last Updated: January 20, 2026*
+*Last Updated: January 20, 2026 (v2.3.0)*
