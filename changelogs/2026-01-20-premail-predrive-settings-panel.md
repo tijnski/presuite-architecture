@@ -1,7 +1,7 @@
-# PreMail & PreDrive UI Update - January 20, 2026
+# PreMail, PreDrive & PreSocial UI Update - January 20, 2026
 
 ## Summary
-Updated PreMail and PreDrive to have consistent UI with PreSuite-style settings panels, centered search bars, and profile icons in the top-right corner.
+Updated PreMail, PreDrive, and PreSocial to have consistent UI with PreSuite-style settings panels, centered search bars, and profile icons in the top-right corner.
 
 ---
 
@@ -104,26 +104,78 @@ Clicking the profile icon opens a PreSuite-style settings panel with:
 
 ---
 
+## PreSocial Changes
+
+### Commits
+- `f4dd3e5` - Add PreSuite-style settings panel with centered search
+
+### UI Updates
+
+#### Header Layout
+- Search bar centered in the header (already was, maintained)
+- Profile icon in top-right opens Settings panel (replaced dropdown)
+- Nav links (Feed, Trending, Communities) kept on desktop
+- Mobile menu updated with Settings button
+
+#### Settings Panel (Slide-out from right)
+Clicking the profile icon opens a PreSuite-style settings panel with:
+
+1. **Header** - Back button, "Settings" title, Share button
+2. **Account Section**
+   - Avatar with gradient (from-social to-presearch)
+   - User name and email
+   - Sign out button
+3. **Notifications**
+   - Email alerts toggle
+   - Desktop notifications toggle
+4. **Display**
+   - Compact mode toggle
+5. **Appearance**
+   - Theme toggle (Light/Dark pill buttons)
+6. **Resources**
+   - Help Center (external link)
+   - Community Guidelines (external link)
+   - Privacy Policy (external link)
+   - Terms of Service (external link)
+7. **Footer**
+   - Social icons (Twitter, Discord, Telegram)
+   - Privacy, Terms, About links
+   - Version number
+
+### Files Modified
+- `apps/web/src/components/Header.jsx`
+
+---
+
 ## Design Consistency
 
-Both PreMail and PreDrive now share:
+All three services (PreMail, PreDrive, PreSocial) now share:
 - Centered search bar in header
 - Profile icon in top-right corner
 - PreSuite-style slide-out settings panel
-- Same color scheme (`#212224` panel background, `#127FFF` primary)
+- Same color scheme (`#212224` panel background)
 - Same toggle switch design
 - Same section headers and layout
-- Same footer with social icons
-- "Don't trust us, Pre-verify us" tagline in footer
+- Same footer with social icons (Twitter, Discord, Telegram)
+- Same external link styling
+
+### Service-Specific Customizations
+- **PreMail**: Blue primary (`#127FFF`), email-specific settings (sound effects, show avatars)
+- **PreDrive**: Blue primary (`#127FFF`), Quick Actions for Encryption Keys
+- **PreSocial**: Gradient avatar (purple-blue), Community Guidelines link
 
 ---
 
 ## Production URLs
 - PreMail: https://premail.site
 - PreDrive: https://predrive.eu
+- PreSocial: https://presocial.presuite.eu
 
 ## Deployment
-Both services were deployed via:
+All services were deployed via:
 - Git push to GitHub
 - Git pull on production servers
-- Build and restart via PM2 (PreMail) / Docker Compose (PreDrive)
+- Build and restart:
+  - PreMail: PM2 (`pm2 restart premail-api premail-web`)
+  - PreDrive: Docker Compose (`docker compose up -d --build`)
+  - PreSocial: PM2 (`pm2 restart presocial-api`)
