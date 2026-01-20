@@ -182,6 +182,85 @@ ssh root@76.13.2.220 "cd /opt/preoffice && git pull && docker compose up -d --bu
 
 ---
 
+## 7. Presearch Design Specification Update
+
+Applied official Presearch Design Specification (extracted from presearch.com January 2026) to PreOffice.
+
+### Color Palette Changes
+
+| Token | Before | After | Usage |
+|-------|--------|-------|-------|
+| `--presearch-blue` | `#2D8EFF` | `#127FFF` | Primary brand color |
+| `--presearch-blue-light` | `#EBF4FF` | `#2D8EFF` | Hover states |
+| `--bg-base` | `#191919` | `#202020` | Dark mode background |
+| `--bg-panel` | - | `#212224` | Settings panels |
+| `--bg-card` | - | `#2E2E2E` | Cards, inputs |
+| `--bg-elevated` | - | `#383838` | Elevated elements |
+
+### Component Updates
+
+**Toggle Switch (48x24px)**
+```css
+/* Before */
+width: 44px; height: 24px;
+
+/* After - matches Presearch spec */
+width: 48px; height: 24px;
+border-radius: 9999px;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Added knob shadow */
+```
+
+**Theme Toggle (Pill Style)**
+```css
+/* Before */
+.theme-btn.active { background: #2D8EFF; }
+
+/* After - Presearch pill style */
+.theme-btn {
+  border: 1px solid #E5E7EB;
+  border-radius: 9999px;
+}
+.theme-btn.active {
+  background: #E5E7EB;
+  color: #2E2E2E;
+}
+```
+
+**Logo SVGs**
+- Header logo: `#2D8EFF` → `#127FFF`
+- Login modal logo: `#2D8EFF` → `#127FFF`
+
+### Dark Mode Updates
+- Background: `#191919` → `#202020`
+- Text secondary: `#9CA3AF` → `#E5E7EB`
+- Panel background: `#212224`
+- Card background: `#2E2E2E`
+- Border/elevated: `#383838`
+
+### New CSS Variables Added
+```css
+:root {
+  --bg-base: #202020;
+  --bg-darker: #191919;
+  --bg-card: #2E2E2E;
+  --bg-panel: #212224;
+  --bg-elevated: #383838;
+  --toggle-active: #2D8EFF;
+  --toggle-inactive: #6B7280;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+}
+```
+
+### Commit
+| Repository | Commit | Message |
+|------------|--------|---------|
+| preoffice-web | 128680f | Update PreOffice to match Presearch Design Specification |
+
+---
+
 ## Verification
 
 - [x] https://preoffice.site returns HTTP 200
@@ -191,3 +270,4 @@ ssh root@76.13.2.220 "cd /opt/preoffice && git pull && docker compose up -d --bu
 - [x] Old preoffice repo archived
 - [x] Server running from new repo structure
 - [x] Documentation updated
+- [x] Presearch Design Spec applied (colors, toggles, dark mode)
