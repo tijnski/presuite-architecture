@@ -81,6 +81,43 @@ docker compose up -d --build
 
 ---
 
+---
+
+## Web3 Authentication & Token Refresh
+
+### Improved Authentication Flow
+Completely rewrote the landing page authentication with proper SSO integration.
+
+**Web3 Login Flow:**
+1. Connect MetaMask wallet
+2. Request nonce from PreSuite Hub (`/api/auth/web3/nonce`)
+3. Sign message with wallet
+4. Verify signature (`/api/auth/web3/verify`)
+5. Store tokens with expiry tracking
+6. Schedule proactive refresh
+
+**Token Refresh System:**
+- Tokens expire in 15 minutes (900 seconds)
+- Proactive refresh scheduled at 80% of token lifetime (~12 min)
+- Auto-refresh on 401 responses with retry
+- Prevents concurrent refresh attempts
+- Token expiry stored in sessionStorage
+
+**New Auth Functions:**
+| Function | Purpose |
+|----------|---------|
+| `storeTokens()` | Store access/refresh tokens with expiry |
+| `scheduleTokenRefresh()` | Proactive refresh before expiry |
+| `refreshAccessToken()` | Refresh tokens via Hub API |
+| `isTokenExpiringSoon()` | Check if refresh needed |
+| `authFetch()` | Fetch with auto-refresh on 401 |
+| `initiateWeb3Login()` | Complete Web3 auth flow |
+
+**Files Modified:**
+- `branding/static/index.html` - Complete auth script rewrite
+
+---
+
 ## Next Steps (Planned)
 
 - [ ] DeepL translation integration (requires API key)

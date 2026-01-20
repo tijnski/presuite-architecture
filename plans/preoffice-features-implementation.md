@@ -1,7 +1,7 @@
 # PreOffice Features Implementation Plan
 
 > **Created:** January 20, 2026
-> **Status:** Phase 1 & 2.1 Complete
+> **Status:** Phase 1, 2.1 & Auth Complete
 > **Server:** 76.13.2.220 (`/opt/preoffice`)
 
 ---
@@ -201,3 +201,11 @@ docker compose up -d --build
 - ✅ Updated docker-compose.yml with new configuration
 - ✅ WOPI server updated to v2.1.0 with form-data dependency
 - ✅ Deployed and tested - all services running
+- ✅ Implemented Web3 authentication with SSO:
+  - MetaMask wallet connection
+  - Nonce-based signature verification via PreSuite Hub
+  - JWT token storage with expiry tracking
+  - Proactive token refresh before expiry
+  - Auto-refresh on 401 responses
+  - New user welcome with mail credentials
+- ✅ Updated landing page auth script (index.html)
