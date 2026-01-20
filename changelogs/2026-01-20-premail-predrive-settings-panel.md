@@ -151,6 +151,7 @@ Clicking the profile icon opens a PreSuite-style settings panel with:
 
 ### Commits
 - `3792030` - Add PreSuite-style settings panel with profile icon
+- `3f4b240` - Fix ethers.js CDN path for Web3 authentication
 
 ### UI Updates
 
@@ -182,6 +183,9 @@ Clicking the profile icon opens a PreSuite-style settings panel with:
    - Social icons (Twitter, Discord, Telegram)
    - Privacy, Terms, About links
    - Version number
+
+### Bug Fixes
+- Fixed ethers.js CDN path for Web3 authentication (changed to correct UMD bundle `ethers.umd.min.js`)
 
 ### Files Modified
 - `presearch/online/branding/static/index.html`
