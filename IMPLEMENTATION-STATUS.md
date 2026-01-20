@@ -462,8 +462,8 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 | PreDrive Web3 Claims | `wallet_address`, `is_web3` in auth context | ✅ Done (Jan 17) |
 | Session Sync | Logout from one service logs out all | ✅ Done (Jan 20) |
 | Redis Auth Code Storage | Persist OAuth codes across restarts | ✅ Done (Jan 20) |
-| PKCE | Enhanced security for public clients | Pending |
-| MFA | Multi-factor authentication option | Pending |
+| PKCE | Enhanced security for public clients (S256 + plain methods) | ✅ Done (Jan 20) |
+| MFA | TOTP-based two-factor authentication with backup codes | ✅ Done (Jan 20) |
 
 ### Low Priority / Future Enhancements
 
@@ -570,9 +570,9 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 
 1. **Immediate:** Deploy PreMail updates (filters, contacts, aliases) to production
 2. **Immediate:** Test Postal server migration for PreMail
-3. **This Week:** PKCE support for OAuth
-4. **Ongoing:** Add integration tests
-5. **Ongoing:** Security audit
+3. **Ongoing:** Add integration tests
+4. **Ongoing:** Security audit
+5. **Future:** Session management UI (revoke sessions)
 
 ---
 
