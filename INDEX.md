@@ -102,7 +102,8 @@
 
 | File | Purpose | Status |
 |------|---------|--------|
-| [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) | Task tracker and remaining work | ~90% complete |
+| [IMPLEMENTATION-STATUS.md](IMPLEMENTATION-STATUS.md) | Task tracker and remaining work | ~95% complete |
+| [ROADMAP.md](ROADMAP.md) | Future features and improvements | Active |
 
 ---
 
@@ -178,8 +179,8 @@
 | Config | 2 | config/STORJ-SETUP.md, config/POSTAL-SETUP.md |
 | Plans | 2 | plans/ directory (active implementation plans) |
 | Changelogs | 5 | changelogs/ directory |
-| Other | 3 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS |
-| **Active Total** | **~38** | Excluding archived files |
+| Other | 4 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS, ROADMAP |
+| **Active Total** | **~39** | Excluding archived files |
 
 ---
 
