@@ -1,16 +1,17 @@
-# PKCE & MFA Implementation Progress
+# PKCE, MFA & Session Management Implementation Progress
 
 **Date:** January 20, 2026
 **Status:** Completed and Deployed
-**Commit:** `79b5bfd` (presuite)
+**Commits:** `79b5bfd`, `17e7eaa` (presuite)
 
 ---
 
 ## Overview
 
-Implemented two major security enhancements for PreSuite Hub:
+Implemented three major security enhancements for PreSuite Hub:
 1. **PKCE (Proof Key for Code Exchange)** - Enhanced OAuth 2.0 security for public clients
 2. **MFA (Multi-Factor Authentication)** - TOTP-based two-factor authentication
+3. **Session Management UI** - View and manage active sessions
 
 ---
 
@@ -92,10 +93,48 @@ mfa_backup_codes TEXT[]       -- Array of bcrypt-hashed backup codes
 
 ---
 
+## Session Management UI
+
+### Features
+- View all active sessions with device info
+- Current session highlighted with "Current" badge
+- Revoke individual sessions
+- "Logout from all devices" option
+- Shows browser, OS, IP address, and last active time
+
+### API Endpoints (already existed)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/sessions` | GET | List all active sessions |
+| `/api/auth/sessions/:id` | DELETE | Revoke a specific session |
+| `/api/auth/logout-all` | POST | Logout from all sessions |
+
+### Session Object Format
+```json
+{
+  "id": "session-uuid",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)...",
+  "ip_address": "192.168.1.1",
+  "created_at": "2026-01-20T10:00:00Z",
+  "last_active": "2026-01-20T16:00:00Z",
+  "is_current": true
+}
+```
+
+### UI Components
+- `SessionsManager` component in Settings.jsx
+- Device icons: Smartphone for mobile, Monitor for desktop
+- Time formatting: "Just now", "5m ago", "2h ago", "3d ago"
+- Logout all confirmation dialog
+
+---
+
 ## Frontend Changes
 
 ### Settings.jsx
 - Added Security section with MFA settings
+- Added SessionsManager component for session management
 - `MfaSettings` component handles:
   - Status display (enabled/disabled, backup codes remaining)
   - Setup flow with QR code
@@ -183,15 +222,22 @@ curl -s https://presuite.eu/api/auth/health
 
 ## Testing Checklist
 
-- [ ] Enable MFA via Settings
-- [ ] Scan QR code with authenticator app
-- [ ] Verify 6-digit code enables MFA
-- [ ] Login with MFA (TOTP code)
-- [ ] Login with MFA (backup code)
+### MFA
+- [x] Enable MFA via Settings
+- [x] Scan QR code with authenticator app
+- [x] Verify 6-digit code enables MFA
+- [x] Login with MFA (TOTP code)
+- [x] Login with MFA (backup code)
 - [ ] Disable MFA with password
 - [ ] OAuth login with MFA (PreMail, PreDrive)
 - [ ] PKCE flow with public client
 - [ ] Regenerate backup codes
+
+### Session Management
+- [ ] View active sessions list
+- [ ] Current session marked correctly
+- [ ] Revoke individual session
+- [ ] Logout from all devices
 
 ---
 

@@ -526,6 +526,7 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 | Redis Auth Code Storage | Persist OAuth codes across restarts | ✅ Done (Jan 20) |
 | PKCE | Enhanced security for public clients (S256 + plain methods) | ✅ Done (Jan 20) |
 | MFA | TOTP-based two-factor authentication with backup codes | ✅ Done (Jan 20) |
+| Session Management UI | View/revoke active sessions, logout all devices | ✅ Done (Jan 20) |
 
 ### Low Priority / Future Enhancements
 
