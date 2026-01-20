@@ -1,7 +1,7 @@
 # CLAUDE.md - AI Agent Reference for PreSuite
 
 > **Purpose:** Primary reference document for AI agents working on the PreSuite ecosystem.
-> **Last Updated:** January 17, 2026
+> **Last Updated:** January 20, 2026
 > **Start Here:** [INDEX.md](INDEX.md) for full documentation navigation
 
 ---
@@ -34,10 +34,13 @@
 https://github.com/tijnski/presuite          # Hub & Identity
 https://github.com/tijnski/predrive          # Cloud Storage
 https://github.com/tijnski/premail           # Email Service
-https://github.com/tijnski/preoffice         # Document Editor
+https://github.com/tijnski/preoffice-web     # Document Editor (Web - Collabora Online)
+https://github.com/tijnski/preoffice-desktop # Document Editor (Desktop - LibreOffice-based)
 https://github.com/tijnski/presocial         # Social Layer (Lemmy)
 https://github.com/tijnski/presuite-architecture  # This repo
 ```
+
+> **Note:** `tijnski/preoffice` (archived) - Old combined repo, now split into web and desktop.
 
 ---
 
@@ -214,33 +217,45 @@ journalctl -u stalwart-mail -f
 
 **Location:** `ssh root@76.13.2.220` → `/opt/preoffice`
 
-**Stack:**
+**Repositories:**
+- **preoffice-web** - Collabora Online web version (deployed to server)
+- **preoffice-desktop** - LibreOffice-based desktop app (build locally)
+
+**Stack (Web):**
 - Landing: Static HTML/CSS
 - WOPI Server: Node.js + Express
 - Editor: Collabora Online (Docker)
 - Proxy: Nginx
 
-**Key Files:**
+**Key Files (preoffice-web):**
 ```
-presearch/
-├── online/
-│   ├── docker-compose.yml      # Container orchestration
-│   ├── wopi-server/src/index.js # WOPI protocol
-│   ├── nginx/nginx.conf        # Reverse proxy
-│   └── branding/static/index.html # Landing page
-└── brand/
-    └── tokens.json             # Design tokens
+/opt/preoffice/              # Server deployment (preoffice-web repo)
+├── docker-compose.yml       # Container orchestration
+├── wopi-server/src/index.js # WOPI protocol
+├── nginx/nginx.conf         # Reverse proxy
+├── branding/static/index.html # Landing page
+├── ai-assistant/            # PrePanda AI integration
+└── brand/tokens.json        # Design tokens
+```
+
+**Key Files (preoffice-desktop):**
+```
+preoffice-desktop/           # Local development only
+├── build.sh                 # LibreOffice build script
+├── presearch/extension/     # PrePanda extension (.oxt)
+├── presearch/ui/            # Custom UI & icon themes
+├── packaging/               # macOS, Linux, Windows packaging
+└── installers/              # Platform installers
 ```
 
 **Commands:**
 ```bash
-# Deploy
-cd /opt/preoffice/presearch/online
-docker compose down && docker compose up -d --build
+# Deploy (Web)
+cd /opt/preoffice && git pull && docker compose up -d --build
 
 # Logs
-docker compose logs -f collabora
-docker compose logs -f wopi
+cd /opt/preoffice && docker compose logs -f collabora
+cd /opt/preoffice && docker compose logs -f wopi
 
 # Health check
 curl https://preoffice.site/health
@@ -432,8 +447,8 @@ ssh root@76.13.1.110 "cd /opt/predrive && git pull && pnpm build && docker compo
 # PreMail
 ssh root@76.13.1.117 "cd /opt/premail && git pull && pnpm build && pm2 restart premail-api premail-web"
 
-# PreOffice
-ssh root@76.13.2.220 "cd /opt/preoffice && git pull && cd presearch/online && docker compose up -d --build"
+# PreOffice (Web)
+ssh root@76.13.2.220 "cd /opt/preoffice && git pull && docker compose up -d --build"
 
 # PreSocial
 ssh root@76.13.2.221 "cd /opt/presocial && git pull && npm install && pm2 restart presocial-api"
@@ -462,7 +477,7 @@ ssh root@76.13.1.110 "cd /opt/predrive && docker compose logs --tail 50"
 ssh root@76.13.1.117 "pm2 logs premail-api --lines 50"
 
 # PreOffice
-ssh root@76.13.2.220 "cd /opt/preoffice/presearch/online && docker compose logs --tail 50"
+ssh root@76.13.2.220 "cd /opt/preoffice && docker compose logs --tail 50"
 
 # PreSocial
 ssh root@76.13.2.221 "pm2 logs presocial-api --lines 50"
