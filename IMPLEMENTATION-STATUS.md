@@ -144,6 +144,7 @@ Full dashboard customization allowing users to personalize their PreSuite Hub ex
 - **Visual feedback**: Drop target highlights in blue, dragged item shows reduced opacity
 - **Real-time sync**: All dashboard changes reflect immediately while settings panel is open
 - **No refresh needed**: Widget toggles, app visibility, and shortcuts update the dashboard live
+- **Fixed-width layout**: Search bar and app grid fixed at 820px (10×64px icons + 9×20px gaps)
 
 ### Data Structure
 
