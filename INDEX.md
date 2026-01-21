@@ -1,7 +1,7 @@
 # PreSuite Documentation Index
 
 > **Navigation hub for all PreSuite architecture documentation**
-> Last Updated: January 20, 2026
+> Last Updated: January 21, 2026
 
 ---
 
@@ -83,6 +83,7 @@
 | File | Purpose |
 |------|---------|
 | [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) | Unified design system (colors, typography, components) |
+| [PRESEARCH-DESIGN-SPEC.md](PRESEARCH-DESIGN-SPEC.md) | Presearch brand design specifications |
 
 *Legacy design files archived in `archive/design-system-legacy/`*
 
@@ -96,6 +97,7 @@
 | [DEPLOYMENT-SUMMARY.md](DEPLOYMENT-SUMMARY.md) | Current production status, OAuth configuration |
 | [MONITORING-INFRASTRUCTURE.md](MONITORING-INFRASTRUCTURE.md) | Logging, metrics, alerting, backup procedures |
 | [TESTING-INFRASTRUCTURE.md](TESTING-INFRASTRUCTURE.md) | Unit/E2E/integration test setup |
+| [SECURITY-CHECKLIST.md](SECURITY-CHECKLIST.md) | OWASP Top 10 security compliance checklist |
 
 ---
 
@@ -129,6 +131,8 @@
 |-----------|---------|
 | [monitoring/](monitoring/) | Logging, metrics, health checks, alerting, backups |
 | [e2e-tests/](e2e-tests/) | Playwright end-to-end tests |
+| [load-tests/](load-tests/) | k6 load testing scripts and results |
+| [security-reports/](security-reports/) | Security audit reports and vulnerability scans |
 
 ---
 
@@ -174,14 +178,15 @@
 | Service docs | 5 | PRESUITE, PREDRIVE, PREMAIL, PREOFFICE, PRESOCIAL |
 | Architecture | 11 | architecture/ directory (includes PREDRIVE-ENCRYPTION v1 & v2) |
 | User guides | 1 | PREDRIVE-ENCRYPTION-QUICKSTART |
-| Integration | 2 | API-REFERENCE, INTEGRATION |
-| UI docs | 1 | DESIGN-SYSTEM |
-| Operations | 4 | DEPLOYMENT, DEPLOYMENT-SUMMARY, MONITORING, TESTING |
+| Integration | 3 | API-REFERENCE, INTEGRATION, GLOBAL-SEARCH |
+| UI docs | 2 | DESIGN-SYSTEM, PRESEARCH-DESIGN-SPEC |
+| Operations | 5 | DEPLOYMENT, DEPLOYMENT-SUMMARY, MONITORING, TESTING, SECURITY-CHECKLIST |
 | Config | 2 | config/STORJ-SETUP.md, config/POSTAL-SETUP.md |
-| Plans | 2 | plans/ directory (active implementation plans) |
-| Changelogs | 5 | changelogs/ directory |
-| Other | 4 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS, ROADMAP |
-| **Active Total** | **~39** | Excluding archived files |
+| Plans | 3 | plans/ directory (active implementation plans) |
+| Changelogs | 7 | changelogs/ directory |
+| Infrastructure | 3 | load-tests/, security-reports/, e2e-tests/ |
+| Other | 3 | PRESUITE-SSO-IMPLEMENTATION, IMPLEMENTATION-STATUS, ROADMAP |
+| **Active Total** | **~51** | Excluding archived files |
 
 ---
 
