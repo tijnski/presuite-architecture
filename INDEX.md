@@ -50,6 +50,7 @@
 |------|---------|
 | [architecture/](architecture/README.md) | Architecture diagrams (split into focused files) |
 | [INTEGRATION.md](INTEGRATION.md) | Cross-service communication, auth flows, federation |
+| [GLOBAL-SEARCH.md](GLOBAL-SEARCH.md) | Unified search across PreDrive and PreMail |
 | [PRESUITE-SSO-IMPLEMENTATION.md](PRESUITE-SSO-IMPLEMENTATION.md) | OAuth SSO implementation details |
 
 **Architecture Directory:**
