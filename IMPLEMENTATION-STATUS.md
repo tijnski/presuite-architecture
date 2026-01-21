@@ -608,9 +608,9 @@ AI assistant integrated into PreOffice for document assistance, powered by Venic
 |-------|--------|----------|
 | PreMail | ✅ Done | Connected to PreMail API |
 | PreDrive | ✅ Done | Connected to PreDrive API |
-| PreDocs | Pending | Connect to PreOffice/PreDrive |
-| PreSheets | Pending | Connect to PreOffice/PreDrive |
-| PreSlides | Pending | Connect to PreOffice/PreDrive |
+| PreDocs | ✅ Done (Jan 21) | Connected to PreOffice API |
+| PreSheets | ✅ Done (Jan 21) | Connected to PreOffice API |
+| PreSlides | ✅ Done (Jan 21) | Connected to PreOffice API |
 | PreCalendar | ✅ Done | Full calendar backend |
 | PreWallet | ✅ Done | Presearch Node API & Etherscan |
 
@@ -743,8 +743,9 @@ GitHub Actions workflows deployed to all services:
 
 ## Recommended Next Steps
 
-1. **Low:** PreDocs/Sheets/Slides modals in PreSuite Hub
-2. **Low:** PreSocial community creation & moderation tools
+1. **Low:** PreSocial community creation & moderation tools
+2. **Low:** PreOffice template gallery
+3. **Low:** PreDrive offline mode
 
 ---
 
