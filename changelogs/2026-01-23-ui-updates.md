@@ -76,3 +76,77 @@ All demo/placeholder data has been removed:
 
 ### ARC (presuite-architecture)
 1. `7e31eee` - Add PreOffice UI refinement plan (implemented)
+
+---
+
+## PreMail Updates (Session 2)
+
+### UI Improvements
+- **Removed AI Summary banner** - Removed the AI-generated email summary feature from inbox
+- **Fixed settings panel theme** - Settings panel now respects light/dark mode instead of always showing dark
+- **Fixed sidebar dimming** - Sidebar now properly dims (z-30) when settings panel is open (backdrop z-40)
+- **Improved theme toggle visibility** - Selected theme button now uses blue background (`#127FFF`) with white text in light mode
+- **Darker text colors** - Updated text colors throughout to match PreDrive "Shares" styling:
+  - Sidebar icons: `text-gray-400` → `text-[#6B7280]`
+  - Sidebar text: `text-gray-600` → `text-[#374151]`
+  - Muted text: `text-gray-400` → `text-[#9CA3AF] dark:text-gray-500`
+
+### Bug Fixes
+- **Fixed PreDrive connector** - Corrected `PREDRIVE_URL` from `https://predrive.eu/api/v1` to `https://predrive.eu` (API client adds `/api/nodes` internally)
+- **Fixed email sending encryption error** - Re-encrypted mail password with current `ENCRYPTION_KEY` after "Unsupported state or unable to authenticate data" error
+
+### Files Modified
+- `apps/web/src/layouts/AppLayout.tsx` - Theme-aware colors, z-index fixes, darker text colors
+- `apps/web/src/pages/InboxPage.tsx` - Removed AI Summary banner, updated text colors
+- `apps/web/src/components/settings/*.tsx` - Added colors prop for theme awareness
+- `.env` (server) - Fixed `PREDRIVE_URL`
+
+---
+
+## PreDrive Updates (Session 2)
+
+### UI Changes
+- **Sidebar button changed** - "Upload" button → "New Folder" button
+  - Icon: `Upload` → `FolderPlus`
+  - Action: Opens CreateFolderModal instead of UploadModal
+- **Toolbar Upload button unchanged** - Still allows uploading files to current folder
+
+### Bug Fixes
+- **Fixed share link creation** - Added missing columns to `shares` table:
+  ```sql
+  ALTER TABLE shares
+  ADD COLUMN IF NOT EXISTS max_downloads INTEGER,
+  ADD COLUMN IF NOT EXISTS download_count INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS max_views INTEGER,
+  ADD COLUMN IF NOT EXISTS view_count INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS name VARCHAR(255),
+  ADD COLUMN IF NOT EXISTS description TEXT;
+  ```
+
+### Files Modified
+- `apps/web/src/components/Sidebar.tsx` - Changed button to New Folder
+- `apps/web/src/App.tsx` - Updated `onNewClick` to open CreateFolderModal
+
+### Database Changes
+- Added missing columns to `deploy-postgres-1` → `shares` table
+
+---
+
+## Deployment Summary (Session 2)
+
+| Service | Server | Status |
+|---------|--------|--------|
+| PreMail | 76.13.1.117 | Deployed (PM2 restart) |
+| PreDrive | 76.13.1.110 | Deployed (Docker rebuild) |
+
+---
+
+## Commits (Session 2)
+
+### PreMail (premail)
+1. Removed AI Summary banner from InboxPage
+2. Fixed settings panel theme support
+3. Updated text colors to darker values
+
+### PreDrive (predrive)
+1. `8437c91` - Change sidebar button from Upload to New Folder
