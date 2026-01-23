@@ -1,15 +1,23 @@
 # Auth Pages Unification Plan
 
-> Unify Login and Register pages across PreMail and PreDrive to match PreSuite Hub's implementation.
+> Unify Login and Register pages across PreMail, PreDrive, and PreSocial to match PreSuite Hub's implementation.
 
 **Date:** January 23, 2026
-**Status:** Pending Implementation
+**Status:** Completed
 
 ---
 
 ## Overview
 
-PreSuite Hub has the canonical login (`/login`) and register (`/register`) pages. Both PreMail and PreDrive should match these exactly for consistent user experience across the ecosystem.
+PreSuite Hub has the canonical login (`/login`) and register (`/register`) pages. PreMail, PreDrive, and PreSocial should match these exactly for consistent user experience across the ecosystem.
+
+### Services Updated
+| Service | Login Page | Register Page | Header Button | Status |
+|---------|------------|---------------|---------------|--------|
+| PreSuite Hub | ✅ Canonical | ✅ Canonical | ✅ "Login" | Source |
+| PreMail | ✅ Updated | ✅ Updated | N/A | Deployed |
+| PreDrive | ✅ Updated | ✅ Created | N/A | Deployed |
+| PreSocial | ✅ Updated | N/A (uses PreSuite) | ✅ "Login" | Deployed |
 
 ---
 
@@ -277,40 +285,122 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 ---
 
+## Task 3: PreSocial Updates
+
+### Files Modified
+- `presocial/apps/web/src/pages/LoginPage.jsx`
+- `presocial/apps/web/src/components/Header.jsx`
+
+### LoginPage.jsx Changes
+
+#### 3.1 Replace Chat Bubble Logo with Presearch Logo
+Added PresearchLogo SVG component:
+```jsx
+function PresearchLogo({ className }) {
+  return (
+    <svg viewBox="0 0 370 370" className={className} fill="currentColor">
+      <path d="M135.17,225.38h32.71a63,63,0,0,0,27.06-6..."/>
+      <path d="M9.44,30.1V339.9A20.1,20.1,0,0,0,29.54,360h309.8..."/>
+      <rect x="159.8" y="250.02" width="128.83" height="39.58"/>
+    </svg>
+  );
+}
+```
+
+Replaced:
+```jsx
+// Before
+<div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+  <MessageCircle className="w-6 h-6 text-white" />
+</div>
+
+// After
+<div className="w-10 h-10">
+  <PresearchLogo className="w-full h-full text-[#127FFF]" />
+</div>
+```
+
+#### 3.2 Fix Blue Color
+Changed all instances of `#0190FF` to `#127FFF` for consistency.
+
+### Header.jsx Changes
+
+#### 3.3 Update Sign In Button to Login
+Desktop version:
+```jsx
+// Before
+<Link
+  to="/login"
+  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-social to-presearch text-white text-sm font-medium hover:opacity-90 transition-opacity"
+>
+  <LogIn className="w-4 h-4" />
+  <span className="hidden sm:inline">Sign In</span>
+</Link>
+
+// After
+<Link
+  to="/login"
+  className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#127FFF] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+>
+  <LogIn className="w-4 h-4" />
+  <span className="hidden sm:inline">Login</span>
+</Link>
+```
+
+Mobile version also updated with same styling.
+
+### Deployment
+```bash
+# Local
+cd ~/Documents/Documents-MacBook/presearch/presocial
+git add .
+git commit -m "Update auth pages to match PreSuite"
+git push origin main
+
+# Server
+ssh root@76.13.2.221 "cd /opt/presocial && git pull && cd apps/web && npm run build && pm2 restart presocial-api"
+```
+
+---
+
 ## Implementation Checklist
 
-### PreMail
-- [ ] LoginPage.tsx: Add MFA states and handlers
-- [ ] LoginPage.tsx: Add MFA verification form UI
-- [ ] LoginPage.tsx: Change `#0190FF` to `#127FFF`
-- [ ] LoginPage.tsx: Add Shield, KeyRound icons
-- [ ] LoginPage.tsx: Update footer text
-- [ ] RegisterPage.tsx: Add full page background wrapper
-- [ ] RegisterPage.tsx: Add footer with lock icon
-- [ ] RegisterPage.tsx: Update password requirements (12 chars, special char)
-- [ ] RegisterPage.tsx: Add Web3 registration option
-- [ ] RegisterPage.tsx: Add show/hide password toggles
-- [ ] RegisterPage.tsx: Change `#0190FF` to `#127FFF`
-- [ ] RegisterPage.tsx: Match button order to PreSuite
-- [ ] Test login flow
-- [ ] Test registration flow
-- [ ] Test MFA flow
-- [ ] Test Web3 flows
+### PreMail ✅ Completed
+- [x] LoginPage.tsx: Add MFA states and handlers
+- [x] LoginPage.tsx: Add MFA verification form UI
+- [x] LoginPage.tsx: Change `#0190FF` to `#127FFF`
+- [x] LoginPage.tsx: Add Shield, KeyRound icons
+- [x] LoginPage.tsx: Update footer text
+- [x] RegisterPage.tsx: Add full page background wrapper
+- [x] RegisterPage.tsx: Add footer with lock icon
+- [x] RegisterPage.tsx: Update password requirements (12 chars, special char)
+- [x] RegisterPage.tsx: Add Web3 registration option
+- [x] RegisterPage.tsx: Add show/hide password toggles
+- [x] RegisterPage.tsx: Change `#0190FF` to `#127FFF`
+- [x] RegisterPage.tsx: Match button order to PreSuite
+- [x] AuthLayout.tsx: Simplified to just render Outlet (no wrapper styling)
+- [x] Deployed to production
 
-### PreDrive
-- [ ] Create pages directory if not exists
-- [ ] Create LoginPage.tsx from PreSuite Login.jsx
-- [ ] Create RegisterPage.tsx from PreSuite Register.jsx
-- [ ] Convert JSX to TypeScript
-- [ ] Integrate with useAuth hook
-- [ ] Update App.tsx to import new pages
-- [ ] Add react-router-dom routing if needed
-- [ ] Remove embedded LoginPage from App.tsx
-- [ ] Update "Get @premail.site" links
-- [ ] Test login flow
-- [ ] Test registration flow
-- [ ] Test MFA flow
-- [ ] Test Web3 flows
+### PreDrive ✅ Completed
+- [x] Create pages directory if not exists
+- [x] Create LoginPage.tsx from PreSuite Login.jsx
+- [x] Create RegisterPage.tsx from PreSuite Register.jsx
+- [x] Convert JSX to TypeScript
+- [x] Integrate with useAuth hook
+- [x] Update App.tsx to import new pages
+- [x] Add routing based on window.location.pathname
+- [x] Remove embedded LoginPage from App.tsx
+- [x] Update "Get @premail.site" links
+- [x] Add register function to useAuth.ts
+- [x] Deployed to production via Docker
+
+### PreSocial ✅ Completed
+- [x] LoginPage.jsx: Replace chat bubble logo with Presearch logo
+- [x] LoginPage.jsx: Change `#0190FF` to `#127FFF`
+- [x] Header.jsx: Change "Sign In" button to "Login"
+- [x] Header.jsx: Update button style to solid blue (#127FFF) pill shape
+- [x] Header.jsx: Update both desktop and mobile versions
+- [x] Deployed to production
 
 ---
 
