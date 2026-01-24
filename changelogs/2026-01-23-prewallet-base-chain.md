@@ -196,9 +196,34 @@ VERIFICATION_EMAIL_FROM=noreply@premail.site
 ## Known Issues / TODO
 
 - [x] ~~Verify correct PRE token contract address on Base~~ - Fixed (Jan 24): Updated to `0x3816dD4bd44c8830c2FA020A5605bAC72FA3De7A`
-- [ ] Consider adding API keys for Etherscan/Basescan to avoid rate limiting
+- [x] ~~Add API keys for Etherscan/Basescan~~ - Fixed (Jan 24): Added backend proxy with server-side API keys
 - [x] ~~Email verification not working~~ - Fixed
 - [x] ~~@premail.site users seeing verification popup~~ - Fixed (auto-verified)
+
+---
+
+## API Keys Update (January 24, 2026)
+
+### Changes Made
+1. Added backend proxy endpoint `/api/presearch/balance/:walletAddress`
+2. API keys stored securely server-side (not exposed to frontend)
+3. Frontend now uses backend proxy instead of direct Etherscan/Basescan calls
+
+### Files Modified
+- `config/constants.js` - Added ETHERSCAN_API_KEY, BASESCAN_API_KEY, PRE contract addresses
+- `server.js` - Added balance proxy endpoint with `fetchTokenBalance()` helper
+- `src/services/preBalanceService.js` - Updated to use backend proxy
+
+### Environment Variables Required
+Add to `/var/www/presuite/.env` on production server:
+```
+ETHERSCAN_API_KEY=your_etherscan_api_key
+BASESCAN_API_KEY=your_basescan_api_key
+```
+
+Get free API keys from:
+- Etherscan: https://etherscan.io/apis
+- Basescan: https://basescan.org/apis
 
 ---
 
